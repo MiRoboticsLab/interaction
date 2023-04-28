@@ -1,0 +1,11 @@
+[interactive]                               # 互动
+[interactive.initialization]                # 互动:初始化
+[interactive.initialization.hz]             # 互动:初始化:频率(float)
+BTOTCWS = 5.0                               # 当坐下时被抚摸下巴
+
+[interactive.initialization.detection]      # 检测
+[interactive.initialization.detection.tof]  # 检测:Tof:float
+obstacle_distance = 0.06                    # 检测:Tof:障碍物测距(米)
+obstacle_percentage = 80.0                  # 检测:Tof:障碍物百分比:(大于 x% 视为检测到障碍物)
+sensitivity_s = 1.0                         # 检测:Tof:林敏度(秒):(小于 xs 视为检测到障碍物)
+

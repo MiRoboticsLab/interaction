@@ -1,0 +1,71 @@
+[vp]                                              # WiFi 连接
+[vp.init]                                         # WiFi 连接:初始化
+[vp.init.topic]                                   # 消息：string
+publish_log = "debug_info"                        # 调试信息
+frontend = "frontend_message"                     # 前端消息名称
+robotend = "robotend_message"                     # 机器人端消息名称
+task_option_request = "task_option_request"       # 任务操作请求消息名称(引擎->任务)
+fsm= "cyberdog_vp_engine_fsm"                     # [状态机]引擎模块发布
+connector = "connector_state"                     # 连接模块状态
+imu = "imu_out"                                   # imu模块消息名称
+odometer = "odom_out"                             # 里程计模块消息名称
+ultrasonic = "ultrasonic_payload"                 # 超声波模块消息名称
+touch = "touch_status"                            # 触摸板模块消息名称
+bms = "bms_status"                                # BMS模块消息名称
+audio = "speech_play_extend"                      # 语音消息
+lidar = "scan"                                    # 雷达消息
+gps = "gps_payload"                               # gps数据
+tof_head = "head_tof_payload"                     # 头部tof
+tof_rear = "rear_tof_payload"                     # 尾部tof
+motion_servo_cmd = "motion_servo_cmd"             # 运动模块伺服指令
+motion_servo_res = "motion_servo_response"        # 运动模块伺服反馈
+motion_status = "motion_status"                   # 运动状态
+ai_face = "face_rec_msg"                          # [AI]人脸识别反馈
+ai_gesture = "gesture_action_msg"                 # [AI]手势识别反馈
+ai_voiceprint = "voice_dlg_info"                  # [AI]声纹识别反馈
+ai_skeleton = "sport_counts_msg"                  # [AI]骨骼点识别反馈
+training_words = "train_plan_word"                # [AI]训练词识别反馈
+slam_navigation = "algo_task_status"              # [SLAM]导航算法状态
+
+[vp.init.service]                                 # 服务：string
+engine = "option_vp_engine"                       # 操作可视化编程引擎服务名称
+motion = "motion_result_cmd"                      # 运动模块服务名称
+sequence = "motion_sequence_cmd"                  # 运动模块序列服务名称
+led = "led_execute"                               # LED模块服务名称
+bms = "bms_info"                                  # BMS模块服务名称
+audio_play = "speech_text_play"                   # 语音模块播放语音服务名称
+audio_set_volume = "audio_volume_set"             # 语音模块设置音量服务名称
+audio_get_volume = "audio_volume_get"             # 语音模块获取音量服务名称
+task_processor = "cyberdog_vp_task_processor"     # 任务处理器服务名称
+backend = "bes_http_srv"                          # 后端服务
+personnel = "all_user_search"                     # 人员信息服务
+ai_face = "cyberdog_face_recognition_srv"         # [AI]人脸识别服务
+ai_gesture = "gesture_action_control"             # [AI]手势识别服务
+ai_skeleton = "sport_manager"                     # [AI]骨骼点识别服务
+training_words = "query_all_train_plan"           # [AI]训练词集合查询服务
+slam_preset = "get_label"                         # [SLAM]预置点
+slam_navigation = "stop_algo_task"                # [SLAM]取消导航
+
+[vp.init.action]                                  # 动作：string
+slam_navigation = "start_algo_task"               # [SLAM]开启导航
+
+[vp.init.params]                                  # 参数
+touch = 30000                                     # 触摸板消息有效时长：int(milliseconds) 毫秒
+servo_cmd_end_frame_time_consuming = 500          # 伺服指令end帧耗时：int(milliseconds) 毫秒
+servo_cmd_deviation_coefficient = 0.86            # 伺服指令误差系数（实际=目标*系数）：double
+odom_deviation_coefficient = 0.95                 # 里程计误差系数（实际=统计*系数）：double
+compensation_frame_hz = 20                        # 补偿帧频率
+timeout_wait_for_service = 60                     # 默认:等待服务启动超时
+timeout_wait_for = 10                             # 默认:等待服务响应超时
+
+[vp.init.detection]                               # 检测
+[vp.init.detection.tof]                           # 检测:Tof:float
+obstacle_distance = 0.06                          # 检测:Tof:障碍物测距(米)
+obstacle_percentage = 80.0                        # 检测:Tof:障碍物百分比:(大于 x% 视为检测到障碍物)
+sensitivity_s = 1.0                               # 检测:Tof:林敏度(秒):(小于 xs 视为检测到障碍物)
+
+[vp.init.environment]
+publish_log=false                                 # 调试是否启用？
+backend=true                                      # 后端是否启用？
+voice_operation=true                              # 语音操作是否启用？
+workspace="/home/mi/.cyberdog/cyberdog_vp"        # 工作空间/安装空间（绝对路径）

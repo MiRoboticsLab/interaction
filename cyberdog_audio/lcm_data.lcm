@@ -1,0 +1,7 @@
+package audio_lcm;
+
+struct lcm_data
+{
+    string cmd;
+    string data;
+}

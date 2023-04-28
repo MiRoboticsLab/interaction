@@ -1,0 +1,11 @@
+[module]
+[module.id]
+file="file"
+mode="mode"
+condition="condition"
+describe="describe"
+style="style"
+state="state"
+dependent= []
+be_depended = []
+operate= []

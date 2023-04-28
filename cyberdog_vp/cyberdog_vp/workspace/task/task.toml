@@ -1,0 +1,33 @@
+[task]
+[task.cyberdog_gpt]
+file="file"
+mode="cycle"
+condition="now"
+describe="GPT default abilityset task."
+style="style"
+state="run_wait"
+dependent= []
+be_depended = []
+operate= []
+
+[task.terminal_default]
+file="file"
+mode="cycle"
+condition="now"
+describe="Terminal default abilityset task."
+style="style"
+state="run_wait"
+dependent= []
+be_depended = []
+operate= []
+
+[task.visual_default]
+file="file"
+mode="cycle"
+condition="now"
+describe="Visual default abilityset task."
+style="style"
+state="run_wait"
+dependent= []
+be_depended = []
+operate= []

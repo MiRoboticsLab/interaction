@@ -1,0 +1,2285 @@
+[interface]
+[interface.help]
+describe = [
+  "1.名称: 可视化编程协议接口",
+  "2.版本:",
+  "   - 协议版本: 0.2.3",
+  "3.概述",
+  "   - 当前协议为可视化编程唯一合法协议，本协议仅约束自定义协议；",
+  "   - 本协议适配了python3，在此不再赘述python语法、变量等基本功能。"
+  ]
+
+[interface.visual]
+[interface.visual.help]
+describe = [
+  " + 说明:",
+  "   - 该模块将提供 cyberdog 功能的可视化界面，便于用户操控。",
+  ]
+
+[interface.visual.interface]
+[interface.visual.interface.help]
+describe = [
+  " + 说明:",
+  "   - 该模块将提供 cyberdog 各个接口的可视化界面，便于用户查看各接口的帮助文档。",
+  ]
+
+[interface.visual.interface.generate_documentation]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "2.参数:",
+  "3.返回值:",
+  ]
+demo = [
+  "state, describe = visual.interface.generate_documentation()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.visual.debugger]
+[interface.visual.debugger.help]
+describe = [
+  " + 说明:",
+  "   - 该模块将提供 cyberdog 各功能的可视化调试界面，便于用户调试各个功能。",
+  ]
+
+[interface.visual.debugger.abilityset]
+[interface.visual.debugger.abilityset.help]
+describe = [
+  " + 说明:",
+  "   - 该模块将提供 cyberdog 能力集的调试界面，便于用户直观调试可视化编程各功能模块。",
+  ]
+
+[interface.visual.debugger.abilityset.launch]
+constraint = []
+describe = [
+  "1.功能:",
+  "   - 开启 cyberdog 能力集调试界面。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "   无",
+  ]
+demo = [
+  "visual.debugger.abilityset.launch()",
+  ]
+
+[interface.visual.debugger.engine]
+[interface.visual.debugger.engine.help]
+describe = [
+  " + 说明:",
+  "   - 该模块将提供 cyberdog 可视化编程引擎的调试界面，便于用户调试可视化编程引擎功能。",
+  ]
+
+[interface.visual.debugger.engine.mock_app_request]
+constraint = [[['string', 'target'], "''"]]
+describe = [
+  "1.功能:",
+  "   - 模拟可视化编程APP请求功能。",
+  "2.参数:",
+  "   target: string类型,标识模拟场景，详情参见 debug_engine.toml 文件。",
+  "3.返回值:",
+  "   无",
+  ]
+demo = [
+  "visual.debugger.engine.mock_app_request('normal.AI.personnel.test1.inquiry')"
+  ]
+
+[interface.type]
+[interface.type.help]
+describe = [
+  " + 说明:",
+  "   - 记录当前自定义的类型,这些类型将用于 cyberdog 可视化编程。",
+  ]
+
+[interface.type.Enum]
+[interface.type.Enum.help]
+describe = [
+  " + 说明:",
+  "   - 记录当前自定义的枚举类型,这些类型将用于 cyberdog 可视化编程。",
+  ]
+
+[interface.type.Enum.StateCode]
+describe = [
+  "╔══════╦════════════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 状态码。",
+  "╠══════╬════════════════════════════════════════════════════════════════─---",
+  "║ type ║ StateCode",
+  "╠══════╬═══════════════════════════════╤════════════════════════════════─---",
+  "║      ║               key             │            describe          ",
+  "║      ╟───────────────────────────────┼─────────────────────────────────---",
+  "║      ║ - invalid                     │ 无效",
+  "║      ║ - success                     │ 成功",
+  "║      ║ - fail                        │ 失败",
+  "║      ║ - no_data_update              │ 无数据更新",
+  "║ data ║ - command_waiting_execute     │ 待执行时发生错误",
+  "║      ║ - service_client_interrupted  │ 客户端在请求服务出现时被打断",
+  "║      ║ - service_appear_timeout      │ 等待服务出现/启动超时",
+  "║      ║ - service_request_interrupted │ 请求服务中断",
+  "║      ║ - service_request_timeout     │ 请求服务超时/延迟",
+  "║      ║ - spin_future_interrupted     │ 请求服务中断",
+  "║      ║ - spin_future_timeout         │ 请求服务超时/延迟",
+  "╚══════╩═══════════════════════════════╧════════════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.StateCode",
+  "print(target)"
+  ]
+
+[interface.type.Enum.LedConstraint]
+describe = [
+  "╔══════╦═════════════════════════════════════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 LED约束。",
+  "╠══════╬═════════════════════════════════════════════════════════════════════════════════════════─---",
+  "║ type ║ LedConstraint",
+  "╠══════╬═════════════════════════════════════════════╤═════════════════════════╤═════════════════─---",
+  "║      ║               key                           │          scene          │      describe       ",
+  "║      ╟─────────────────────────────────────────────┼─────────────────────────┼──────────────────---",
+  "║      ║ - target_head                               │                         │ 头灯",
+  "║      ║ - target_tail                               │       控制目标约束        │ 尾灯",
+  "║      ║ - target_mini                               │                         │ 眼灯",
+  "║      ╟─────────────────────────────────────────────┼────────────┬────────────┼───---",
+  "║      ║ - effect_line_off                           │            │            │ 常灭",
+  "║      ║ - effect_line_on                            │            │            │ 常亮",
+  "║      ║ - effect_line_blink                         │            │            │ 闪烁",
+  "║      ║ - effect_line_blink_fast                    │            │ 指定色调灯效 │ 快速闪烁",
+  "║      ║ - effect_line_breath                        │            │(支持用户调色)│ 呼吸",
+  "║      ║ - effect_line_breath_fast                   │            │            │ 快速呼吸",
+  "║      ║ - effect_line_one_by_one                    │            │            │ 逐个点亮",
+  "║      ║ - effect_line_one_by_one_fast               │            │            │ 快速逐个点亮",
+  "║      ╟─────────────────────────────────────────────┤            ├────────────┼──────────────────---",
+  "║      ║ - system_effect_line_red_on                 │            │            │ 红色常亮",
+  "║      ║ - system_effect_line_red_blink              │            │            │ 红色闪烁",
+  "║      ║ - system_effect_line_red_blink_fast         │            │            │ 红色快速闪烁",
+  "║      ║ - system_effect_line_red_breath             │            │            │ 红色呼吸",
+  "║      ║ - system_effect_line_red_breath_fast        │            │            │ 红色快速呼吸",
+  "║      ║ - system_effect_line_red_one_by_one         │            │            │ 红色逐个点亮",
+  "║      ║ - system_effect_line_red_one_by_one_fast    │ 头尾灯带约束 │            │ 红色快速逐个点亮",
+  "║      ╟─────────────────────────────────────────────┤            │            ├──────────────────---",
+  "║ data ║ - system_effect_line_blue_on                │            │            │ 绿色常亮",
+  "║      ║ - system_effect_line_blue_blink             │            │            │ 绿色闪烁",
+  "║      ║ - system_effect_line_blue_blink_fast        │            │            │ 绿色快速闪烁",
+  "║      ║ - system_effect_line_blue_breath            │            │ 系统内置灯效 │ 绿色呼吸",
+  "║      ║ - system_effect_line_blue_breath_fast       │            │(展示默认色调)│ 绿色快速呼吸",
+  "║      ║ - system_effect_line_blue_one_by_one        │            │            │ 绿色逐个点亮",
+  "║      ║ - system_effect_line_blue_one_by_one_fast   │            │            │ 绿色快速逐个点亮",
+  "║      ╟─────────────────────────────────────────────┤            │            ├──────────────────---",
+  "║      ║ - system_effect_line_yellow_on              │            │            │ 黄色常亮",
+  "║      ║ - system_effect_line_yellow_blink           │            │            │ 黄色闪烁",
+  "║      ║ - system_effect_line_yellow_blink_fast      │            │            │ 黄色快速闪烁",
+  "║      ║ - system_effect_line_yellow_breath          │            │            │ 黄色呼吸",
+  "║      ║ - system_effect_line_yellow_breath_fast     │            │            │ 黄色快速呼吸",
+  "║      ║ - system_effect_line_yellow_one_by_one      │            │            │ 黄色逐个点亮",
+  "║      ║ - system_effect_line_yellow_one_by_one_fast │            │            │ 黄色快速逐个点亮",
+  "║      ╟─────────────────────────────────────────────┼────────────┼────────────┼──────────────────---",
+  "║      ║ - effect_mini_off                           │            │ 指定色调灯效 │ 常灭",
+  "║      ║ - effect_mini_circular_breath               │            │(支持用户调色)│ 圆形缩放",
+  "║      ║ - effect_mini_circular_ring                 │            │            │ 画圆环",
+  "║      ╟─────────────────────────────────────────────┤ 头部眼灯约束 ├────────────┼──────────────────---",
+  "║      ║ - system_effect_mini_rectangle_color        │            │            │ 方块变色",
+  "║      ║ - system_effect_mini_centre_color           │            │系统内置灯效  │ 中间彩带",
+  "║      ║ - system_effect_mini_three_circular         │            │(展示默认色调)│ 三圆呼吸",
+  "║      ║ - system_effect_mini_one_by_one             │            │            │ 彩带逐个点亮",
+  "╚══════╩═════════════════════════════════════════════╧════════════╧════════════╧═════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.StateCode",
+  "print(target)"
+  ]
+
+[interface.type.Class]
+[interface.type.Class.help]
+describe = [
+  " + 说明:",
+  "   - 记录当前自定义的结构类型,这些类型将用于 cyberdog 可视化编程。",
+  ]
+
+[interface.type.Class.Time]
+describe = [
+  "╔══════╦════════════════════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 时间戳。",
+  "╠══════╬════════════════════════════════════════════════════════════════════════─---",
+  "║ type ║ Time",
+  "╠══════╬════════════════════════════════════════════════════════════════════════─---",
+  "║ data ║ https://docs.ros2.org/latest/api/builtin_interfaces/msg/Time.html",
+  "╚══════╩════════════════════════════════════════════════════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.Time()",
+  "print(target)"
+  ]
+
+[interface.type.Class.Header]
+describe = [
+  "╔══════╦════════════════════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 消息头。",
+  "╠══════╬════════════════════════════════════════════════════════════════════════─---",
+  "║ type ║ Header",
+  "╠══════╬════════════════════════════════════════════════════════════════════════─---",
+  "║ data ║ https://docs.ros2.org/latest/api/std_msgs/msg/Header.html",
+  "╚══════╩════════════════════════════════════════════════════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.Header()",
+  "print(target)"
+  ]
+
+[interface.type.Class.LaserScan]
+describe = [
+  "╔══════╦════════════════════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 激光扫描数据信息。",
+  "╠══════╬════════════════════════════════════════════════════════════════════════─---",
+  "║ type ║ LaserScan",
+  "╠══════╬════════════════════════════════════════════════════════════════════════─---",
+  "║ data ║ https://docs.ros2.org/latest/api/sensor_msgs/msg/LaserScan.html",
+  "╚══════╩════════════════════════════════════════════════════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.LaserScan()",
+  "print(target)"
+  ]
+
+[interface.type.Class.Range]
+describe = [
+  "╔══════╦════════════════════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 (超声波)范围信息。",
+  "╠══════╬═══════════════════════════════════════════════════════════════════════─---",
+  "║ type ║ Range",
+  "╠══════╬════════════════════════════════════════════════════════════════════════─---",
+  "║ data ║ https://docs.ros2.org/latest/api/sensor_msgs/msg/Range.html",
+  "╚══════╩════════════════════════════════════════════════════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.Range()",
+  "print(target)"
+  ]
+
+[interface.type.Class.Odometry]
+describe = [
+  "╔══════╦════════════════════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 里程计 信息。",
+  "╠══════╬════════════════════════════════════════════════════════════════════════─---",
+  "║ type ║ Odometry",
+  "╠══════╬════════════════════════════════════════════════════════════════════════─---",
+  "║ data ║ https://docs.ros2.org/latest/api/nav_msgs/msg/Odometry.html",
+  "╚══════╩════════════════════════════════════════════════════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.Odometry()",
+  "print(target)"
+  ]
+
+[interface.type.Class.Imu]
+describe = [
+  "╔══════╦════════════════════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 惯导 信息。",
+  "╠══════╬════════════════════════════════════════════════════════════════════════─---",
+  "║ type ║ Imu",
+  "╠══════╬════════════════════════════════════════════════════════════════════════─---",
+  "║ data ║ https://docs.ros2.org/latest/api/sensor_msgs/msg/Imu.html",
+  "╚══════╩════════════════════════════════════════════════════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.Imu()",
+  "print(target)"
+  ]
+
+[interface.type.Class.Point]
+describe = [
+  "╔══════╦════════════════════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 点 信息。",
+  "╠══════╬════════════════════════════════════════════════════════════════════════─---",
+  "║ type ║ Point",
+  "╠══════╬════════════════════════════════════════════════════════════════════════─---",
+  "║ data ║ https://docs.ros2.org/latest/api/geometry_msgs/msg/Point.html",
+  "╚══════╩════════════════════════════════════════════════════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.Point()",
+  "print(target)"
+  ]
+
+[interface.type.Class.Quaternion]
+describe = [
+  "╔══════╦════════════════════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 四元数 信息。",
+  "╠══════╬════════════════════════════════════════════════════════════════════════─---",
+  "║ type ║ Quaternion",
+  "╠══════╬════════════════════════════════════════════════════════════════════════─---",
+  "║ data ║ https://docs.ros2.org/latest/api/geometry_msgs/msg/Quaternion.html",
+  "╚══════╩════════════════════════════════════════════════════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.Quaternion()",
+  "print(target)"
+  ]
+
+[interface.type.Class.Pose]
+describe = [
+  "╔══════╦════════════════════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 位姿 信息。",
+  "╠══════╬════════════════════════════════════════════════════════════════════════─---",
+  "║ type ║ Pose",
+  "╠══════╬════════════════════════════════════════════════════════════════════════─---",
+  "║ data ║ https://docs.ros2.org/latest/api/geometry_msgs/msg/Pose.html",
+  "╚══════╩════════════════════════════════════════════════════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.Pose()",
+  "print(target)"
+  ]
+
+[interface.type.Class.Vector3]
+describe = [
+  "╔══════╦════════════════════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 3元向量 信息。",
+  "╠══════╬════════════════════════════════════════════════════════════════════════─---",
+  "║ type ║ Vector3",
+  "╠══════╬════════════════════════════════════════════════════════════════════════─---",
+  "║ data ║ https://docs.ros2.org/latest/api/geometry_msgs/msg/Vector3.html",
+  "╚══════╩════════════════════════════════════════════════════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.Vector3()",
+  "print(target)"
+  ]
+
+[interface.type.Class.Twist]
+describe = [
+  "╔══════╦════════════════════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 6轴速度 信息。",
+  "╠══════╬════════════════════════════════════════════════════════════════════════─---",
+  "║ type ║ Twist",
+  "╠══════╬════════════════════════════════════════════════════════════════════════─---",
+  "║ data ║ https://docs.ros2.org/latest/api/geometry_msgs/msg/Twist.html",
+  "╚══════╩════════════════════════════════════════════════════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.Twist()",
+  "print(target)"
+  ]
+
+[interface.type.Class.PoseWithCovariance]
+describe = [
+  "╔══════╦════════════════════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 具有协方差的位姿 信息。",
+  "╠══════╬════════════════════════════════════════════════════════════════════════─---",
+  "║ type ║ PoseWithCovariance",
+  "╠══════╬════════════════════════════════════════════════════════════════════════─---",
+  "║ data ║ https://docs.ros2.org/latest/api/geometry_msgs/msg/PoseWithCovariance.html",
+  "╚══════╩════════════════════════════════════════════════════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.PoseWithCovariance()",
+  "print(target)"
+  ]
+
+[interface.type.Class.TwistWithCovariance]
+describe = [
+  "╔══════╦════════════════════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 具有协方差的6轴速度 信息。",
+  "╠══════╬════════════════════════════════════════════════════════════════════════─---",
+  "║ type ║ TwistWithCovariance",
+  "╠══════╬════════════════════════════════════════════════════════════════════════─---",
+  "║ data ║ https://docs.ros2.org/latest/api/geometry_msgs/msg/TwistWithCovariance.html",
+  "╚══════╩════════════════════════════════════════════════════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.TwistWithCovariance()",
+  "print(target)"
+  ]
+
+[interface.type.Class.BmsStatus]
+describe = [
+  "╔══════╦═════════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 电池消息。",
+  "╠══════╬═════════════════════════════════════════════════════════════─---",
+  "║ type ║ BmsStatus",
+  "╠══════╬═══════════════════════════╤════════╤════════════════════════─---",
+  "║      ║            key            │  type  │          describe          ",
+  "║      ╟───────────────────────────┼────────┼─────────────────────────---",
+  "║      ║ - header                  │ Header │ 消息头",
+  "║      ║ - batt_volt               │ int    │ 电压 - mV",
+  "║      ║ - batt_curr               │ int    │ 电流 - mA",
+  "║      ║ - batt_soc                │ int    │ 剩余电量",
+  "║      ║ - batt_temp               │ int    │ 温度 - C",
+  "║      ║ - batt_st                 │ int    │ 电池模式",
+  "║      ║ - key_val                 │ int    │ 关机信号:1 - 关机; 0 - 正常/不关机",
+  "║      ║ - disable_charge          │ int    │ 禁用充电",
+  "║      ║ - power_supply            │ int    │ 电源",
+  "║ data ║ - buzze                   │ int    │ 蜂鸣",
+  "║      ║ - status                  │ int    │ 状态",
+  "║      ║ - batt_health             │ int    │ 电池健康",
+  "║      ║ - batt_loop_number        │ int    │ 电池循环数",
+  "║      ║ - powerboard_status       │ int    │ 电源板状态: bit0 - 串口错误{1 - 有错误; 0 - 无错误}",
+  "║      ║ - power_normal            │ bool   │ 正常模式",
+  "║      ║ - power_wired_charging    │ bool   │ 有线充电中",
+  "║      ║ - power_finished_charging │ bool   │ 充电完成",
+  "║      ║ - power_motor_shutdown    │ bool   │ 电机掉电",
+  "║      ║ - power_soft_shutdown     │ bool   │ 软关机",
+  "║      ║ - power_wp_place          │ bool   │ 无线充电在位",
+  "║      ║ - power_wp_charging       │ bool   │ 无线充电中",
+  "║      ║ - power_expower_supply    │ bool   │ 外部供电",
+  "╚══════╩═══════════════════════════╧════════╧════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.BmsStatus()",
+  "print(target)"
+  ]
+
+[interface.type.Class.TouchStatus]
+describe = [
+  "╔══════╦═════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 触摸板消息。",
+  "╠══════╬═════════════════════════════════════════════════─---",
+  "║ type ║ TouchStatus",
+  "╠══════╬═══════════════╤════════╤════════════════════════─---",
+  "║      ║      key      │  type  │          describe          ",
+  "║ data ╟───────────────┼────────┼─────────────────────────---",
+  "║      ║ - header      │ Header │ 消息头",
+  "║      ║ - touch_state │ int    │ 触摸板状态{1:单击,2:双击,3:长按}",
+  "╚══════╩═══════════════╧════════╧════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.TouchStatus()",
+  "print(target)"
+  ]
+
+[interface.type.Class.GpsPayload]
+describe = [
+  "╔══════╦═════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 全球定位系统消息。",
+  "╠══════╬═════════════════════════════════════════════════─---",
+  "║ type ║ GpsPayload",
+  "╠══════╬═══════════════╤════════╤════════════════════════─---",
+  "║      ║      key      │  type  │          describe          ",
+  "║      ╟───────────────┼────────┼─────────────────────────---",
+  "║      ║ - sec         │ int    │ 秒",
+  "║      ║ - nanosec     │ int    │ 纳秒",
+  "║ data ║ - itow        │ int    │ GPS时间戳",
+  "║      ║ - fix_type    │ int    │ GNSS类型",
+  "║      ║ - num_sv      │ int    │ 当前搜星卫星数量",
+  "║      ║ - lon         │ int    │ 经度",
+  "║      ║ - lat         │ int    │ 纬度",
+  "╚══════╩═══════════════╧════════╧════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.GpsPayload()",
+  "print(target)"
+  ]
+
+[interface.type.Class.SingleTofPayload]
+describe = [
+  "╔══════╦════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 单个TOF消息。",
+  "╠══════╬════════════════════════════════════════════════════─---",
+  "║ type ║ SingleTofPayload",
+  "╠══════╬══════════════════╤════════╤════════════════════════─---",
+  "║      ║        key       │  type  │          describe          ",
+  "║      ╟──────────────────┼────────┼─────────────────────────---",
+  "║      ║ - header         │ Header │ 消息头",
+  "║ data ║ - data_available │ bool   │ 数据是否可用",
+  "║      ║ - tof_position   │ int    │ 传感器的位置(左前:0,右前:1,左后:2,右后:3)",
+  "║      ║ - data           │ float  │ 传感器数据[m]",
+  "╚══════╩══════════════════╧════════╧════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.SingleTofPayload()",
+  "print(target)"
+  ]
+
+[interface.type.Class.HeadTofPayload]
+describe = [
+  "╔══════╦═══════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 头部TOF消息。",
+  "╠══════╬═══════════════════════════════════════════════════════════─---",
+  "║ type ║ HeadTofPayload",
+  "╠══════╬═══════════════╤══════════════════╤════════════════════════─---",
+  "║      ║       key     │       type       │          describe          ",
+  "║ data ╟───────────────┼──────────────────┼─────────────────────────---",
+  "║      ║ - left_head   │ SingleTofPayload │ 头部左侧Tof",
+  "║      ║ - right_head  │ SingleTofPayload │ 头部右侧Tof",
+  "╚══════╩═══════════════╧══════════════════╧════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.HeadTofPayload()",
+  "print(target)"
+  ]
+
+[interface.type.Class.RearTofPayload]
+describe = [
+  "╔══════╦═══════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 尾部TOF消息。",
+  "╠══════╬═══════════════════════════════════════════════════════════─---",
+  "║ type ║ RearTofPayload",
+  "╠══════╬═══════════════╤══════════════════╤════════════════════════─---",
+  "║      ║       key     │       type       │          describe          ",
+  "║ data ╟───────────────┼──────────────────┼─────────────────────────---",
+  "║      ║ - left_rear   │ SingleTofPayload │ 尾部左侧Tof",
+  "║      ║ - right_rear  │ SingleTofPayload │ 尾部右侧Tof",
+  "╚══════╩═══════════════╧══════════════════╧════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.RearTofPayload()",
+  "print(target)"
+  ]
+
+[interface.type.Class.TofPayload]
+describe = [
+  "╔══════╦═════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 TOF消息。",
+  "╠══════╬═════════════════════════════════════════════════════════─---",
+  "║ type ║ TofPayload",
+  "╠══════╬═══════════════╤════════════════╤════════════════════════─---",
+  "║      ║       key     │      type      │          describe          ",
+  "║ data ╟───────────────┼────────────────┼─────────────────────────---",
+  "║      ║ - head        │ HeadTofPayload │ 尾部左侧Tof",
+  "║      ║ - rear        │ RearTofPayload │ 尾部右侧Tof",
+  "╚══════╩═══════════════╧════════════════╧════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.TofPayload()",
+  "print(target)"
+  ]
+
+[interface.type.Class.State]
+describe = [
+  "╔══════╦══════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 状态。",
+  "╠══════╬══════════════════════════════════════════════════─---",
+  "║ type ║ State",
+  "╠══════╬═══════════════╤═════════╤════════════════════════─---",
+  "║      ║      key      │   type  │          describe          ",
+  "║ data ╟───────────────┼─────────┼─────────────────────────---",
+  "║      ║ - code        │StateCode│ 状态码",
+  "║      ║ - describe    │ string  │ 状态描述",
+  "╚══════╩═══════════════╧═════════╧════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.State()",
+  "print(target)"
+  ]
+
+[interface.type.Class.DefaultAndMaximum]
+describe = [
+  "╔══════╦════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 参数默认类型。",
+  "╠══════╬════════════════════════════════════════════════════─---",
+  "║ type ║ DefaultAndMaximum",
+  "╠══════╬═════════════════╤═════════╤════════════════════════─---",
+  "║      ║       key       │   type  │          describe          ",
+  "║ data ╟─────────────────┼─────────┼─────────────────────────---",
+  "║      ║ - minimum_value │ double  │ 最小值",
+  "║      ║ - default_value │ double  │ 默认值",
+  "║      ║ - maximum_value │ double  │ 最大值",
+  "║      ║ - unit          │ string  │ 单位",
+  "╚══════╩═════════════════╧═════════╧════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.DefaultAndMaximum()",
+  "print(target)"
+  ]
+
+[interface.type.Class.MotionParams]
+describe = [
+  "╔══════╦══════════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 运动参数消息。",
+  "╠══════╬══════════════════════════════════════════════════════════════─---",
+  "║ type ║ MotionParams",
+  "╠══════╬═════════════════╤═══════════════════╤════════════════════════─---",
+  "║      ║       key       │        type       │          describe          ",
+  "║      ╟─────────────────┼───────────────────┼─────────────────────────---",
+  "║      ║ - centroid_x    │ DefaultAndMaximum │ 质心X轴约束",
+  "║      ║ - centroid_y    │ DefaultAndMaximum │ 质心Y轴约束",
+  "║      ║ - centroid_z    │ DefaultAndMaximum │ 质心Z轴约束",
+  "║      ║ - fulcrum_x     │ DefaultAndMaximum │ 支点X轴约束",
+  "║      ║ - fulcrum_y     │ DefaultAndMaximum │ 支点Y轴约束",
+  "║      ║ - fulcrum_z     │ DefaultAndMaximum │ 支点Z轴约束",
+  "║      ║ - roll          │ DefaultAndMaximum │ 机身翻滚",
+  "║ data ║ - pitch         │ DefaultAndMaximum │ 机身俯仰",
+  "║      ║ - yaw           │ DefaultAndMaximum │ 机身偏航",
+  "║      ║ - x_velocity    │ DefaultAndMaximum │ X轴速度",
+  "║      ║ - y_velocity    │ DefaultAndMaximum │ Y轴速度",
+  "║      ║ - z_velocity    │ DefaultAndMaximum │ Z轴角速度",
+  "║      ║ - front_leg_lift│ DefaultAndMaximum │ 前腿抬腿高度",
+  "║      ║ - back_leg_lift │ DefaultAndMaximum │ 后腿抬腿高度",
+  "║      ║ - distance      │ DefaultAndMaximum │ 期望距离",
+  "║      ║ - duration      │ DefaultAndMaximum │ 期望时间",
+  "║      ║ - delta         │ DefaultAndMaximum │ 变化量",
+  "╚══════╩═════════════════╧═══════════════════╧════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.MotionParams()",
+  "print(target)"
+  ]
+
+[interface.type.Class.MotionResultServiceResponse]
+describe = [
+  "╔══════╦══════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 运动服务反馈类型。",
+  "╠══════╬══════════════════════════════════════════════════════════─---",
+  "║ type ║ MotionResultServiceResponse",
+  "╠══════╬═══════════════════════╤═════════╤════════════════════════─---",
+  "║      ║          key          │   type  │          describe          ",
+  "║      ╟───────────────────────┼─────────┼─────────────────────────---",
+  "║      ║ - state               │ State   │ 状态",
+  "║ data ║ + response            │         │ 运动服务反馈",
+  "║      ║   - motion_id         │ int     │ 机器人运控姿态状态",
+  "║      ║   - result            │ bool    │ 执行结果",
+  "║      ║   - code              │ int     │ 标准错误码",
+  "╚══════╩═══════════════════════╧═════════╧════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.MotionResultServiceResponse()",
+  "print(target)"
+  ]
+
+[interface.type.Class.MotionServoCmdResponse]
+describe = [
+  "╔══════╦══════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 运动伺服指令反馈类型。",
+  "╠══════╬══════════════════════════════════════════════════════════─---",
+  "║ type ║ MotionServoCmdResponse",
+  "╠══════╬═══════════════════════╤═════════╤════════════════════════─---",
+  "║      ║          key          │   type  │          describe          ",
+  "║      ╟───────────────────────┼─────────┼─────────────────────────---",
+  "║      ║ - state               │ State   │ 状态",
+  "║      ║ + response            │         │ 运动服务反馈",
+  "║ data ║   - motion_id         │ int     │ 机器人运控姿态状态",
+  "║      ║   - result            │ bool    │ 执行结果",
+  "║      ║   - code              │ int     │ 标准错误码",
+  "║      ║   - order_process_bar │ int     │ 订单流程",
+  "║      ║   - status            │ int     │ 状态",
+  "╚══════╩═══════════════════════╧═════════╧════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.MotionServoCmdResponse()",
+  "print(target)"
+  ]
+
+[interface.type.Class.MotionSequenceServiceResponse]
+describe = [
+  "╔══════╦══════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 序列运动服务反馈类型。",
+  "╠══════╬══════════════════════════════════════════════════════════─---",
+  "║ type ║ MotionSequenceServiceResponse",
+  "╠══════╬═══════════════════════╤═════════╤════════════════════════─---",
+  "║      ║          key          │   type  │          describe          ",
+  "║      ╟───────────────────────┼─────────┼─────────────────────────---",
+  "║      ║ - state               │ State   │ 状态",
+  "║ data ║ + response            │         │ 运动服务反馈",
+  "║      ║   - result            │ bool    │ 执行结果",
+  "║      ║   - code              │ int     │ 标准错误码",
+  "║      ║   - describe          │ string  │ 状态码描述",
+  "╚══════╩═══════════════════════╧═════════╧════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.MotionSequenceServiceResponse()",
+  "print(target)"
+  ]
+
+[interface.type.Class.LedSeviceResponse]
+describe = [
+  "╔══════╦══════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 LED服务反馈类型。",
+  "╠══════╬══════════════════════════════════════════════════════════─---",
+  "║ type ║ LedSeviceResponse",
+  "╠══════╬═══════════════════════╤═════════╤════════════════════════─---",
+  "║      ║          key          │   type  │          describe          ",
+  "║      ╟───────────────────────┼─────────┼─────────────────────────---",
+  "║ data ║ - state               │ State   │ 状态",
+  "║      ║ + response            │         │ 运动服务反馈",
+  "║      ║   - code              │ int     │ 标准错误码",
+  "╚══════╩═══════════════════════╧═════════╧════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.MotionSequenceServiceResponse()",
+  "print(target)"
+  ]
+
+[interface.type.Class.ConnectorStatus]
+describe = [
+  "╔══════╦══════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 连接状态类型。",
+  "╠══════╬══════════════════════════════════════════════════════════─---",
+  "║ type ║ ConnectorStatus",
+  "╠══════╬═══════════════════════╤═════════╤════════════════════════─---",
+  "║      ║          key          │   type  │          describe          ",
+  "║      ╟───────────────────────┼─────────┼─────────────────────────---",
+  "║      ║ - is_connected        │ bool    │ 是否连接wifi",
+  "║      ║ - is_internet         │ bool    │ 是否可以访问外网",
+  "║ data ║ - ssid                │ string  │ wifi名称",
+  "║      ║ - robot_ip            │ string  │ 机器人IP",
+  "║      ║ - provider_ip         │ string  │ wifi提供方/移动端 IP",
+  "║      ║ - strength            │ int     │ wifi信号强度",
+  "║      ║ - code                │ int     │ 标准错误码",
+  "╚══════╩═══════════════════════╧═════════╧════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.ConnectorStatus()",
+  "print(target)"
+  ]
+
+[interface.type.Class.MotionSequenceGait]
+describe = [
+  "╔══════╦══════════════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 序列步态消息类型。",
+  "╠══════╬══════════════════════════════════════════════════════════════════─---",
+  "║ type ║ MotionSequenceGait",
+  "╠══════╬═══════════════════════╤═════════╤════════════════════════════════─---",
+  "║      ║          key          │   type  │          describe          ",
+  "║      ╟───────────────────────┼─────────┼─────────────────────────────────---",
+  "║      ║ - right_forefoot      │ bool    │ 右前足: 是否接触地面? (默认值:True)",
+  "║ data ║ - left_forefoot       │ bool    │ 左前足: 是否接触地面? (默认值:True)",
+  "║      ║ - right_hindfoot      │ bool    │ 右后足: 是否接触地面? (默认值:True)",
+  "║      ║ - left_hindfoot       │ bool    │ 左后足: 是否接触地面? (默认值:True)",
+  "║      ║ - duration_ms         │ int     │ wifi提供方/移动端 IP",
+  "╚══════╩═══════════════════════╧═════════╧════════════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.MotionSequenceGait()",
+  "print(target)"
+  ]
+
+[interface.type.Class.MotionSequenceParam]
+describe = [
+  "╔══════╦══════════════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 序列步伐（参数）消息类型。",
+  "╠══════╬══════════════════════════════════════════════════════════════════─---",
+  "║ type ║ MotionSequenceParam",
+  "╠══════╬═══════════════════════╤═════════╤════════════════════════════════─---",
+  "║      ║          key          │   type  │          describe          ",
+  "║      ╟───────────────────────┼─────────┼─────────────────────────────────---",
+  "║      ║ - twist               │ Twist   │ 速度(默认值:全0.0)",
+  "║      ║ - centroid_height     │ Point   │ 质心高度(默认值:全0.0)",
+  "║      ║ - right_forefoot      │ Point   │ 右前足:落脚点位置(默认值:全0.0)",
+  "║ data ║ - left_forefoot       │ Point   │ 左前足:落脚点位置(默认值:全0.0)",
+  "║      ║ - right_hindfoot      │ Point   │ 右后足:落脚点位置(默认值:全0.0)",
+  "║      ║ - left_hindfoot       │ Point   │ 左后足:落脚点位置(默认值:全0.0)",
+  "║      ║ - forefoot_height     │ float   │ 前足:抬脚高度(米)",
+  "║      ║ - hindfoot_height     │ float   │ 后足:抬脚高度(米)",
+  "║      ║ - friction_coefficient│ float   │ 摩擦系数[0.1 1.0] (默认值:0.8)",
+  "║      ║ - duration_ms         │ int     │ 当前参数持续时间(毫秒)(默认值:1000)",
+  "╚══════╩═══════════════════════╧═════════╧════════════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.MotionSequenceParam()",
+  "print(target)"
+  ]
+
+[interface.type.Class.SequenceMeta]
+describe = [
+  "╔══════╦══════════════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 序列元消息类型。",
+  "╠══════╬══════════════════════════════════════════════════════════════════─---",
+  "║ type ║ SequenceMeta",
+  "╠══════╬═══════════════════════╤═════════════════════╤════════════════════─---",
+  "║      ║          key          │         type        │        describe        ",
+  "║ data ╟───────────────────────┼─────────────────────┼─────────────────────---",
+  "║      ║ - gait                │ MotionSequenceGait  │ 序列元步态",
+  "║      ║ - pace                │ MotionSequenceParam │ 序列元步伐",
+  "╚══════╩═══════════════════════╧═════════════════════╧════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.SequenceMeta()",
+  "print(target)"
+  ]
+
+[interface.type.Class.MotionSequence]
+describe = [
+  "╔══════╦════════════════════════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 运动序列消息类型。",
+  "╠══════╬════════════════════════════════════════════════════════════════════════════─---",
+  "║ type ║ MotionSequence",
+  "╠══════╬═══════════════════════╤═════════════════════╤══════════════════════════════─---",
+  "║      ║          key          │         type        │        describe        ",
+  "║      ╟───────────────────────┼─────────────────────┼───────────────────────────────---",
+  "║ data ║ - name                │ string              │ [必须] 运动序列名称（符合变量命名规则）",
+  "║      ║ - describe            │ string              │ 运动序列描述",
+  "║      ║ - list                │ vector<SequenceMeta>│ 序列元列表",
+  "╚══════╩═══════════════════════╧═════════════════════╧══════════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.MotionSequence()",
+  "print(target)"
+  ]
+
+[interface.type.Class.AudioPlaySeviceResponse]
+describe = [
+  "╔══════╦════════════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 语音播放服务反馈消息类型。",
+  "╠══════╬════════════════════════════════════════════════════════════════─---",
+  "║ type ║ AudioPlaySeviceResponse",
+  "╠══════╬═══════════════════════╤═════════╤══════════════════════════════─---",
+  "║      ║          key          │   type  │        describe        ",
+  "║      ╟───────────────────────┼─────────┼───────────────────────────────---",
+  "║ data ║ - state               │ State   │ 模块状态",
+  "║      ║ + response            │         │ 反馈消息",
+  "║      ║   - status            │ int     │ 0播放完毕;1播放失败",
+  "╚══════╩═══════════════════════╧═════════╧══════════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.AudioPlaySeviceResponse()",
+  "print(target)"
+  ]
+
+[interface.type.Class.AudioGetVolumeSeviceResponse]
+describe = [
+  "╔══════╦════════════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 语音获取音量服务反馈消息类型。",
+  "╠══════╬════════════════════════════════════════════════════════════════─---",
+  "║ type ║ AudioGetVolumeSeviceResponse",
+  "╠══════╬═══════════════════════╤═════════╤══════════════════════════════─---",
+  "║      ║          key          │   type  │        describe        ",
+  "║      ╟───────────────────────┼─────────┼───────────────────────────────---",
+  "║ data ║ - state               │ State   │ 模块状态",
+  "║      ║ + response            │         │ 反馈消息",
+  "║      ║   - volume            │ int     │ 当前播放语音的音量",
+  "╚══════╩═══════════════════════╧═════════╧══════════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.AudioGetVolumeSeviceResponse()",
+  "print(target)"
+  ]
+
+[interface.type.Class.AudioSetVolumeSeviceResponse]
+describe = [
+  "╔══════╦════════════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 语音获取音量服务反馈消息类型。",
+  "╠══════╬════════════════════════════════════════════════════════════════─---",
+  "║ type ║ AudioSetVolumeSeviceResponse",
+  "╠══════╬═══════════════════════╤═════════╤══════════════════════════════─---",
+  "║      ║          key          │   type  │        describe        ",
+  "║      ╟───────────────────────┼─────────┼───────────────────────────────---",
+  "║ data ║ - state               │ State   │ 模块状态",
+  "║      ║ + response            │         │ 反馈消息",
+  "║      ║   - success           │ bool    │ 设置音量是否成功",
+  "╚══════╩═══════════════════════╧═════════╧══════════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.AudioSetVolumeSeviceResponse()",
+  "print(target)"
+  ]
+
+[interface.type.Class.FaceRecognitionResult]
+describe = [
+  "╔══════╦════════════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 人脸识别结果信息类型。",
+  "╠══════╬════════════════════════════════════════════════════════════════─---",
+  "║ type ║ FaceRecognitionResult",
+  "╠══════╬═══════════════════════╤═════════╤══════════════════════════════─---",
+  "║      ║          key          │   type  │        describe        ",
+  "║      ╟───────────────────────┼─────────┼───────────────────────────────---",
+  "║ data ║ - result              │ int     │ 人员结果",
+  "║      ║ - username            │ string  │ 人员名称",
+  "║      ║ - age                 │ float   │ 人员年龄",
+  "║      ║ - emotion             │ float   │ 人员情绪",
+  "╚══════╩═══════════════════════╧═════════╧══════════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.FaceRecognitionResult()",
+  "print(target)"
+  ]
+
+[interface.type.Class.FaceRecognizedSeviceResponse]
+describe = [
+  "╔══════╦═════════════════════════════════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 人脸识别反馈消息类型。",
+  "╠══════╬═════════════════════════════════════════════════════════════════════════════════════─---",
+  "║ type ║ FaceRecognizedSeviceResponse",
+  "╠══════╬═══════════════════════╤═══════════════════════════════════════════╤═════════════════─---",
+  "║      ║          key          │                   type                    │      describe",
+  "║      ╟───────────────────────┼───────────────────────────────────────────┼──────────────────---",
+  "║ data ║ - state               │ State                                     │ 状态",
+  "║      ║ - list                │ list<FaceRecognitionResult>               │ 人脸识别列表",
+  "║      ║ - dictionary          │ dictionary<string, FaceRecognitionResult> │ 人脸识别字典",
+  "╚══════╩═══════════════════════╧═══════════════════════════════════════════╧═════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.FaceRecognizedSeviceResponse()",
+  "print(target)"
+  ]
+
+[interface.type.Class.GestureType]
+describe = [
+  "╔══════╦═════════════════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 手势类型。",
+  "╠══════╬═════════════════════════════════════════════════════════════════─---",
+  "║ type ║ GestureType",
+  "╠══════╬════════════════════════════════════════╤══════╤═════════════════─---",
+  "║      ║                   key                  │ type │      describe",
+  "║      ╟────────────────────────────────────────┼──────┼──────────────────---",
+  "║      ║ - pulling_hand_or_two_fingers_in       │ bool │ 手掌拉近",
+  "║      ║ - pushing_hand_or_two_fingers_away     │ bool │ 手掌推开",
+  "║      ║ - sliding_hand_or_two_fingers_up       │ bool │ 手向上抬",
+  "║      ║ - sliding_hand_or_two_fingers_down     │ bool │ 手向下压",
+  "║ data ║ - sliding_hand_or_two_fingers_left     │ bool │ 手向左推",
+  "║      ║ - sliding_hand_or_two_fingers_right    │ bool │ 手向右推",
+  "║      ║ - stop_sign                            │ bool │ 停止手势",
+  "║      ║ - thumb_down                           │ bool │ 大拇指朝下",
+  "║      ║ - thumb_up                             │ bool │ 大拇指朝上",
+  "║      ║ - zooming_in_with_hand_or_two_fingers  │ bool │ 张开手掌或手指",
+  "║      ║ - zooming_out_with_hand_or_two_fingers │ bool │ 闭合手掌或手指",
+  "╚══════╩════════════════════════════════════════╧══════╧═════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.GestureType()",
+  "print(target)"
+  ]
+
+[interface.type.Class.GestureRecognized]
+describe = [
+  "╔══════╦══════════════════════════════════════════════════════─---",
+  "║ desc ║ 标识 手势识别消息类型。",
+  "╠══════╬══════════════════════════════════════════════════════─---",
+  "║ type ║ GestureRecognized",
+  "╠══════╬═══════════════╤═════════════╤════════════════════════─---",
+  "║      ║      key      │     type    │      describe",
+  "║ data ╟───────────────┼─────────────┼─────────────────────────---",
+  "║      ║ - state       │ State       │ 手掌拉近",
+  "║      ║ - data        │ GestureType │ 手掌推开",
+  "╚══════╩═══════════════╧═════════════╧════════════════════════─---",
+  ]
+demo = [
+  "import mi.cyberdog_vp.abilityset",
+  "target = mi.cyberdog_vp.abilityset.GestureRecognized()",
+  "print(target)"
+  ]
+
+[interface.cyberdog]
+[interface.cyberdog.help]
+describe = [
+  "1.名称: cyberdog",
+  "2.版本:",
+  "   - 机体版本: 2.0",
+  "3.功能:",
+  "   - 机器人能力集实例化对象，下面的 cyberdog 均指该实例化对象。",
+  ]
+
+[interface.cyberdog.state]
+constraint = []
+describe = [
+  "╔══════╦══════════════════════════════════════════════════─---",
+  "║ desc ║ cyberdog 模块状态。",
+  "╠══════╬══════════════════════════════════════════════════─---",
+  "║ type ║ State",
+  "╚══════╩══════════════════════════════════════════════════─---",
+  ]
+demo = [
+  "if cyberdog.state.code != StateCode.success:",
+  "   print('[error] ', cyberdog.state.describe)"
+  ]
+
+[interface.cyberdog.set_log]
+constraint = [[['bool', 'log'], 'True']]
+describe = [
+  "1.功能:",
+  "   - 设置 cyberdog 能力集日志。",
+  "2.参数:",
+  "   log: bool 类型, {True:开启, False:关闭}, 默认值: True。",
+  "3.返回值:",
+  "   - 类型: State",
+  ]
+demo = [
+  "if cyberdog.set_log(False).code == StateCode.success:",
+  "   print('Cyberdog log is close.')"
+  ]
+
+[interface.cyberdog.shutdown]
+constraint = []
+describe = [
+  "1.功能:",
+  "   - 退出 cyberdog。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "   - 类型: State",
+  ]
+demo = [
+  "cyberdog.shutdown()"
+  ]
+
+[interface.cyberdog.network]
+[interface.cyberdog.network.help]
+describe = [
+  "1.名称: cyberdog",
+  "2.版本:",
+  "   - 机体版本: 2.0",
+  ]
+
+[interface.cyberdog.network.state]
+constraint = []
+describe = [
+  "1.功能:",
+  "   - 任务结束的标志，默认由引擎自动添加任务末尾，终端下只能手动调用。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "   - Tuple<Fettle, String>: 元组。",
+  "     - Tuple[0]: state: 当前函数执行结果是否成功？",
+  "       - {0:正常, 非0:异常}",
+  "     - Tuple[1]: describe：当前函数执行结果的描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.stop()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.network.data]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "   - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "   - Tuple<Fettle, String>: 元组。",
+  "     - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "       - {0:正常, 非0:异常}",
+  "     - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.follow]
+[interface.cyberdog.follow.help]
+describe = [
+  "1.名称: cyberdog",
+  "2.版本:",
+  "   - 机体版本: 2.0",
+  ]
+
+[interface.cyberdog.follow.state]
+constraint = []
+describe = [
+  "1.功能:",
+  "   - 任务结束的标志，默认由引擎自动添加任务末尾，终端下只能手动调用。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "   - Tuple<Fettle, String>: 元组。",
+  "     - Tuple[0]: state: 当前函数执行结果是否成功？",
+  "       - {0:正常, 非0:异常}",
+  "     - Tuple[1]: describe：当前函数执行结果的描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.stop()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.follow.add_personnel]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "   - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "   - Tuple<Fettle, String>: 元组。",
+  "     - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "       - {0:正常, 非0:异常}",
+  "     - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.follow.delete_personnel]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "   - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "   - Tuple<Fettle, String>: 元组。",
+  "     - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "       - {0:正常, 非0:异常}",
+  "     - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.follow.follow_personnel]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "   - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "   - Tuple<Fettle, String>: 元组。",
+  "     - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "       - {0:正常, 非0:异常}",
+  "     - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.follow.cancel_follow]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "   - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "   - Tuple<Fettle, String>: 元组。",
+  "     - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "       - {0:正常, 非0:异常}",
+  "     - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.motion]
+[interface.cyberdog.motion.help]
+describe = [
+  "1.名称: cyberdog",
+  "2.版本:",
+  "   - 机体版本: 2.0",
+  ]
+
+[interface.cyberdog.motion.state]
+constraint = []
+describe = [
+  "1.功能:",
+  "   - 任务结束的标志，默认由引擎自动添加任务末尾，终端下只能手动调用。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "   - Tuple<Fettle, String>: 元组。",
+  "     - Tuple[0]: state: 当前函数执行结果是否成功？",
+  "       - {0:正常, 非0:异常}",
+  "     - Tuple[1]: describe：当前函数执行结果的描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.stop()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.motion.params]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "   - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "   - Tuple<Fettle, String>: 元组。",
+  "     - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "       - {0:正常, 非0:异常}",
+  "     - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.motion.still]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "   - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "   - Tuple<Fettle, String>: 元组。",
+  "     - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "       - {0:正常, 非0:异常}",
+  "     - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.motion.resume_standing]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "   - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "   - Tuple<Fettle, String>: 元组。",
+  "     - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "       - {0:正常, 非0:异常}",
+  "     - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.motion.get_down]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "   - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "   - Tuple<Fettle, String>: 元组。",
+  "     - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "       - {0:正常, 非0:异常}",
+  "     - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.motion.backflip]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "   - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "   - Tuple<Fettle, String>: 元组。",
+  "     - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "       - {0:正常, 非0:异常}",
+  "     - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+
+[interface.cyberdog.motion.bow]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "   - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "   - Tuple<Fettle, String>: 元组。",
+  "     - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "       - {0:正常, 非0:异常}",
+  "     - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+
+[interface.cyberdog.motion.roll_left]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "   - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "   - Tuple<Fettle, String>: 元组。",
+  "     - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "       - {0:正常, 非0:异常}",
+  "     - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+
+[interface.cyberdog.motion.absolute_force_control_attitude]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "   - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "   - Tuple<Fettle, String>: 元组。",
+  "     - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "       - {0:正常, 非0:异常}",
+  "     - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+
+[interface.cyberdog.motion.relatively_force_control_attitude]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "   - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "   - Tuple<Fettle, String>: 元组。",
+  "     - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "       - {0:正常, 非0:异常}",
+  "     - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+
+[interface.cyberdog.motion.absolute_position_control_attitude]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "     - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+
+[interface.cyberdog.motion.relatively_position_control_attitude]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "     - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+
+[interface.cyberdog.motion.walk_the_dog]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "     - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+
+[interface.cyberdog.motion.jump_back_and_forth]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "     - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+
+[interface.cyberdog.motion.small_jump_walking]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "     - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+
+[interface.cyberdog.motion.automatic_frequency_conversion_walking]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "     - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+
+[interface.cyberdog.motion.run_fast_walking]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "     - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+
+[interface.cyberdog.motion.turn]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "     - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+
+[interface.cyberdog.motion.go_straight]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "     - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+
+[interface.cyberdog.motion.lateral_movement]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "     - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.navigation]
+[interface.cyberdog.navigation.help]
+describe = [
+  "1.名称: cyberdog",
+  "2.版本:",
+  "     - 机体版本: 2.0",
+  ]
+
+[interface.cyberdog.navigation.state]
+constraint = []
+describe = [
+  "1.功能:",
+  "   - 任务结束的标志，默认由引擎自动添加任务末尾，终端下只能手动调用。",
+  "2.参数:",
+  "     无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]: state: 当前函数执行结果是否成功？",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]: describe：当前函数执行结果的描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.stop()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.navigation.add_preset_point]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "     - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.navigation.delete_preset_point]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "     - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.navigation.navigation_to_preset_point]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "     - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.navigation.navigation_to_coordinates]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "     - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.navigation.cancel_navigation]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "     - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.task]
+[interface.cyberdog.task.help]
+describe = [
+  "1.名称: cyberdog",
+  "2.版本:",
+  "     - 机体版本: 2.0",
+  ]
+
+[interface.cyberdog.task.state]
+constraint = []
+describe = [
+  "1.功能:",
+  "   - 任务结束的标志，默认由引擎自动添加任务末尾，终端下只能手动调用。",
+  "2.参数:",
+  "     无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]: state: 当前函数执行结果是否成功？",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]: describe：当前函数执行结果的描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.stop()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.task.start]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "     - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.task.stop]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "     - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.task.block]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "     - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.train]
+[interface.cyberdog.train.help]
+describe = [
+  "1.名称: cyberdog",
+  "2.版本:",
+  "     - 机体版本: 2.0",
+  ]
+
+[interface.cyberdog.train.state]
+constraint = []
+describe = [
+  "1.功能:",
+  "   - 任务结束的标志，默认由引擎自动添加任务末尾，终端下只能手动调用。",
+  "2.参数:",
+  "     无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]: state: 当前函数执行结果是否成功？",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]: describe：当前函数执行结果的描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.stop()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.audio]
+[interface.cyberdog.audio.help]
+describe = [
+  "1.名称: cyberdog",
+  "2.版本:",
+  "     - 机体版本: 2.0",
+  ]
+
+[interface.cyberdog.audio.state]
+constraint = []
+describe = [
+  "1.功能:",
+  "   - 任务结束的标志，默认由引擎自动添加任务末尾，终端下只能手动调用。",
+  "2.参数:",
+  "     无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]: state: 当前函数执行结果是否成功？",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]: describe：当前函数执行结果的描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.stop()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.audio.play]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "     - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.led]
+[interface.cyberdog.led.help]
+describe = [
+  "1.名称: cyberdog",
+  "2.版本:",
+  "     - 机体版本: 2.0",
+  ]
+
+[interface.cyberdog.led.state]
+constraint = []
+describe = [
+  "1.功能:",
+  "   - 任务结束的标志，默认由引擎自动添加任务末尾，终端下只能手动调用。",
+  "2.参数:",
+  "     无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]: state: 当前函数执行结果是否成功？",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]: describe：当前函数执行结果的描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.stop()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.led.play]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "     - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.bms]
+[interface.cyberdog.bms.help]
+describe = [
+  "1.名称: cyberdog",
+  "2.版本:",
+  "     - 机体版本: 2.0",
+  ]
+
+[interface.cyberdog.bms.state]
+constraint = []
+describe = [
+  "1.功能:",
+  "   - 任务结束的标志，默认由引擎自动添加任务末尾，终端下只能手动调用。",
+  "2.参数:",
+  "     无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]: state: 当前函数执行结果是否成功？",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]: describe：当前函数执行结果的描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.stop()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.bms.data]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "     - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.touch]
+[interface.cyberdog.touch.help]
+describe = [
+  "1.名称: cyberdog",
+  "2.版本:",
+  "     - 机体版本: 2.0",
+  ]
+
+[interface.cyberdog.touch.state]
+constraint = []
+describe = [
+  "1.功能:",
+  "   - 任务结束的标志，默认由引擎自动添加任务末尾，终端下只能手动调用。",
+  "2.参数:",
+  "     无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]: state: 当前函数执行结果是否成功？",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]: describe：当前函数执行结果的描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.stop()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.touch.data]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "     - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.gps]
+[interface.cyberdog.gps.help]
+describe = [
+  "1.名称: cyberdog",
+  "2.版本:",
+  "     - 机体版本: 2.0",
+  ]
+
+[interface.cyberdog.gps.state]
+constraint = []
+describe = [
+  "1.功能:",
+  "   - 任务结束的标志，默认由引擎自动添加任务末尾，终端下只能手动调用。",
+  "2.参数:",
+  "     无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]: state: 当前函数执行结果是否成功？",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]: describe：当前函数执行结果的描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.stop()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.gps.data]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "     - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.tof]
+[interface.cyberdog.tof.help]
+describe = [
+  "1.名称: cyberdog",
+  "2.版本:",
+  "     - 机体版本: 2.0",
+  ]
+
+[interface.cyberdog.tof.state]
+constraint = []
+describe = [
+  "1.功能:",
+  "   - 任务结束的标志，默认由引擎自动添加任务末尾，终端下只能手动调用。",
+  "2.参数:",
+  "     无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]: state: 当前函数执行结果是否成功？",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]: describe：当前函数执行结果的描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.stop()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.tof.data]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "     - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.lidar]
+[interface.cyberdog.lidar.help]
+describe = [
+  "1.名称: cyberdog",
+  "2.版本:",
+  "     - 机体版本: 2.0",
+  ]
+
+[interface.cyberdog.lidar.state]
+constraint = []
+describe = [
+  "1.功能:",
+  "   - 任务结束的标志，默认由引擎自动添加任务末尾，终端下只能手动调用。",
+  "2.参数:",
+  "     无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]: state: 当前函数执行结果是否成功？",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]: describe：当前函数执行结果的描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.stop()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.lidar.data]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "     - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.ultrasonic]
+[interface.cyberdog.ultrasonic.help]
+describe = [
+  "1.名称: cyberdog",
+  "2.版本:",
+  "     - 机体版本: 2.0",
+  ]
+
+[interface.cyberdog.ultrasonic.state]
+constraint = []
+describe = [
+  "1.功能:",
+  "   - 任务结束的标志，默认由引擎自动添加任务末尾，终端下只能手动调用。",
+  "2.参数:",
+  "     无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]: state: 当前函数执行结果是否成功？",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]: describe：当前函数执行结果的描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.stop()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.ultrasonic.data]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "     - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.odometer]
+[interface.cyberdog.odometer.help]
+describe = [
+  "1.名称: cyberdog",
+  "2.版本:",
+  "     - 机体版本: 2.0",
+  ]
+
+[interface.cyberdog.odometer.state]
+constraint = []
+describe = [
+  "1.功能:",
+  "   - 任务结束的标志，默认由引擎自动添加任务末尾，终端下只能手动调用。",
+  "2.参数:",
+  "     无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]: state: 当前函数执行结果是否成功？",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]: describe：当前函数执行结果的描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.stop()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.odometer.data]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "     - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.imu]
+[interface.cyberdog.imu.help]
+describe = [
+  "1.名称: cyberdog",
+  "2.版本:",
+  "     - 机体版本: 2.0",
+  ]
+
+[interface.cyberdog.imu.state]
+constraint = []
+describe = [
+  "1.功能:",
+  "   - 任务结束的标志，默认由引擎自动添加任务末尾，终端下只能手动调用。",
+  "2.参数:",
+  "     无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]: state: 当前函数执行结果是否成功？",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]: describe：当前函数执行结果的描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.stop()",
+  "if state:",
+  "  print(describe)"
+  ]
+
+[interface.cyberdog.imu.data]
+constraint = []   # [[type, key], value]
+describe = [
+  "1.功能:",
+  "     - cyberdog 状态获取接口，获取 cyberdog 当前状态。",
+  "2.参数:",
+  "   无",
+  "3.返回值:",
+  "     - Tuple<Fettle, String>: 元组。",
+  "       - Tuple[0]:state<Fettle>: cyberdog 当前状态。",
+  "         - {0:正常, 非0:异常}",
+  "       - Tuple[1]:describe<String)>: cyberdog 当前状态描述。",
+  ]
+demo = [
+  "state, describe = cyberdog.state()",
+  "if state:",
+  "  print(describe)"
+  ]
+

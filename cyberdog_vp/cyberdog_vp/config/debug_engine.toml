@@ -1,0 +1,980 @@
+[params]
+[params.topic]
+frontend = "frontend_message"                     # 前端消息名称
+robotend = "robotend_message"                     # 机器人端消息名称
+
+[normal]
+[normal.AI]
+[normal.AI.personnel]
+[normal.AI.face]
+[normal.AI.voiceprint]
+[normal.task]
+[normal.task.single]
+[normal.task.cycle]
+[normal.module]
+[normal.module.common]
+[normal.module.sequence]
+
+# ┏━━━━━━━━━━━━┓
+# ┃ 测试目标简介 ┃
+# ┣━━━━━━━━━━━━┛
+# ┃ 测试单次定时任务各项操作。
+# ┣━━━━━━━━━━━━┓
+# ┃ 测试流程梳理 ┃
+# ┣━━━━━━━━━━━━┛
+# ┃ 1. 查询所有人员信息；
+# ┃ 2. 查询所有支持面部特征的人员信息；
+# ┃ 3. 查询所有支持声纹特征的人员信息；
+# ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━>
+[normal.AI.personnel.test0]
+[normal.AI.personnel.test0.inquiry]
+type = "AI"
+id = ""
+target_id = []
+describe = ""
+style = ""
+operate = "inquiry"
+mode = "all"
+condition = ""
+body = []
+
+[normal.AI.personnel.test1]
+[normal.AI.personnel.test1.inquiry]
+type = "AI"
+id = ""
+target_id = []
+describe = ""
+style = ""
+operate = "inquiry"
+mode = "personnel"
+condition = ""
+body = []
+
+[normal.AI.face.test1]
+[normal.AI.face.test1.inquiry]
+type = "AI"
+id = ""
+target_id = []
+describe = ""
+style = ""
+operate = "inquiry"
+mode = "face"
+condition = ""
+body = []
+
+[normal.AI.voiceprint.test1]
+[normal.AI.voiceprint.test1.inquiry]
+type = "AI"
+id = ""
+target_id = []
+describe = ""
+style = ""
+operate = "inquiry"
+mode = "voiceprint"
+condition = ""
+body = []
+
+# ┏━━━━━━━━━━━━┓
+# ┃ 测试目标简介 ┃
+# ┣━━━━━━━━━━━━┛
+# ┃ 测试调试任务各项操作。
+# ┣━━━━━━━━━━━━┓
+# ┃ 测试流程梳理 ┃
+# ┣━━━━━━━━━━━━┛
+# ┃ 1. 调试简单任务；
+# ┠───────────────────────────────>
+# ┃ 1. 调试死循环任务；
+# ┃ 2. 暂停任务；
+# ┃ 3. 继续任务；
+# ┃ 4. 终止任务；
+# ┠───────────────────────────────>
+# ┃ 1. 调试死循环任务；
+# ┃ 2. 暂停任务；
+# ┃ 3. 终止任务；
+# ┠───────────────────────────────>
+# ┃ 1. 调试死循环任务；
+# ┃ 2. 调试简单任务；
+# ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━>
+
+[normal.task.single.test0]
+[normal.task.single.test0.debug1]
+type = "task"
+id = ""
+target_id = ["debug"]
+describe = "测试调试任务功能"
+style = "{\"blocks\":{\"languageVersion\":0}}"
+operate = "debug"
+mode = "single"
+condition = "now"
+body = [
+"cyberdog.task.block('123')",
+"cyberdog.audio.play('调试任务执行成功。')",
+    ]
+
+[normal.task.single.test0.debug2]
+type = "task"
+id = ""
+target_id = ["debug"]
+describe = "测试调试任务功能"
+style = "{\"blocks\":{\"languageVersion\":0}}"
+operate = "debug"
+mode = "single"
+condition = "now"
+body = [
+"while True:",
+"   cyberdog.task.block('123')",
+"   cyberdog.audio.play('调试任务进行中。')",
+"   time.sleep(1)",
+    ]
+
+[normal.task.single.test0.debug3]
+type = "task"
+id = ""
+target_id = ["debug"]
+describe = "测试调试任务功能"
+style = "{\"blocks\":{\"languageVersion\":0}}"
+operate = "debug"
+mode = "single"
+condition = "now"
+body = [
+"cyberdog.motion.resume_standing()",
+    ]
+
+[normal.task.single.test0.suspend]
+type = "task"
+id = ""
+target_id = ["debug"]
+describe = ""
+style = ""
+operate = "suspend"
+mode = ""
+condition = ""
+body = []
+
+[normal.task.single.test0.recover]
+type = "task"
+id = ""
+target_id = ["debug"]
+describe = ""
+style = ""
+operate = "recover"
+mode = ""
+condition = ""
+body = []
+
+[normal.task.single.test0.shutdown]
+type = "task"
+id = ""
+target_id = ["debug"]
+describe = ""
+style = ""
+operate = "shutdown"
+mode = ""
+condition = ""
+body = []
+
+[normal.task.single.test0.delete]
+type = "task"
+id = ""
+target_id = ["debug"]
+describe = ""
+style = ""
+operate = "delete"
+mode = ""
+condition = ""
+body = []
+
+[normal.task.single.demo]
+[normal.task.single.demo.debug1]
+type = "task"
+id = ""
+target_id = ["debug"]
+describe = "测试调试任务功能"
+style = "{\"blocks\":{\"languageVersion\":0}}"
+operate = "debug"
+mode = "single"
+condition = "now"
+body = [
+"cyberdog.audio.play('开始人脸识别测试')",
+"for index in range(10):",
+"    personnel_data = cyberdog.personnel.face_recognized(['杨大伟','梁小伟'], False)",
+"    if personnel_data.state.code == StateCode.success:",
+"        if personnel_data.dictionary.has_key('杨大伟'):",
+"            if personnel_data.dictionary['杨大伟'].emotion < 3:",
+"                cyberdog.audio.play(personnel_data.dictionary['杨大伟'].username, '同学啥事这么开心呀')",
+"            else:",
+"                cyberdog.audio.play(personnel_data.dictionary['杨大伟'].username, '同学谁惹你了，咋看起来这么悲伤')",
+"        elif personnel_data.dictionary.has_key('梁小伟'):",
+"            if personnel_data.dictionary['梁小伟'].emotion < 3:",
+"                cyberdog.audio.play(personnel_data.dictionary['梁小伟'].username, '同学啥事这么开心呀')",
+"            else:",
+"                cyberdog.audio.play(personnel_data.dictionary['梁小伟'].username, '同学谁惹你了，咋看起来这么悲伤')",
+"        else:",
+"            cyberdog.audio.play('未找到合法人员')",
+    ]
+
+[normal.task.single.demo.debug2]
+type = "task"
+id = ""
+target_id = ["debug"]
+describe = "测试调试任务功能"
+style = "{\"blocks\":{\"languageVersion\":0}}"
+operate = "debug"
+mode = "single"
+condition = "now"
+body = [
+"cyberdog.audio.play('开始人脸识别测试')",
+"for index in range(3):",
+"    cyberdog.audio.play('测试中')",
+"    personnel_data = cyberdog.personnel.face_recognized(['杨大伟'])",
+"    if personnel_data.state.code == StateCode.success:",
+"        if personnel_data.dictionary.has_key('杨大伟'):",
+"            if personnel_data.dictionary['杨大伟'].emotion < 3:",
+"                cyberdog.audio.play(personnel_data.dictionary['杨大伟'].username)",
+"                cyberdog.audio.play('同学啥事这么开心呀')",
+"            else:",
+"                cyberdog.audio.play(personnel_data.dictionary['杨大伟'].username)",
+"                cyberdog.audio.play('同学谁惹你了，咋看起来这么悲伤')",
+"        else:",
+"            cyberdog.audio.play('未找到合法人员')",
+    ]
+
+[normal.task.single.demo.debug3]
+type = "task"
+id = ""
+target_id = ["debug"]
+describe = "测试调试任务功能"
+style = "{\"blocks\":{\"languageVersion\":0}}"
+operate = "debug"
+mode = "single"
+condition = "now"
+body = [
+"cyberdog.audio.play('开始人脸识别测试')",
+"for index in range(3):",
+"    cyberdog.audio.play('测试中')",
+"    personnel_data = cyberdog.personnel.face_recognized(['刘永胜'])",
+"    if personnel_data.state.code == StateCode.success:",
+"        if personnel_data.dictionary.has_key('刘永胜'):",
+"            if personnel_data.dictionary['刘永胜'].emotion < 3:",
+"                cyberdog.audio.play(personnel_data.dictionary['刘永胜'].username)",
+"                cyberdog.audio.play('同学啥事这么开心呀')",
+"            else:",
+"                cyberdog.audio.play(personnel_data.dictionary['刘永胜'].username)",
+"                cyberdog.audio.play('同学谁惹你了，咋看起来这么悲伤')",
+"        else:",
+"            cyberdog.audio.play('未找到合法人员')",
+    ]
+
+# ┏━━━━━━━━━━━━┓
+# ┃ 测试目标简介 ┃
+# ┣━━━━━━━━━━━━┛
+# ┃ 测试单次定时任务各项操作。
+# ┣━━━━━━━━━━━━┓
+# ┃ 测试流程梳理 ┃
+# ┣━━━━━━━━━━━━┛
+# ┃ 1. 保存单次立即执行的简单任务；
+# ┃ 2. 运行一个已保存的单次立即执行任务；
+# ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━>
+
+[normal.task.single.test1]
+[normal.task.single.test1.save]
+type = "task"
+id = ""
+target_id = ["normal_task_single_test1"]
+describe = "测试保存任务功能"
+style = "{\"blocks\":{\"languageVersion\":0}}"
+operate = "save"
+mode = "single"
+condition = "now"
+body = [
+"cyberdog.audio.play('单次任务执行成功。')",
+    ]
+
+[normal.task.single.test1.run]
+type = "task"
+id = ""
+target_id = ["normal_task_single_test1"]
+describe = ""
+style = ""
+operate = "run"
+mode = ""
+condition = ""
+body = []
+
+[normal.task.single.test1.delete]
+type = "task"
+id = ""
+target_id = ["normal_task_single_test1"]
+describe = ""
+style = ""
+operate = "delete"
+mode = ""
+condition = ""
+body = []
+
+[normal.task.single.test1.inquiry]
+type = "task"
+id = ""
+target_id = ["normal_task_single_test1"]
+describe = ""
+style = ""
+operate = "inquiry"
+mode = ""
+condition = ""
+body = []
+
+[normal.task.single.test1.inquiry1]
+type = "task"
+id = ""
+target_id = []
+describe = ""
+style = ""
+operate = "inquiry"
+mode = ""
+condition = ""
+body = []
+
+# ┏━━━━━━━━━━━━┓
+# ┃ 测试目标简介 ┃
+# ┣━━━━━━━━━━━━┛
+# ┃ 测试单次定时任务各项操作。
+# ┣━━━━━━━━━━━━┓
+# ┃ 测试流程梳理 ┃
+# ┣━━━━━━━━━━━━┛
+# ┃ 1. 保存单次立即执行的死循环任务；
+# ┃ 2. 运行一个已保存的单次立即执行任务；
+# ┃ 3. 暂停任务；
+# ┃ 4. 继续任务；
+# ┃ 5. 终止任务；
+# ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━>
+
+[normal.task.single.test2]
+[normal.task.single.test2.save]
+type = "task"
+id = ""
+target_id = ["normal_task_single_test2"]
+describe = "测试保存任务功能"
+style = "{\"blocks\":{\"languageVersion\":0}}"
+operate = "save"
+mode = "single"
+condition = "now"
+body = [
+"while True:",
+"   cyberdog.task.block('123')",
+"   cyberdog.audio.play('单次任务执行中。')",
+"   time.sleep(1)",
+    ]
+
+[normal.task.single.test2.run]
+type = "task"
+id = ""
+target_id = ["normal_task_single_test2"]
+describe = ""
+style = ""
+operate = "run"
+mode = ""
+condition = ""
+body = []
+
+[normal.task.single.test2.suspend]
+type = "task"
+id = ""
+target_id = ["normal_task_single_test2"]
+describe = ""
+style = ""
+operate = "suspend"
+mode = ""
+condition = ""
+body = []
+
+[normal.task.single.test2.recover]
+type = "task"
+id = ""
+target_id = ["normal_task_single_test2"]
+describe = ""
+style = ""
+operate = "recover"
+mode = ""
+condition = ""
+body = []
+
+[normal.task.single.test2.shutdown]
+type = "task"
+id = ""
+target_id = ["normal_task_single_test2"]
+describe = ""
+style = ""
+operate = "shutdown"
+mode = ""
+condition = ""
+body = []
+
+[normal.task.single.test2.delete]
+type = "task"
+id = ""
+target_id = ["normal_task_single_test2"]
+describe = ""
+style = ""
+operate = "delete"
+mode = ""
+condition = ""
+body = []
+
+[normal.task.single.test2.inquiry]
+type = "task"
+id = ""
+target_id = ["normal_task_single_test2"]
+describe = ""
+style = ""
+operate = "inquiry"
+mode = ""
+condition = ""
+body = []
+
+# ┏━━━━━━━━━━━━┓
+# ┃ 测试目标简介 ┃
+# ┣━━━━━━━━━━━━┛
+# ┃ 测试单次定时任务各项操作。
+# ┣━━━━━━━━━━━━┓
+# ┃ 测试流程梳理 ┃
+# ┣━━━━━━━━━━━━┛
+# ┃ 1. 保存单次立即执行的简单任务；
+# ┃ 2. 运行一个已保存的单次立即执行任务；
+# ┃ 3. 对一个已保存的单次立即执行任务改变时间并运行；
+# ┃ 4. 对一个已保存的单次立即执行任务改变模式（单次变周期）并运行；
+# ┃ 5. 终止一个周期任务；
+# ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━>
+
+[normal.task.single.test3]
+[normal.task.single.test3.save]
+type = "task"
+id = ""
+target_id = ["normal_task_single_test3"]
+describe = "测试保存任务功能"
+style = "{\"blocks\":{\"languageVersion\":0}}"
+operate = "save"
+mode = "single"
+condition = "now"
+body = [
+"cyberdog.audio.play('单次任务执行成功。')",
+    ]
+
+[normal.task.single.test3.run0]
+type = "task"
+id = ""
+target_id = ["normal_task_single_test3"]
+describe = ""
+style = ""
+operate = "run"
+mode = ""
+condition = ""
+body = []
+
+[normal.task.single.test3.run1]
+type = "task"
+id = ""
+target_id = ["normal_task_single_test3"]
+describe = ""
+style = ""
+operate = "run"
+mode = "single"
+condition = "15:18"             # 当天下午4:50执行当前任务
+body = []
+
+[normal.task.single.test3.run2]
+type = "task"
+id = ""
+target_id = ["normal_task_single_test3"]
+describe = ""
+style = ""
+operate = "run"
+mode = "cycle"
+condition = "48 15 * * *"       # 每晚的21:30执行一次当前任务
+body = []
+
+[normal.task.single.test3.shutdown]
+type = "task"
+id = ""
+target_id = ["normal_task_single_test3"]
+describe = ""
+style = ""
+operate = "shutdown"
+mode = ""
+condition = ""
+body = []
+
+[normal.task.single.test3.delete]
+type = "task"
+id = ""
+target_id = ["normal_task_single_test3"]
+describe = ""
+style = ""
+operate = "delete"
+mode = ""
+condition = ""
+body = []
+
+[normal.task.single.test3.inquiry]
+type = "task"
+id = ""
+target_id = ["normal_task_single_test3"]
+describe = ""
+style = ""
+operate = "inquiry"
+mode = ""
+condition = ""
+body = []
+
+# ┏━━━━━━━━━━━━┓
+# ┃ 测试目标简介 ┃
+# ┣━━━━━━━━━━━━┛
+# ┃ 测试单次定时任务各项操作。
+# ┣━━━━━━━━━━━━┓
+# ┃ 测试流程梳理 ┃
+# ┣━━━━━━━━━━━━┛
+# ┃ 1. 保存周期执行的简单任务；
+# ┃ 2. 运行一个已保存的周期执行任务；
+# ┃ 3. 终止一个已运行的周期执行任务；
+# ┃ 4. 对一个已保存的周期执行任务改变时间并运行；
+# ┃ 5. 终止一个已运行的周期执行任务；
+# ┃ 6. 对一个已保存的周期执行任务改变改变模式（周期变单次）时间并运行；
+# ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━>
+
+[normal.task.cycle.test1]
+[normal.task.cycle.test1.save]
+type = "task"
+id = ""
+target_id = ["normal_task_cycle_test1"]
+describe = "测试保存任务功能"
+style = "{\"blocks\":{\"languageVersion\":0}}"
+operate = "save"
+mode = "cycle"
+condition = "30 21 * * *"       # 每晚的21:30执行一次当前任务
+body = [
+"cyberdog.audio.play('单次任务执行成功。')",
+    ]
+
+[normal.task.cycle.test1.run1]
+type = "task"
+id = ""
+target_id = ["normal_task_cycle_test1"]
+describe = ""
+style = ""
+operate = "run"
+mode = ""
+condition = ""
+body = []
+
+[normal.task.cycle.test1.run2]
+type = "task"
+id = ""
+target_id = ["normal_task_cycle_test1"]
+describe = ""
+style = ""
+operate = "run"
+mode = "cycle"
+condition = "35 21 * * *"       # 每晚的21:35执行一次当前任务
+body = []
+
+[normal.task.cycle.test1.run3]
+type = "task"
+id = ""
+target_id = ["normal_task_cycle_test1"]
+describe = ""
+style = ""
+operate = "run"
+mode = "single"
+condition = "now"
+body = []
+
+[normal.task.cycle.test1.shutdown]
+type = "task"
+id = ""
+target_id = ["normal_task_cycle_test1"]
+describe = ""
+style = ""
+operate = "shutdown"
+mode = ""
+condition = ""
+body = []
+
+[normal.task.cycle.test1.delete]
+type = "task"
+id = ""
+target_id = ["normal_task_cycle_test1"]
+describe = ""
+style = ""
+operate = "delete"
+mode = ""
+condition = ""
+body = []
+
+[normal.task.cycle.test1.inquiry]
+type = "task"
+id = ""
+target_id = ["normal_task_cycle_test1"]
+describe = ""
+style = ""
+operate = "inquiry"
+mode = ""
+condition = ""
+body = []
+
+# ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━>
+# ┏━━━━━━━━━━━━┓
+# ┃ 测试目标简介 ┃
+# ┣━━━━━━━━━━━━┛
+# ┃ 测试单次定时任务各项操作。
+# ┣━━━━━━━━━━━━┓
+# ┃ 测试流程梳理 ┃
+# ┣━━━━━━━━━━━━┛
+# ┃ 1. 保存模块；
+# ┃ 2. 删除模块；
+# ┃ 3. 保存模块；
+# ┃ 4. 查询模块列表；
+# ┃ 5. 保存依赖之前模块的立即执行的任务；
+# ┃ 6. 运行依赖之前模块的立即执行任务；
+# ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━>
+[normal.module.common.test1]
+[normal.module.common.test1.save]
+type = "module"
+id = ""
+target_id = ["normal_module_common_test1"]
+describe = "测试保存模块功能"
+style = "{\"blocks\":{\"languageVersion\":0}}"
+operate = "save"
+mode = "common"
+condition = "module_test1()"
+body = [
+"cyberdog.audio.play('模块测试1执行成功。')",
+    ]
+
+[normal.module.common.test1.delete]
+type = "module"
+id = ""
+target_id = ["normal_module_common_test1"]
+describe = ""
+style = ""
+operate = "delete"
+mode = ""
+condition = ""
+body = []
+
+[normal.module.common.test1.inquiry]
+type = "module"
+id = ""
+target_id = ["normal_module_common_test1"]
+describe = ""
+style = ""
+operate = "inquiry"
+mode = ""
+condition = ""
+body = []
+
+[normal.module.single.test1]
+[normal.module.single.test1.save]
+type = "task"
+id = ""
+target_id = ["normal_module_task_single_test1"]
+describe = "测试保存任务功能"
+style = "{\"blocks\":{\"languageVersion\":0}}"
+operate = "save"
+mode = "single"
+condition = "now"
+body = [
+"module_test1()",
+    ]
+
+[normal.module.single.test1.run]
+type = "task"
+id = ""
+target_id = ["normal_module_task_single_test1"]
+describe = ""
+style = ""
+operate = "run"
+mode = ""
+condition = ""
+body = []
+
+# ┏━━━━━━━━━━━━┓
+# ┃ 测试目标简介 ┃
+# ┣━━━━━━━━━━━━┛
+# ┃ 测试单次定时任务各项操作。
+# ┣━━━━━━━━━━━━┓
+# ┃ 测试流程梳理 ┃
+# ┣━━━━━━━━━━━━┛
+# ┃ 1. 保存模块1；
+# ┃ 2. 保存模块2；
+# ┃ 3. 保存模块3；
+# ┃ 4. 查询所有模块；
+# ┃ 5. 查询模块1；
+# ┃ 6. 查询模块23；
+# ┃ 7. 删除模块1；
+# ┃ 8. 查询所有模块；
+# ┃ 9. 删除模块23；
+# ┃ 10. 查询所有模块；
+# ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━>
+[normal.module.common.test2]
+[normal.module.common.test2.save1]
+type = "module"
+id = ""
+target_id = ["normal_module_common_test2_1"]
+describe = "测试保存模块功能"
+style = "{\"blocks\":{\"languageVersion\":0}}"
+operate = "save"
+mode = "common"
+condition = "module_test2_1()"
+body = [
+"cyberdog.audio.play('模块测试2.1执行成功。')",
+    ]
+
+[normal.module.common.test2.save2]
+type = "module"
+id = ""
+target_id = ["normal_module_common_test2_2"]
+describe = "测试保存模块功能"
+style = "{\"blocks\":{\"languageVersion\":0}}"
+operate = "save"
+mode = "common"
+condition = "module_test2_2()"
+body = [
+"cyberdog.audio.play('模块测试2.2执行成功。')",
+    ]
+
+[normal.module.common.test2.save3]
+type = "module"
+id = ""
+target_id = ["normal_module_common_test2_3"]
+describe = "测试保存模块功能"
+style = "{\"blocks\":{\"languageVersion\":0}}"
+operate = "save"
+mode = "common"
+condition = "module_test2_3()"
+body = [
+"module_test2_2()",
+"cyberdog.audio.play('模块测试2.3执行成功。')",
+    ]
+
+[normal.module.common.test2.inquiry]
+type = "module"
+id = ""
+target_id = []
+describe = ""
+style = ""
+operate = "inquiry"
+mode = ""
+condition = ""
+body = []
+
+[normal.module.common.test2.inquiry1]
+type = "module"
+id = ""
+target_id = ["normal_module_common_test2_1"]
+describe = ""
+style = ""
+operate = "inquiry"
+mode = ""
+condition = ""
+body = []
+
+[normal.module.common.test2.inquiry23]
+type = "module"
+id = ""
+target_id = ["normal_module_common_test2_2", "normal_module_common_test2_3"]
+describe = ""
+style = ""
+operate = "inquiry"
+mode = ""
+condition = ""
+body = []
+
+[normal.module.common.test2.delete1]
+type = "module"
+id = ""
+target_id = ["normal_module_common_test2_1"]
+describe = ""
+style = ""
+operate = "delete"
+mode = ""
+condition = ""
+body = []
+
+[normal.module.common.test2.delete23]
+type = "module"
+id = ""
+target_id = ["normal_module_common_test2_2", "normal_module_common_test2_3"]
+describe = ""
+style = ""
+operate = "delete"
+mode = ""
+condition = ""
+body = []
+
+# ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━>
+# ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━>
+[abnormal]
+[abnormal.task]
+[abnormal.task.single]
+[abnormal.task.cycle]
+[abnormal.module]
+[abnormal.module.common]
+[abnormal.module.sequence]
+# ┏━━━━━━━━━━━━┓
+# ┃ 测试目标简介 ┃
+# ┣━━━━━━━━━━━━┛
+# ┃ 测试单次定时任务各项操作。
+# ┣━━━━━━━━━━━━┓
+# ┃ 测试流程梳理 ┃
+# ┣━━━━━━━━━━━━┛
+# ┃ 1. 保存模块1；
+# ┃ 2. 保存模块2；
+# ┃ 3. 保存模块3；
+# ┃ 4. 查询所有模块；
+# ┃ 5. 查询模块1；
+# ┃ 6. 查询模块23；
+# ┃ 7. 删除模块1；
+# ┃ 8. 查询所有模块；
+# ┃ 9. 删除模块23；
+# ┃ 10. 查询所有模块；
+# ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━>
+[abnormal.module.common.test1]
+
+[abnormal.module.common.test1.save1_1]
+type = "module"
+id = ""
+target_id = ["abnormal_module_common_test1_2"]
+describe = "测试保存模块功能"
+style = "{\"blocks\":{\"languageVersion\":0}}"
+operate = "save"
+mode = "common"
+condition = "module_test2_1()"
+body = [
+"cyberdog.audio.play('模块测试2.2执行成功。')",
+    ]
+
+[abnormal.module.common.test1.save1_2]
+type = "module"
+id = ""
+target_id = ["abnormal_module_common_test1_1"]
+describe = "测试保存模块功能"
+style = "{\"blocks\":{\"languageVersion\":0}}"
+operate = "save"
+mode = "common"
+condition = "module_test2_1()"
+body = [
+"module_test2_5()",
+"cyberdog.audio.play('模块测试2.2执行成功。')",
+    ]
+
+[abnormal.module.common.test1.save1]
+type = "module"
+id = ""
+target_id = ["abnormal_module_common_test1_1"]
+describe = "测试保存模块功能"
+style = "{\"blocks\":{\"languageVersion\":0}}"
+operate = "save"
+mode = "common"
+condition = "module_test2_1()"
+body = [
+"cyberdog.audio.play('模块测试2.1执行成功。')",
+    ]
+
+[abnormal.module.common.test1.save2]
+type = "module"
+id = ""
+target_id = ["abnormal_module_common_test1_2"]
+describe = "测试保存模块功能"
+style = "{\"blocks\":{\"languageVersion\":0}}"
+operate = "save"
+mode = "common"
+condition = "module_test2_2()"
+body = [
+"module_test2_1()",
+"cyberdog.audio.play('模块测试2.1执行成功。')",
+    ]
+
+[abnormal.module.common.test1.save3]
+type = "module"
+id = ""
+target_id = ["abnormal_module_common_test1_3"]
+describe = "测试保存模块功能"
+style = "{\"blocks\":{\"languageVersion\":0}}"
+operate = "save"
+mode = "common"
+condition = "module_test2_3()"
+body = [
+"module_test2_2()",
+"cyberdog.audio.play('模块测试2.3执行成功。')",
+    ]
+
+[abnormal.module.common.test1.save4]
+type = "module"
+id = ""
+target_id = ["abnormal_module_common_test1_4"]
+describe = "测试保存模块功能"
+style = "{\"blocks\":{\"languageVersion\":0}}"
+operate = "save"
+mode = "common"
+condition = "module_test2_4()"
+body = [
+"module_test2_3()",
+"cyberdog.audio.play('模块测试2.3执行成功。')",
+    ]
+
+[abnormal.module.common.test1.save5]
+type = "module"
+id = ""
+target_id = ["abnormal_module_common_test1_5"]
+describe = "测试保存模块功能"
+style = "{\"blocks\":{\"languageVersion\":0}}"
+operate = "save"
+mode = "common"
+condition = "module_test2_5()"
+body = [
+"module_test2_4()",
+"cyberdog.audio.play('模块测试2.3执行成功。')",
+    ]
+
+[abnormal.module.common.test1.delete1]
+type = "module"
+id = ""
+target_id = ["abnormal_module_common_test1_1"]
+describe = ""
+style = ""
+operate = "delete"
+mode = ""
+condition = ""
+body = []
+
+[abnormal.module.common.test1.delete2]
+type = "module"
+id = ""
+target_id = ["abnormal_module_common_test1_2"]
+describe = ""
+style = ""
+operate = "delete"
+mode = ""
+condition = ""
+body = []
+
+[abnormal.module.common.test1.delete3]
+type = "module"
+id = ""
+target_id = ["abnormal_module_common_test1_3"]
+describe = ""
+style = ""
+operate = "delete"
+mode = ""
+condition = ""
+body = []
+
+[abnormal.module.common.test1.delete4]
+type = "module"
+id = ""
+target_id = ["abnormal_module_common_test1_4"]
+describe = ""
+style = ""
+operate = "delete"
+mode = ""
+condition = ""
+body = []
