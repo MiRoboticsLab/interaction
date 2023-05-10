@@ -125,6 +125,7 @@ void Motion::InitDependent(
 
 void Motion::MotionStatusResponse(const MsgMotionStatus::SharedPtr msg_ptr)
 {
+  this->old_motion_id_ = this->motion_id_;
   this->motion_id_ = msg_ptr->motion_id;
   Debug(
     "[MotionStatusResponse] The motion status:"
@@ -545,13 +546,13 @@ MotionResultServiceResponse Motion::Request(
       return static_cast<int>(ret.state.code == StateCode::success);
     };
   auto sit_down_twist_ass_compensation = [&]() -> bool {
-      int now_motion_id = this->motion_id_;
       bool is_sit_down = static_cast<bool>(
-        (now_motion_id == static_cast<int>(MotionId::sit_down)) ||
-        (now_motion_id == static_cast<int>(MotionId::shake_ass_left)) ||
-        (now_motion_id == static_cast<int>(MotionId::shake_ass_right)) ||
-        (now_motion_id == static_cast<int>(MotionId::shake_ass_from_side_to_side)) ||
-        (now_motion_id ==
+        ((this->old_motion_id_ == static_cast<int>(MotionId::dance_collection)) ||
+        (this->old_motion_id_ == static_cast<int>(MotionId::sit_down)) ||
+        (this->old_motion_id_ == static_cast<int>(MotionId::shake_ass_left)) ||
+        (this->old_motion_id_ == static_cast<int>(MotionId::shake_ass_right)) ||
+        (this->old_motion_id_ == static_cast<int>(MotionId::shake_ass_from_side_to_side))) &&
+        (this->motion_id_ ==
         static_cast<int>(MotionId::relatively_position_control_attitude_insert_frame_2)));
       if ((_motion_id == MotionId::shake_ass_left) ||
         (_motion_id == MotionId::shake_ass_right) ||

@@ -43,6 +43,7 @@ public:
   : Base(std::string(__FUNCTION__)) {}
   ~Motion() {}
   MotionParams params_;                           /*!< 参数 */
+  int old_motion_id_;                             /*!< 上一个运动ID */
   int motion_id_;                                 /*!< 运动ID */
 
   MotionResultServiceResponse Request(
