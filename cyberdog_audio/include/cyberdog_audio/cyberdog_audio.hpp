@@ -119,6 +119,7 @@ private:
   void VolumeGetCallback(const std_msgs::msg::UInt8::SharedPtr msg);
   void RestoreSettingsCallback(const std_msgs::msg::Bool::SharedPtr msg);
   void BmsStatus(const protocol::msg::BmsStatus::SharedPtr msg);
+  void ContinueDialog(const std_msgs::msg::Bool::SharedPtr msg);
   void SetAudioState(
     const protocol::srv::AudioExecute::Request::SharedPtr request,
     protocol::srv::AudioExecute::Response::SharedPtr respose);
@@ -241,6 +242,7 @@ private:
   rclcpp::Subscription<std_msgs::msg::UInt8>::SharedPtr volume_get_sub_;
   rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr restore_settings_sub_;
   rclcpp::Subscription<protocol::msg::BmsStatus>::SharedPtr bms_status_sub_;
+  rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr continue_dialog_sub_;
   rclcpp::Service<protocol::srv::AudioExecute>::SharedPtr audio_set_status_srv_;
   rclcpp::Service<protocol::srv::AudioExecute>::SharedPtr audio_get_status_srv_;
   rclcpp::Service<protocol::srv::AudioAuthId>::SharedPtr audio_auth_did_srv_;

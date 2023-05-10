@@ -406,6 +406,9 @@ int32_t cyberdog::interaction::CyberdogAudio::OnActive()
       this->create_subscription<std_msgs::msg::Bool>(
       "audio_restore_settings", rclcpp::SystemDefaultsQoS(),
       std::bind(&CyberdogAudio::RestoreSettingsCallback, this, std::placeholders::_1));
+    continue_dialog_sub_ = this->create_subscription<std_msgs::msg::Bool>(
+      "continue_dialog", rclcpp::SystemDefaultsQoS(),
+      std::bind(&CyberdogAudio::ContinueDialog, this, std::placeholders::_1));
     audio_set_status_srv_ =
       this->create_service<protocol::srv::AudioExecute>(
       "set_audio_state",
@@ -1047,7 +1050,7 @@ void cyberdog::interaction::CyberdogAudio::AudioActionSetCallback(
     std::system(cmd.c_str());
   }
   Document json_document(kObjectType);
-  Document::AllocatorType & allocator = json_document.GetAllocator();
+  // Document::AllocatorType & allocator = json_document.GetAllocator();
   auto result = CyberdogJson::ReadJsonFromFile(path, json_document);
   rapidjson::Value action_control_val(rapidjson::kObjectType);
   if (result) {
@@ -1193,6 +1196,17 @@ void cyberdog::interaction::CyberdogAudio::BmsStatus(
   const protocol::msg::BmsStatus::SharedPtr msg)
 {
   battery_capicity_ = msg->batt_soc;
+}
+
+void cyberdog::interaction::CyberdogAudio::ContinueDialog(
+  const std_msgs::msg::Bool::SharedPtr msg)
+{
+  continue_dialog cd;
+  cd.set = msg->data;
+  std::shared_ptr<audio_lcm::lcm_data> l_d(new audio_lcm::lcm_data());
+  l_d->cmd = CONTINUE_DIALOG;
+  l_d->data = xpack::json::encode(cd);
+  LcmPublish(l_d);
 }
 
 void cyberdog::interaction::CyberdogAudio::LcmHandler(

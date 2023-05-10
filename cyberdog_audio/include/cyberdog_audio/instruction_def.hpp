@@ -72,6 +72,7 @@
 #define  POWER_INSTRUCTION      "power_instruction"
 #define  GET_DEVICE_STATUS      "get_device_status"
 #define  PERSONALIZE_INSTRUCTION "personalize_instruction"
+#define  CONTINUE_DIALOG        "continue_dialog"
 
 struct self_check
 {
@@ -321,6 +322,11 @@ struct personalize_instruction
 {
   std::vector<std::string> cmds;
   XPACK(O(cmds))
+};
+struct continue_dialog
+{
+  bool set;
+  XPACK(O(set))
 };
 struct TokenInfo
 {
