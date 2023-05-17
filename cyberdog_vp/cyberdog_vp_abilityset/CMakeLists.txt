@@ -32,7 +32,7 @@ find_package(rapidjson REQUIRED)
 
 find_package(python_cmake_module REQUIRED)
 find_package(PythonExtra REQUIRED)
-find_package(Python 3.6 COMPONENTS Interpreter Development REQUIRED)
+find_package(Python COMPONENTS Interpreter Development REQUIRED)
 find_package(pybind11 CONFIG REQUIRED)
 
 include(compile_and_install.cmake)

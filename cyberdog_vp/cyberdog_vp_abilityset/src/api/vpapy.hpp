@@ -86,6 +86,12 @@ void DefineAudioGetVolumeSeviceResponse(
   py::object);                                    /*!< 定义 AudioGetVolumeSeviceResponse */
 void DefineAudioSetVolumeSeviceResponse(
   py::object);                                    /*!< 定义 AudioSetVolumeSeviceResponse */
+void DefineDialogueResponse(
+  py::object);                                    /*!< 定义 DefineDialogueResponse */
+void DefineMsgDialogueResponseList(
+  py::object);                                    /*!< 定义 DefineMsgDialogueResponseList */
+void DefineAudioGetUserDialogueResponse(
+  py::object);                                    /*!< 定义 AudioGetUserDialogueResponse */
 void DefineLedConstraint(py::object);             /*!< 定义 LedConstraint */
 void DefineLedSeviceResponse(py::object);         /*!< 定义 LedSeviceResponse */
 void DefineMotionResultServiceResponse(

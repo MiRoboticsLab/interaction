@@ -60,6 +60,7 @@ void Gps::SubCB(const MsgGpsPayload::SharedPtr _msg_ptr)
     // std::lock_guard<std::mutex> lk(gps_data_cvm_);
     std::scoped_lock lk(gps_data_cvm_);
     this->data_ = *_msg_ptr;
+    this->state_.code = StateCode::success;
   }
   gps_data_cv_.notify_all();
   this->timens_ = GetTimeNs();

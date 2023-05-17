@@ -183,6 +183,12 @@ std::string int2binary(const int _int)
   return std::string(str);
 }
 
+bool endsWith(const std::string & _str, const std::string & _suffix)
+{
+  return (_str.length() >= _suffix.length()) &&
+         (_str.substr(_str.length() - _suffix.length()) == _suffix);
+}
+
 std::string covariance36(
   const std::array<double, 36> & _ary,
   const std::string _head,
@@ -511,6 +517,25 @@ std::string msgTrainingWordsMap(
         _spacing.c_str(), value.trigger.c_str(),
         _spacing.c_str(), value.type.c_str(),
         _spacing.c_str(), value.value.c_str()));
+  }
+  return ret.str();
+}
+
+std::string msgDialogueResponseVector(
+  const std::vector<DialogueResponse> & _vct,
+  const std::string _spacing)
+{
+  std::ostringstream ret;
+  size_t vct_size = _vct.size();
+  for (size_t i = 0; i < vct_size; i++) {
+    ret << std::string(
+      FORMAT(
+        "\n%s- [%ld]"
+        "\n%s  - time_ns: = %ld"
+        "\n%s  - data: = %s",
+        _spacing.c_str(), i,
+        _spacing.c_str(), _vct.at(i).time_ns,
+        _spacing.c_str(), _vct.at(i).data.c_str()));
   }
   return ret.str();
 }

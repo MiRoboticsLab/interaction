@@ -19,6 +19,9 @@
 
 namespace cyberdog_visual_programming_abilityset
 {
+std::mutex user_dialogue_data_cvm_;               /*!< 用户对话 数据 cvm */
+std::condition_variable user_dialogue_data_cv_;   /*!< 用户对话 数据 cv */
+
 bool Audio::SetData(const toml::value &)
 {
   try {
@@ -36,6 +39,10 @@ bool Audio::SetMechanism(const toml::value & _params_toml)
     Debug("%s() ...", std::string(__FUNCTION__).c_str());
     this->play_pub_cb_group_ =
       this->node_mortal_ptr_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    this->control_dialogue_cb_group_ =
+      this->node_mortal_ptr_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    this->user_dialogue_cb_group_ =
+      this->node_mortal_ptr_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
     this->play_cli_cb_group_ =
       this->node_mortal_ptr_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
     this->get_volume_cli_cb_group_ =
@@ -45,11 +52,27 @@ bool Audio::SetMechanism(const toml::value & _params_toml)
 
     rclcpp::PublisherOptions pub_option;
     pub_option.callback_group = this->play_pub_cb_group_;
-    this->topic_pub_ = this->node_mortal_ptr_->create_publisher<MsgAudioPlayExtend>(
+    this->play_message_pub_ = this->node_mortal_ptr_->create_publisher<MsgAudioPlayExtend>(
       toml::find_or(
         _params_toml, "vp", "init", "topic", "audio", "speech_play_extend"),
       PublisherQos,
       pub_option);
+
+    pub_option.callback_group = this->control_dialogue_cb_group_;
+    this->control_dialogue_message_pub_ = this->node_mortal_ptr_->create_publisher<MsgBool>(
+      toml::find_or(
+        _params_toml, "vp", "init", "topic", "dialogue", "continue_dialog"),
+      PublisherQos,
+      pub_option);
+
+    rclcpp::SubscriptionOptions sub_option;
+    sub_option.callback_group = this->user_dialogue_cb_group_;
+    this->user_dialogue_message_sub_ = this->node_mortal_ptr_->create_subscription<MsgString>(
+      toml::find_or(
+        _params_toml, "vp", "init", "topic", "user_dialogue", "asr_text"),
+      SubscriptionSensorQos,
+      std::bind(&Audio::UserDialogueCB, this, std::placeholders::_1),
+      sub_option);
 
     this->play_cli_ptr_ = this->node_mortal_ptr_->create_client<SrvAudioTextPlay>(
       toml::find_or(
@@ -71,6 +94,20 @@ bool Audio::SetMechanism(const toml::value & _params_toml)
     return false;
   }
   return true;
+}
+
+void Audio::UserDialogueCB(const MsgString::SharedPtr _msg_ptr)
+{
+  {
+    // std::lock_guard<std::mutex> lk(user_dialogue_data_cvm_);
+    std::scoped_lock lk(user_dialogue_data_cvm_);
+    DialogueResponse now_msg;
+    now_msg.data = _msg_ptr->data;
+    now_msg.time_ns = GetTimeNs();
+    this->user_dialogues_.push_back(now_msg);
+    this->user_dialogue_state_.code = StateCode::success;
+  }
+  user_dialogue_data_cv_.notify_all();
 }
 
 std::shared_ptr<SrvAudioTextPlay::Request> Audio::GetPlayRequest()
@@ -286,7 +323,7 @@ State Audio::OnlineInstantlyPlay(
   audio_msg.is_online = true;
   audio_msg.text = _message;
   // audio_msg.speech.xxx
-  this->topic_pub_->publish(audio_msg);
+  this->play_message_pub_->publish(audio_msg);
   return this->GetState(funs, StateCode::success);
 }
 
@@ -336,7 +373,7 @@ State Audio::OfflineInstantlyPlay(
   audio_msg.is_online = false;
   audio_msg.speech.module_name = "cyberdog_vp";
   audio_msg.speech.play_id = _audio_id;
-  this->topic_pub_->publish(audio_msg);
+  this->play_message_pub_->publish(audio_msg);
   return this->GetState(funs, StateCode::success);
 }
 
@@ -374,6 +411,66 @@ AudioSetVolumeSeviceResponse Audio::SetVolume(const uint8_t _volume)
       "[%s] Request play service is error.",
       funs.c_str());
   }
+  ret.state.describe = this->GetDescribe(funs, ret.state.code);
+  return ret;
+}
+
+State Audio::SetDialogue(const bool _turn_on)
+{
+  std::string funs = std::string(__FUNCTION__) + FORMAT("(%d) ...", _turn_on);
+  Info("%s", funs.c_str());
+  if (this->state_.code != StateCode::success) {
+    return this->GetState(funs, this->state_.code);
+  }
+  MsgBool control_msg;
+  control_msg.data = _turn_on;
+  this->control_dialogue_message_pub_->publish(control_msg);
+  return this->GetState(funs, StateCode::success);
+}
+
+State Audio::ResetUserDialogue()
+{
+  std::string funs = std::string(__FUNCTION__) + "()";
+  Info("%s", funs.c_str());
+  if (this->state_.code != StateCode::success) {
+    return this->GetState(funs, this->state_.code);
+  }
+  {
+    // std::lock_guard<std::mutex> lk(user_dialogue_data_cvm_);
+    std::scoped_lock lk(user_dialogue_data_cvm_);
+    this->user_dialogues_.clear();
+    this->user_dialogue_state_.code = StateCode::invalid;
+  }
+  user_dialogue_data_cv_.notify_all();
+  return this->GetState(funs, StateCode::success);
+}
+
+AudioGetUserDialogueResponse Audio::GetUserDialogue(
+  const uint16_t _timeout)
+{
+  AudioGetUserDialogueResponse ret;
+  ret.state.code = StateCode::timeout;
+  std::string funs = std::string(__FUNCTION__) + FORMAT("(%d) ...", _timeout);
+  Info("%s", funs.c_str());
+  if (this->state_.code != StateCode::success) {
+    ret.state = this->GetState(funs, this->state_.code);
+    return ret;
+  }
+  this->user_dialogue_state_.code = StateCode::timeout;
+  std::unique_lock<std::mutex> lk(user_dialogue_data_cvm_);
+  user_dialogue_data_cv_.wait_for(
+    lk, std::chrono::seconds(_timeout), [&] {
+      if ((!this->user_dialogues_.empty()) ||
+      (this->user_dialogue_state_.code == StateCode::success))
+      {
+        // ret.response.assign(this->user_dialogues_.begin(), this->user_dialogues_.end());
+        // this->user_dialogues_.clear();
+        ret.response.swap(this->user_dialogues_);
+        ret.state.code = StateCode::success;
+        return true;
+      }
+      return false;
+    });
   ret.state.describe = this->GetDescribe(funs, ret.state.code);
   return ret;
 }

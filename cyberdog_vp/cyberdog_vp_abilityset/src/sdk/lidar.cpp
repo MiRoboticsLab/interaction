@@ -60,6 +60,7 @@ void Lidar::SubCB(const MsgLaserScan::SharedPtr _msg_ptr)
     // std::lock_guard<std::mutex> lk(lidar_data_cvm_);
     std::scoped_lock lk(lidar_data_cvm_);
     this->data_ = *_msg_ptr;
+    this->state_.code = StateCode::success;
   }
   lidar_data_cv_.notify_all();
   this->timens_ = GetTimeNs();

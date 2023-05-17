@@ -152,6 +152,13 @@ function(compile_and_install_api)
   endif()
   if(_ARG_LOG)
     message("Compiling and installing API ...")
+    message(
+      "\nPython info:
+      - PYTHON_VERSION_MAJOR:${PYTHON_VERSION_MAJOR}
+      - PYTHON_VERSION_MINOR:${PYTHON_VERSION_MINOR}
+      - PYTHON_EXECUTABLE:${PYTHON_EXECUTABLE}
+      - PYTHON_INCLUDE_DIR:${PYTHON_INCLUDE_DIR}
+      - PYTHON_LIBRARY:${PYTHON_LIBRARY}")
   endif()
   file(GLOB_RECURSE _lib_file_list RELATIVE ${PROJECT_SOURCE_DIR} src/sdk/*.cpp)    # 以相对路径方式递归包含目标文件
   list(LENGTH _lib_file_list _lib_file_list_size)
@@ -178,9 +185,10 @@ function(compile_and_install_api)
   )
   target_link_libraries("${_api_name}" PRIVATE
     ${CMAKE_INSTALL_PREFIX}/lib/libcyberdog_log.so
+    ${PYTHON_LIBRARY}
   )
 
-  # add_library(${_api_name} SHARED
+  # add_library(${_api_name} MODULE
   #   ${_lib_file_list}
   #   ${_api_file_list}
   # )
@@ -204,6 +212,7 @@ function(compile_and_install_api)
 
   target_compile_features("${_api_name}" PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
   target_include_directories("${_api_name}" PUBLIC
+    ${PYTHON_INCLUDE_DIR}
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
 
