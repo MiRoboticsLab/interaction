@@ -60,6 +60,7 @@ void Odometer::SubCB(const MsgOdometry::SharedPtr _msg_ptr)
     // std::lock_guard<std::mutex> lk(odometer_data_cvm_);
     std::scoped_lock lk(odometer_data_cvm_);
     this->data_ = *_msg_ptr;
+    this->state_.code = StateCode::success;
   }
   odometer_data_cv_.notify_all();
   this->timens_ = GetTimeNs();

@@ -53,6 +53,21 @@ void DefineAudio(py::object m)
     py::arg("volume")
   )
   .def(
+    "turn_on_dialogue", &VPA::Audio::SetDialogue, R"pbdoc( 打开对话 )pbdoc",
+    py::arg("volume") = true
+  )
+  .def(
+    "turn_off_dialogue", &VPA::Audio::SetDialogue, R"pbdoc( 关闭对话 )pbdoc",
+    py::arg("volume") = false
+  )
+  .def(
+    "reset_user_dialogue", &VPA::Audio::ResetUserDialogue, R"pbdoc( 重置用户对话 )pbdoc"
+  )
+  .def(
+    "get_user_dialogue", &VPA::Audio::GetUserDialogue, R"pbdoc( 获取用户对话 )pbdoc",
+    py::arg("timeout") = 3
+  )
+  .def(
     "__repr__", [](const VPA::Audio & _audio) {
       return std::string(
         FORMAT(

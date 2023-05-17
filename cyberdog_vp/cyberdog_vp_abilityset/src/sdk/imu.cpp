@@ -61,6 +61,7 @@ void Imu::SubCB(const MsgImu::SharedPtr _msg_ptr)
     // std::lock_guard<std::mutex> lk(imu_data_cvm_);
     std::scoped_lock lk(imu_data_cvm_);
     this->data_ = *_msg_ptr;
+    this->state_.code = StateCode::success;
   }
   imu_data_cv_.notify_all();
   this->timens_ = GetTimeNs();

@@ -64,6 +64,14 @@ def get_argv():
 #
 def import_modules(_task_body):
     dependent_modules = ["sys.path.append(os.path.join('" + get_workspace() + "', 'module', 'src'))"]
+    if _task_body == 'all':
+        dependent_modules.append('import mi.cyberdog_vp.choreographer as choreographer')
+        dependent_modules.append('import dancer')
+    else:
+        if "choreographer." in _task_body:
+            dependent_modules.append('import mi.cyberdog_vp.choreographer as choreographer')
+        if "dancer." in _task_body:
+            dependent_modules.append('import dancer')
     module_toml = os.path.join(get_workspace(), 'module', 'module.toml')
     module = 'module'
     mode = 'mode'

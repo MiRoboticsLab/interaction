@@ -60,6 +60,7 @@ void Bms::SubCB(const MsgBmsStatus::SharedPtr _msg_ptr)
     // std::lock_guard<std::mutex> lk(bms_data_cvm_);
     std::scoped_lock lk(bms_data_cvm_);
     this->data_ = *_msg_ptr;
+    this->state_.code = StateCode::success;
   }
   bms_data_cv_.notify_all();
   this->timens_ = GetTimeNs();

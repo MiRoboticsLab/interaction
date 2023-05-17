@@ -601,6 +601,27 @@ public:
   SrvAudioSetVolume::Response response;           /*!< 反馈 */
 };
 
+/*! audio 获取用户对话 */
+class DialogueResponse
+{
+public:
+  DialogueResponse() {}
+  ~DialogueResponse() {}
+  uint64_t time_ns;                               /*!< 时间 */
+  std::string data;                               /*!< 数据 */
+};
+
+/*! audio 获取用户对话 */
+class AudioGetUserDialogueResponse
+{
+public:
+  AudioGetUserDialogueResponse() {}
+  ~AudioGetUserDialogueResponse() {}
+  State state;                                    /*!< 状态 */
+  std::vector<DialogueResponse> response;         /*!< 反馈 */
+};
+
+
 /*! LED约束 */
 enum LedConstraint
 {
@@ -907,6 +928,9 @@ bool Timeout(
   const uint64_t & _old_ns,
   uint64_t _timeout_ms = 3000);                   /*!< 判断超时 */
 std::string int2binary(const int);                /*!< int 转 2进制 */
+bool endsWith(
+  const std::string &,
+  const std::string &);                            /*!< 判断结束字符 */
 std::string covariance36(
   const std::array<double, 36> &,
   const std::string,
@@ -941,6 +965,9 @@ std::string msgTrainingWordsVector(
   const std::string);                             /*!< 数组 转 字符串 */
 std::string msgTrainingWordsMap(
   const std::map<std::string, MsgTrainingWords> &,
+  const std::string);                             /*!< 数组 转 字符串 */
+std::string msgDialogueResponseVector(
+  const std::vector<DialogueResponse> &,
   const std::string);                             /*!< 数组 转 字符串 */
 std::string stringVector(
   const std::vector<std::string> &);              /*!< 数组 转 字符串 */

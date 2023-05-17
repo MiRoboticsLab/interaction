@@ -39,6 +39,9 @@ PYBIND11_MAKE_OPAQUE(std::vector<cyberdog_visual_programming_abilityset::MsgTrai
 PYBIND11_MAKE_OPAQUE(
   std::map<std::string,
   cyberdog_visual_programming_abilityset::MsgTrainingWords>)
+PYBIND11_MAKE_OPAQUE(
+  std::vector<cyberdog_visual_programming_abilityset::DialogueResponse,
+  std::allocator<cyberdog_visual_programming_abilityset::DialogueResponse>>)
 
 namespace cyberdog_visual_programming_abilityset_py
 {
@@ -58,6 +61,9 @@ void DefineCommonType(py::object m)
   DefineAudioPlaySeviceResponse(m);
   DefineAudioGetVolumeSeviceResponse(m);
   DefineAudioSetVolumeSeviceResponse(m);
+  DefineDialogueResponse(m);
+  DefineMsgDialogueResponseList(m);
+  DefineAudioGetUserDialogueResponse(m);
   DefineLedConstraint(m);
   DefineLedSeviceResponse(m);
   DefineMotionResultServiceResponse(m);
@@ -228,6 +234,102 @@ void DefineAudioSetVolumeSeviceResponse(py::object m)
           _ret.state.code,
           _ret.state.describe.c_str(),
           std::string(_ret.response.success ? "True" : "False").c_str()));
+    })
+  ;
+}
+
+void DefineDialogueResponse(py::object m)
+{
+  py::class_<VPA::DialogueResponse>(
+    m, "DialogueResponse",
+    py::dynamic_attr())
+  .def(py::init<>())
+  .def_readonly("time_ns", &VPA::DialogueResponse::time_ns, R"pbdoc( 时间 )pbdoc")
+  .def_readonly("data", &VPA::DialogueResponse::data, R"pbdoc( 数据 )pbdoc")
+  .def(
+    "__repr__", [](const VPA::DialogueResponse & _ret) {
+      return std::string(
+        FORMAT(
+          "┌────────────────────────────────────────---"
+          "\n│- type: DialogueResponse"
+          "\n├────────────────────────────────────────---"
+          "\n│- data:"
+          "\n│  - time_ns = %ld"
+          "\n│  - data = '%s'"
+          "\n└────────────────────────────────────────---",
+          _ret.time_ns,
+          _ret.data.c_str()));
+    })
+  ;
+}
+
+void DefineMsgDialogueResponseList(py::object m)
+{
+  using MsgDialogueResponseList = std::vector<VPA::DialogueResponse>;
+  py::bind_vector<MsgDialogueResponseList>(m, "MsgDialogueResponseList")
+  .def(py::init<>())
+  .def("empty", &MsgDialogueResponseList::empty)
+  .def("size", &MsgDialogueResponseList::size)
+  .def("max_size", &MsgDialogueResponseList::max_size)
+  .def("capacity", &MsgDialogueResponseList::capacity)
+  .def(
+    "at",
+    (VPA::DialogueResponse & (MsgDialogueResponseList::*) (const size_t)) &
+    MsgDialogueResponseList::at)
+  .def(
+    "front",
+    (VPA::DialogueResponse & (MsgDialogueResponseList::*) ()) & MsgDialogueResponseList::front)
+  .def(
+    "back",
+    (VPA::DialogueResponse & (MsgDialogueResponseList::*) ()) & MsgDialogueResponseList::back)
+  .def(
+    "__len__", [](const MsgDialogueResponseList & v) {
+      return v.size();
+    })
+  .def(
+    "__iter__", [](MsgDialogueResponseList & v) {
+      return py::make_iterator(v.begin(), v.end());
+    }, py::keep_alive<0, 1>())
+  .def(
+    "__repr__", [](const MsgDialogueResponseList & _data) {
+      return std::string(
+        FORMAT(
+          "┌───────────────────────────────────────────────────---"
+          "\n│- type: MsgDialogueResponseList"
+          "\n├───────────────────────────────────────────────────---"
+          "\n│- data:"
+          "%s"
+          "\n└───────────────────────────────────────────────────---",
+          VPA::msgDialogueResponseVector(_data, "│  ").c_str()));
+    })
+  ;
+}
+
+void DefineAudioGetUserDialogueResponse(py::object m)
+{
+  py::class_<VPA::AudioGetUserDialogueResponse>(
+    m, "AudioGetUserDialogueResponse",
+    py::dynamic_attr())
+  .def(py::init<>())
+  .def_readonly("state", &VPA::AudioGetUserDialogueResponse::state, R"pbdoc( 状态 )pbdoc")
+  .def_readonly("response", &VPA::AudioGetUserDialogueResponse::response, R"pbdoc( 反馈 )pbdoc")
+  .def(
+    "__repr__", [](const VPA::AudioGetUserDialogueResponse & _ret) {
+      return std::string(
+        FORMAT(
+          "┌────────────────────────────────────────---"
+          "\n│- type: AudioGetUserDialogueResponse"
+          "\n├────────────────────────────────────────---"
+          "\n│- data:"
+          "\n│  - state:"
+          "\n│    - code = %d"
+          "\n│    - describe = '%s'"
+          "\n│  - response:"
+          "%s"
+          "\n└────────────────────────────────────────---",
+          _ret.state.code,
+          _ret.state.describe.c_str(),
+          VPA::msgDialogueResponseVector(_ret.response, "│    ").c_str()));
     })
   ;
 }
