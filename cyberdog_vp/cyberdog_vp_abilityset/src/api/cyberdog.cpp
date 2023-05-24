@@ -37,7 +37,10 @@ void DefineCyberdog(py::object m)
   .def(
     "shutdown", &VPA::Cyberdog::Shutdown, R"pbdoc( 终止 )pbdoc",
     py::arg("exit") = true)
-
+  .def(
+    "ready", &VPA::Cyberdog::Ready, R"pbdoc( 准备就绪 )pbdoc",
+    py::arg("timeout") = 30
+  )
   .def_readwrite("network", &VPA::Cyberdog::network_, R"pbdoc( 网络模块句柄 )pbdoc")
   .def_readwrite("follow", &VPA::Cyberdog::follow_, R"pbdoc( 跟随模块句柄 )pbdoc")
   .def_readwrite("motion", &VPA::Cyberdog::motion_, R"pbdoc( 运动模块句柄 )pbdoc")
