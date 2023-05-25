@@ -264,4 +264,26 @@ void Cyberdog::SetLog(const bool _log)
   this->tof_.SetLog(_log);
   this->ultrasonic_.SetLog(_log);
 }
+
+State Cyberdog::Ready(const uint16_t _timeout)
+{
+  std::string funs = std::string(__FUNCTION__) + FORMAT("(%d)", _timeout);
+  INFO("%s %s ...", this->logger_.c_str(), funs.c_str());
+  try {
+    std::chrono::time_point<std::chrono::system_clock> deadline =
+      std::chrono::system_clock::now() + std::chrono::seconds(std::abs(_timeout));
+    while (rclcpp::ok() && std::chrono::system_clock::now() < deadline) {
+      if (this->task_.GetProcessor(Processor::task)) {
+        return this->GetState(funs, StateCode::success);
+      }
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    return this->GetState(funs, StateCode::timeout);
+  } catch (const std::exception & e) {
+    Error(
+      "%s %s is failed. \n%s",
+      this->logger_.c_str(), funs.c_str(), e.what());
+  }
+  return this->GetState(funs, StateCode::fail);
+}
 }   // namespace cyberdog_visual_programming_abilityset

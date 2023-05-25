@@ -66,6 +66,7 @@ public:
 
   void SetLog(const bool);                        /*!< 设置日志 */
   void Shutdown(bool _exit = true);               /*!< 终止 */
+  State Ready(const uint16_t timeout = 30);       /*!< 就绪 */
 
   Network network_;                               /*!< 网络模块句柄 */
   Follow follow_;                                 /*!< 跟随模块句柄 */
