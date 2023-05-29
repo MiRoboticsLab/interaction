@@ -104,9 +104,10 @@ public:
       }
     }
     speech_handler_ptr_ = std::make_shared<SpeechHandler>(goal_func);
-    audio_notify_pub_ = 
-      get_nodify_node_->create_publisher<std_msgs::msg::Bool>("audio_notification_report",
-                                                             rclcpp::SystemDefaultsQoS());
+    audio_notify_pub_ =
+      get_nodify_node_->create_publisher<std_msgs::msg::Bool>(
+      "audio_notification_report",
+      rclcpp::SystemDefaultsQoS());
     std::thread([this]() {rclcpp::spin(get_nodify_node_);}).detach();
   }
   ~AudioPlay() = default;
@@ -219,12 +220,13 @@ private:
   void UploadPlayNotify(uint8_t status)
   {
     std_msgs::msg::Bool msg;
-    msg.data = (status == 1) ? true: false;
+    msg.data = (status == 1) ? true : false;
     audio_notify_pub_->publish(msg);
   }
+
 private:
-  rclcpp::Node::SharedPtr get_nodify_node_ = 
-                    std::make_shared<rclcpp::Node>("get_notify_node");
+  rclcpp::Node::SharedPtr get_nodify_node_ =
+    std::make_shared<rclcpp::Node>("get_notify_node");
   rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr audio_notify_pub_;
   std::shared_ptr<SpeechHandler> speech_handler_ptr_;
   std::mutex play_mtx_;

@@ -173,7 +173,7 @@ private:
     const protocol::srv::Trigger::Request::SharedPtr request,
     protocol::srv::Trigger::Response::SharedPtr response);
   void StopPlayService(
-   const std_srvs::srv::Empty::Request::SharedPtr request,
+    const std_srvs::srv::Empty::Request::SharedPtr request,
     std_srvs::srv::Empty::Response::SharedPtr response);
   void PowerTimerCallback();
   void RebootTimerCallback();

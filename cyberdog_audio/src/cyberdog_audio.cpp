@@ -510,7 +510,7 @@ int32_t cyberdog::interaction::CyberdogAudio::OnActive()
       "stop_play",
       std::bind(
         &CyberdogAudio::StopPlayService, this, std::placeholders::_1,
-        std::placeholders::_2)); 
+        std::placeholders::_2));
     audio_voiceprint_result_pub_ =
       this->create_publisher<protocol::msg::AudioVoiceprintResult>(
       "audio_voiceprint_result",
@@ -706,12 +706,12 @@ void cyberdog::interaction::CyberdogAudio::OtaRequestCallback(
   }
 }
 void cyberdog::interaction::CyberdogAudio::StopPlayService(
-         const std_srvs::srv::Empty::Request::SharedPtr request,
-         std_srvs::srv::Empty::Response::SharedPtr response)
+  const std_srvs::srv::Empty::Request::SharedPtr request,
+  std_srvs::srv::Empty::Response::SharedPtr response)
 {
   std::shared_ptr<audio_lcm::lcm_data> l_d(new audio_lcm::lcm_data());
   l_d->cmd = PLAY_CANCEL;
-  LcmPublish(l_d);  
+  LcmPublish(l_d);
 }
 void cyberdog::interaction::CyberdogAudio::SetAudioState(
   const protocol::srv::AudioExecute::Request::SharedPtr request,
