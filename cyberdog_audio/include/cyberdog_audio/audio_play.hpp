@@ -104,6 +104,11 @@ public:
       }
     }
     speech_handler_ptr_ = std::make_shared<SpeechHandler>(goal_func);
+    audio_notify_pub_ =
+      get_nodify_node_->create_publisher<std_msgs::msg::Bool>(
+      "audio_notification_report",
+      rclcpp::SystemDefaultsQoS());
+    std::thread([this]() {rclcpp::spin(get_nodify_node_);}).detach();
   }
   ~AudioPlay() = default;
   std::shared_ptr<audio_lcm::lcm_data> SoundPlay(play_sound_info & psi)
@@ -172,6 +177,7 @@ public:
     play_notify_info pni;
     xpack::json::decode(data, pni);
     INFO("play notify name:%s, status:%d", pni.name.c_str(), pni.status);
+    UploadPlayNotify(pni.status);
     Notify(pni.status);
   }
   void HttpPlayNotify(const std::string & data)
@@ -211,8 +217,17 @@ private:
       WARN("unimplement play notify state:%d", status);
     }
   }
+  void UploadPlayNotify(uint8_t status)
+  {
+    std_msgs::msg::Bool msg;
+    msg.data = (status == 1) ? true : false;
+    audio_notify_pub_->publish(msg);
+  }
 
 private:
+  rclcpp::Node::SharedPtr get_nodify_node_ =
+    std::make_shared<rclcpp::Node>("get_notify_node");
+  rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr audio_notify_pub_;
   std::shared_ptr<SpeechHandler> speech_handler_ptr_;
   std::mutex play_mtx_;
   bool is_play_{false};

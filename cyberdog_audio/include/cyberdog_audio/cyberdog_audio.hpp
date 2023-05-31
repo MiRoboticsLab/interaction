@@ -44,6 +44,7 @@
 #include "protocol/srv/train_plan.hpp"
 #include "std_srvs/srv/trigger.hpp"
 #include "std_srvs/srv/set_bool.hpp"
+#include "std_srvs/srv/empty.hpp"
 #include "std_msgs/msg/string.hpp"
 #include "std_msgs/msg/bool.hpp"
 #include "std_msgs/msg/u_int8.hpp"
@@ -171,6 +172,9 @@ private:
   void SwitchEnvironmentService(
     const protocol::srv::Trigger::Request::SharedPtr request,
     protocol::srv::Trigger::Response::SharedPtr response);
+  void StopPlayService(
+    const std_srvs::srv::Empty::Request::SharedPtr request,
+    std_srvs::srv::Empty::Response::SharedPtr response);
   void PowerTimerCallback();
   void RebootTimerCallback();
   void LcmHandler(
@@ -260,6 +264,7 @@ private:
   rclcpp::Service<protocol::srv::SdcardPlayIdQuery>::SharedPtr sdcard_playid_query_srv_;
   rclcpp::Service<protocol::srv::AudioVoiceprintEntry>::SharedPtr audio_voiceprint_entry_srv_;
   rclcpp::Service<protocol::srv::Trigger>::SharedPtr switch_environment_srv_;
+  rclcpp::Service<std_srvs::srv::Empty>::SharedPtr stop_play_srv_;
   rclcpp::Publisher<protocol::msg::AudioVoiceprintResult>::SharedPtr audio_voiceprint_result_pub_;
   rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr audio_voiceprints_data_get_pub_;
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr ota_response_pub_;
