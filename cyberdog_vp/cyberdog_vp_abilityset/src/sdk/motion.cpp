@@ -35,7 +35,7 @@ bool Motion::SetData(const toml::value & _params_toml)
     Error("%s Set data failed: %s", this->logger_.c_str(), e.what());
     return false;
   }
-  return true;
+  return python_.Init();
 }
 
 bool Motion::SetMechanism(const toml::value & _params_toml)
@@ -1225,5 +1225,42 @@ MotionSequenceServiceResponse Motion::RunSequence(const MotionSequence & _sequen
       funs.c_str());
   }
   return ret;
+}
+
+bool Motion::Choreographer(
+  const std::string _type,
+  const py::args _args)
+{
+  std::string funs = std::string(__FUNCTION__) + FORMAT(
+    "(%s, %s) ...",
+    _type.c_str(),
+    pyArgsToString(_args).c_str());
+  Info("%s", funs.c_str());
+  try {
+    // py::object self = py::get_object_handle(this);  // 新版本 pybind11 接口
+    py::handle self = py::cast(this);
+    uint64_t pythonId = PyLong_AsLong(PyLong_FromVoidPtr(self.ptr()));
+    return python_.Choreographer(uint64_t(pythonId), _type, _args);
+  } catch (const std::exception & e) {
+    Error("%s error:%s", funs.c_str(), e.what());
+  }
+  return false;
+}
+
+bool Motion::Choreographer(const py::kwargs _kwargs)
+{
+  std::string funs = std::string(__FUNCTION__) + FORMAT(
+    "(%s) ...",
+    pyKwargsToString(_kwargs).c_str());
+  Info("%s", funs.c_str());
+  try {
+    // py::object self = py::get_object_handle(this);  // 新版本 pybind11 接口
+    py::handle self = py::cast(this);
+    uint64_t pythonId = PyLong_AsLong(PyLong_FromVoidPtr(self.ptr()));
+    return python_.Choreographer(uint64_t(pythonId), _kwargs);
+  } catch (const std::exception & e) {
+    Error("%s error:%s", funs.c_str(), e.what());
+  }
+  return false;
 }
 }   // namespace cyberdog_visual_programming_abilityset

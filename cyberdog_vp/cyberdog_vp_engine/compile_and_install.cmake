@@ -86,7 +86,6 @@ function(compile_and_install_node)
     cyberdog_common
     cyberdog_machine
     rapidjson
-    pybind11::embed
   )
   install(TARGETS ${target_node}
     DESTINATION lib/${PROJECT_NAME})

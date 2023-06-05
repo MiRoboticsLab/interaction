@@ -569,4 +569,20 @@ std::string intVectorToString(const std::vector<int> & _vct)
   ret << "]";
   return ret.str();
 }
+
+std::string pyArgsToString(
+  const py::args & args)
+{
+  std::ostringstream ret;
+  ret << args;
+  return ret.str();
+}
+
+std::string pyKwargsToString(
+  const py::kwargs & kwargs)
+{
+  std::ostringstream ret;
+  ret << kwargs;
+  return ret.str();
+}
 }   // namespace cyberdog_visual_programming_abilityset

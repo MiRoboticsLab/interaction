@@ -98,6 +98,13 @@
 
 #include <protocol/action/navigation.hpp>
 
+#include <pybind11/pybind11.h>
+#include <pybind11/embed.h>
+#include <pybind11/stl.h>
+#include <pybind11/complex.h>
+#include <pybind11/functional.h>
+#include <pybind11/chrono.h>
+
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -134,6 +141,8 @@ namespace cyberdog_visual_programming_abilityset
  * +-->message>>(IMsg)>>[vp abilityset]>>(OMsg)>>message>--+
  * |_______________________________________________________|
  */
+namespace py = pybind11;
+
 using CyberdogJson =
   cyberdog::common::CyberdogJson;                 /*!< JSON 解析及构建模块类型 */
 using CyberdogToml =
@@ -973,5 +982,9 @@ std::string stringVector(
   const std::vector<std::string> &);              /*!< 数组 转 字符串 */
 std::string intVectorToString(
   const std::vector<int> &);                      /*!< 数组 转 字符串 */
+std::string pyArgsToString(
+  const py::args &);                              /*!< py::args 转 字符串 */
+std::string pyKwargsToString(
+  const py::kwargs &);                            /*!< py::kwargs 转 字符串 */
 }  // namespace cyberdog_visual_programming_abilityset
 #endif  // CYBERDOG_VP_ABILITYSET__COMMON_HPP_

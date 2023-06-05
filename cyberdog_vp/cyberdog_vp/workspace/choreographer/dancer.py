@@ -11,13 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import os
-import sys
-import __main__
-sys.path.append(os.path.join('/home/mi/.cyberdog/cyberdog_vp/workspace', 'module', 'src'))
+
+import _ctypes
 from mi.cyberdog_vp.abilityset import MotionSequence
 from mi.cyberdog_vp.abilityset import MotionSequenceGait
 from mi.cyberdog_vp.abilityset import MotionSequencePace
-def dance():
+
+def show(cyberdog_motion_id):
     """ Describe: Responsible for caching arbitrary choreography. """
-    cyberdog = __main__.cyberdog
+    cyberdog_motion = _ctypes.PyObj_FromPtr(cyberdog_motion_id)
