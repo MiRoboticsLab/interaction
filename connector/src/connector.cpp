@@ -70,6 +70,7 @@ bool Connector::Init(
     this->state_msg_.robot_ip = "";
     this->state_msg_.strength = 0;
     this->state_msg_.code = 0;
+    this->touch_previous_time_ = this->now();
 
     this->params_pkg_dir_ = ament_index_cpp::get_package_share_directory("connector");
     this->node_config_dir_ = this->params_pkg_dir_ + this->node_config_dir_;
@@ -129,6 +130,9 @@ bool Connector::Init(
 
     this->touch_signal_timeout_s = static_cast<int>(toml::find<int>(
         this->params_toml_, "connector", "initialization", "timeout_s", "touch_signal_effective"));
+    this->touch_signal_invalid_interval_s = static_cast<int>(toml::find<int>(
+        this->params_toml_, "connector", "initialization", "timeout_s",
+        "touch_signal_invalid_interval"));
 
     float hz = toml::find<float>(
       this->params_toml_, "connector", "initialization", "hz", "update_status");
@@ -389,6 +393,15 @@ void Connector::TouchSignalCallback(const TouchMsg::SharedPtr msg)
     if (msg->touch_state != 7) {  // 长按
       return;
     }
+    rclcpp::Time current_time = msg->header.stamp;
+    rclcpp::Duration data_interval = current_time - this->touch_previous_time_;
+    if (data_interval.seconds() < this->touch_signal_invalid_interval_s) {
+      WARN("Touch invalid data interval: %f seconds", data_interval.seconds());
+      return;
+    }
+    this->touch_previous_time_ = msg->header.stamp;
+    INFO("Touch data interval: %f seconds", data_interval.seconds());
+
     if (this->touch_efficient_) {  // 退出配网
       INFO("Exit network mode.");
       this->touch_efficient_ = false;

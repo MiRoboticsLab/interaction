@@ -16,10 +16,11 @@ import platform
 import re
 import sys
 import toml
-
+import importlib
 from ament_index_python.packages import get_package_share_directory
 from mi.cyberdog_vp.utils import get_workspace
-
+sys.path.append(os.path.join(get_workspace(), 'choreographer'))
+import dancer
 
 #
 # 获取 正负号
@@ -58,7 +59,7 @@ def get_template_file(base):
     template_path = get_template_path()
     gait=template_path+'/' + base + '_gait.toml'
     pace=template_path+'/' + base + '_pace.toml'
-    file = get_workspace() + '/module/src/dancer.py'
+    file = get_workspace() + '/choreographer/dancer.py'
     template = {'return':False,'gait':gait,'pace':pace,'file':file}
     files = get_file(template_path)
     if (gait not in files) and (pace not in files):
@@ -73,8 +74,9 @@ def get_template_file(base):
 # - stride: 步幅
 # - number: 次数
 #
-
 def moonwalk(x_velocity, y_velocity, stride, number):
+    print('Ask moonwalk(x_velocity=%f, y_velocity=%f, stride=%f, number=%d)' % (x_velocity, y_velocity, stride, number))
+
     if x_velocity < -0.08:
         x_velocity = -0.08
     elif x_velocity > 0.08:
@@ -92,6 +94,8 @@ def moonwalk(x_velocity, y_velocity, stride, number):
 
     if number < 1:
         number = 1
+
+    print('Run moonwalk(x_velocity=%f, y_velocity=%f, stride=%f, number=%d)' % (x_velocity, y_velocity, stride, number))
 
     choreographer_name_en = sys._getframe().f_code.co_name
     choreographer_name_zh = '太空步'
@@ -114,19 +118,16 @@ def moonwalk(x_velocity, y_velocity, stride, number):
     sequence_py.write('\n# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.')
     sequence_py.write('\n# See the License for the specific language governing permissions and')
     sequence_py.write('\n# limitations under the License.\n')
-    sequence_py.write('\nimport os')
-    sequence_py.write('\nimport sys')
-    sequence_py.write('\nimport time')
+    sequence_py.write('\nimport _ctypes')
     sequence_py.write('\nfrom mi.cyberdog_vp.abilityset import MotionSequence')
     sequence_py.write('\nfrom mi.cyberdog_vp.abilityset import MotionSequenceGait')
     sequence_py.write('\nfrom mi.cyberdog_vp.abilityset import MotionSequencePace')
-    sequence_py.write('\nimport __main__')
     sequence_py.write('\n# 当前舞蹈配置文件:')
     sequence_py.write('\n# ★ 步态:%s' % (template_file['gait']))
     sequence_py.write('\n# ★ 步伐:%s' % (template_file['pace']))
-    sequence_py.write('\ndef dance():')
+    sequence_py.write('\ndef show(cyberdog_motion_id):')
     sequence_py.write('\n    """ Describe: Responsible for caching arbitrary choreography. """')
-    sequence_py.write('\n    cyberdog = __main__.cyberdog')
+    sequence_py.write('\n    cyberdog_motion = _ctypes.PyObj_FromPtr(cyberdog_motion_id)')
     sequence_py.write('\n    sequ = MotionSequence()')
     sequence_py.write('\n    sequ.name = \'%s\'' % choreographer_name_en)
     sequence_py.write('\n    sequ.describe = \'%s\'\n' % choreographer_name_zh)
@@ -297,10 +298,9 @@ def moonwalk(x_velocity, y_velocity, stride, number):
         sequence_py.write('\n    pace_meta.duration = %ld' %                int(pace_toml['step'][index]['duration']))
         sequence_py.write('\n    sequ.pace_list.push_back(pace_meta)\n')
 
-    sequence_py.write('\n    cyberdog.motion.run_sequence(sequ)\n')
+    sequence_py.write('\n    cyberdog_motion.run_sequence(sequ)\n')
     sequence_py.close()
-
-
+    return True
 
 
 #
@@ -309,8 +309,9 @@ def moonwalk(x_velocity, y_velocity, stride, number):
 # - frequency: 频率
 # - number: 次数
 #
-
 def push_up(frequency, number):
+    print('Ask moonwalk(frequency=%d, number=%d)' % (frequency, number))
+
     if frequency < 10:
         frequency = 10
     elif frequency > 60:
@@ -320,6 +321,8 @@ def push_up(frequency, number):
         number = 2
     elif number > 10:
         number = 10
+
+    print('Run moonwalk(frequency=%d, number=%d)' % (frequency, number))
 
     choreographer_name_en = sys._getframe().f_code.co_name
     choreographer_name_zh = '俯卧撑'
@@ -342,19 +345,16 @@ def push_up(frequency, number):
     sequence_py.write('\n# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.')
     sequence_py.write('\n# See the License for the specific language governing permissions and')
     sequence_py.write('\n# limitations under the License.\n')
-    sequence_py.write('\nimport os')
-    sequence_py.write('\nimport sys')
-    sequence_py.write('\nimport time')
+    sequence_py.write('\nimport _ctypes')
     sequence_py.write('\nfrom mi.cyberdog_vp.abilityset import MotionSequence')
     sequence_py.write('\nfrom mi.cyberdog_vp.abilityset import MotionSequenceGait')
     sequence_py.write('\nfrom mi.cyberdog_vp.abilityset import MotionSequencePace')
-    sequence_py.write('\nimport __main__')
     sequence_py.write('\n# 当前舞蹈配置文件:')
     sequence_py.write('\n# ★ 步态:%s' % (template_file['gait']))
     sequence_py.write('\n# ★ 步伐:%s' % (template_file['pace']))
-    sequence_py.write('\ndef dance():')
+    sequence_py.write('\ndef show(cyberdog_motion_id):')
     sequence_py.write('\n    """ Describe: Responsible for caching arbitrary choreography. """')
-    sequence_py.write('\n    cyberdog = __main__.cyberdog')
+    sequence_py.write('\n    cyberdog_motion = _ctypes.PyObj_FromPtr(cyberdog_motion_id)')
     sequence_py.write('\n    sequ = MotionSequence()')
     sequence_py.write('\n    sequ.name = \'%s\'' % choreographer_name_en)
     sequence_py.write('\n    sequ.describe = \'%s\'\n' % choreographer_name_zh)
@@ -528,5 +528,54 @@ def push_up(frequency, number):
         sequence_py.write('\n    pace_meta.duration = %ld' %                int(pace_toml['step'][index]['duration']))
         sequence_py.write('\n    sequ.pace_list.push_back(pace_meta)\n')
 
-    sequence_py.write('\n    cyberdog.motion.run_sequence(sequ)\n')
+    sequence_py.write('\n    cyberdog_motion.run_sequence(sequ)\n')
     sequence_py.close()
+    return True
+
+
+#
+# 舞蹈
+# 参数:
+# - cyberdog_motion_id: cyberdog_motion_id
+# - type: 类型
+# - args: 参数
+#
+def dance_args(cyberdog_motion_id, type, args):
+    make = False
+    if type == 'moonwalk':
+        if len(args) == 4:
+            x_velocity = args[0]
+            y_velocity = args[1]
+            stride = args[2]
+            number = args[3]
+            make = moonwalk(x_velocity, y_velocity, stride, number)
+    elif type == 'push_up':
+        if len(args) == 2:
+            frequency = args[0]
+            number = args[1]
+            make = push_up(frequency, number)
+    if make:
+        importlib.reload(dancer)
+        dancer.show(cyberdog_motion_id)
+        return True
+    return False
+
+
+#
+# 舞蹈
+# 参数:
+# - cyberdog_motion_id: cyberdog_motion_id
+# - kwargs: 参数
+#
+def dance_kwargs(cyberdog_motion_id, kwargs):
+    make = False
+    type = kwargs.get('type')
+    if type == 'moonwalk':
+        make = moonwalk(kwargs.get('x_velocity'), kwargs.get('y_velocity'), kwargs.get('stride'), kwargs.get('number'))
+    elif type == 'push_up':
+        make = moonwalk(kwargs.get('frequency'), kwargs.get('number'))
+    if make:
+        importlib.reload(dancer)
+        dancer.show(cyberdog_motion_id)
+        return True
+    return False

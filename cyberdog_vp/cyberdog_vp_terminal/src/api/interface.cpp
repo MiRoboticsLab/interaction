@@ -340,6 +340,9 @@ void DefineInterfaceMotion(py::object m)
     "run_sequence", &VPT::Interface::Cyberdog::Motion::Motion_, R"pbdoc( 运行序列 )pbdoc",
     py::arg("fun") = "RunSequence")
   .def(
+    "choreographer", &VPT::Interface::Cyberdog::Motion::Motion_, R"pbdoc( 编舞 )pbdoc",
+    py::arg("fun") = "Choreographer")
+  .def(
     "__repr__", [](const VPT::Interface::Cyberdog::Motion &) {
       return std::string(
         ONE_FORMAT(

@@ -21,6 +21,7 @@
 #include "cyberdog_vp_abilityset/common.hpp"
 #include "cyberdog_vp_abilityset/base.hpp"
 #include "cyberdog_vp_abilityset/odometer.hpp"
+#include "cyberdog_vp_abilityset/python_interpreter.hpp"
 
 namespace cyberdog_visual_programming_abilityset
 {
@@ -109,6 +110,12 @@ public:
   MotionSequenceServiceResponse RunSequence(
     const MotionSequence &);                      /*!< 运行序列动作 */
 
+  bool Choreographer(
+    const std::string,
+    const py::args);                              /*!< 编舞 */
+  bool Choreographer(
+    const py::kwargs);                            /*!< 编舞 */
+
   void InitDependent(
     const std::function<AudioPlaySeviceResponse(const std::string, const int8_t)> &,
     const std::function<AudioPlaySeviceResponse(const uint16_t, const int8_t)> &,
@@ -116,6 +123,7 @@ public:
     const std::function<bool(Processor)> &);      /*!< 初始化依赖 */
 
 private:
+  PythonInterpreter python_;                      /*!< python 解释器 */
   uint compensation_frame_size_ {0};              /*!< 补偿帧数量 */
   MsgMotionServoCmd compensation_frame_;          /*!< 补偿帧 */
   MsgMotionServoResponse servo_response_msg_;     /*!< 伺服反馈消息 */

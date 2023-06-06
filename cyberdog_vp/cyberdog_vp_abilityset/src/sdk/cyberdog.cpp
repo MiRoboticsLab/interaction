@@ -62,6 +62,11 @@ Cyberdog::Cyberdog(std::string _task_id, std::string _namespace, bool _ros, std:
     this->node_immortal_ptr_ = rclcpp::Node::make_shared(name, _namespace);
     name = "vpa_" + this->task_id_ + "_mortal_node";    // visual programming abilityset mortal
     this->node_mortal_ptr_ = rclcpp::Node::make_shared(name, _namespace);
+    // if (!py::is_initialized()) {
+    if (!Py_IsInitialized()) {
+      py::scoped_interpreter guard{};
+      INFO("%s Python interpreter is not running, now created.", this->logger_.c_str());
+    }
     if (!this->Start()) {
       if (this->ros_) {
         rclcpp::shutdown();
