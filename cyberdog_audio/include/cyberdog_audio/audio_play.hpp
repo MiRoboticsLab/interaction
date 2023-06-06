@@ -106,8 +106,11 @@ public:
     speech_handler_ptr_ = std::make_shared<SpeechHandler>(goal_func);
     audio_notify_pub_ =
       get_nodify_node_->create_publisher<std_msgs::msg::Bool>(
-      "audio_notification_report",
-      rclcpp::SystemDefaultsQoS());
+      "audio_notification_report", rclcpp::SystemDefaultsQoS());
+    timer_pub_ptr_ =
+      get_nodify_node_->create_wall_timer(
+      std::chrono::milliseconds(500),
+      std::bind(&AudioPlay::get_play_status_callback, this));
     std::thread([this]() {rclcpp::spin(get_nodify_node_);}).detach();
   }
   ~AudioPlay() = default;
@@ -185,7 +188,21 @@ public:
     http_play_notify_info hpni;
     xpack::json::decode(data, hpni);
     INFO("http play notify name:%s, status:%d", hpni.name.c_str(), hpni.status);
+    UploadPlayNotify(hpni.status);
     Notify(hpni.status);
+  }
+  void SetPlayStatus(int32_t val)
+  {
+    play_status_val = val;
+  }
+  int32_t GetPlayStatus()
+  {
+    return play_status_val;
+  }
+  void callFunc(std::function<int32_t()> callback)
+  {
+    // 用于传递CyberdogAudio类中GetPlayStatus()的函数指针
+    funcPtr = callback;
   }
 
 private:
@@ -219,9 +236,24 @@ private:
   }
   void UploadPlayNotify(uint8_t status)
   {
+    if (status == 1) {
+      INFO("open the get_play_status timer");
+      timer_pub_ptr_->reset();
+    }
+  }
+
+  void get_play_status_callback()
+  {
     std_msgs::msg::Bool msg;
-    msg.data = (status == 1) ? true : false;
-    audio_notify_pub_->publish(msg);
+    if (funcPtr() == 1) {
+      msg.data = true;
+      audio_notify_pub_->publish(msg);
+    } else {
+      msg.data = false;
+      audio_notify_pub_->publish(msg);
+      INFO("close the get_play_status timer");
+      timer_pub_ptr_->cancel();
+    }
   }
 
 private:
@@ -229,6 +261,9 @@ private:
     std::make_shared<rclcpp::Node>("get_notify_node");
   rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr audio_notify_pub_;
   std::shared_ptr<SpeechHandler> speech_handler_ptr_;
+  rclcpp::TimerBase::SharedPtr timer_pub_ptr_;
+  std::function<int32_t()> funcPtr;
+  int play_status_val;
   std::mutex play_mtx_;
   bool is_play_{false};
   std::condition_variable play_cv_;

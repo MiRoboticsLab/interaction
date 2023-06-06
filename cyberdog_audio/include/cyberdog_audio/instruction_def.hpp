@@ -73,6 +73,15 @@
 #define  GET_DEVICE_STATUS      "get_device_status"
 #define  PERSONALIZE_INSTRUCTION "personalize_instruction"
 #define  CONTINUE_DIALOG        "continue_dialog"
+#define  GET_PLAY_STATUS        "get_play_status"
+
+struct play_status
+{
+  int32_t status;
+  int64_t volumn;
+  int32_t type;
+  XPACK(O(status, volumn, type))
+};
 
 struct self_check
 {

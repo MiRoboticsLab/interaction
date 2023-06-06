@@ -153,6 +153,7 @@ cyberdog::interaction::CyberdogAudio::CyberdogAudio()
   //   std::bind(&CyberdogAudio::SpeechPlayGoal, this, std::placeholders::_1));
   audio_play_ptr_ = std::make_shared<AudioPlay>(
     std::bind(&CyberdogAudio::SpeechPlayGoal, this, std::placeholders::_1));
+  audio_play_ptr_->callFunc(std::bind(&CyberdogAudio::GetPlayStatus, this));
   sdcard_playid_query_srv_ =
     this->create_service<protocol::srv::SdcardPlayIdQuery>(
     "sdcard_playid_query",
@@ -1619,7 +1620,29 @@ bool cyberdog::interaction::CyberdogAudio::SelfCheck()
   bool result = ClientRequest(req, res);
   return result;
 }
-
+int32_t cyberdog::interaction::CyberdogAudio::GetPlayStatus()
+{
+  bool result = true;
+  audio_lcm::lcm_data req;
+  audio_lcm::lcm_data res;
+  req.cmd = GET_PLAY_STATUS;
+  result = ClientRequest(req, res);
+  if (!result) {
+    ERROR("get play status request failed!");
+  }
+  return audio_play_ptr_->GetPlayStatus();
+}
+bool cyberdog::interaction::CyberdogAudio::GetPlayStatusResponse(
+  const std::string & data)
+{
+  play_status play_status_res;
+  xpack::json::decode(data, play_status_res);
+  audio_play_ptr_->SetPlayStatus(play_status_res.status);
+  INFO(
+    "get_play_status status:%d, volumn:%d, type:%d",
+    play_status_res.status, play_status_res.volumn, play_status_res.type);
+  return true;
+}
 bool cyberdog::interaction::CyberdogAudio::SetStatus(uint8_t status)
 {
   // 语音状态设置
@@ -2059,6 +2082,10 @@ void cyberdog::interaction::CyberdogAudio::RegisterAudioCyberdogTopicHandler()
 void cyberdog::interaction::CyberdogAudio::RegisterCyberdogAudioServiceReturnHandler()
 {
   // 自检返回
+  cyberdog_audio_service_return_cmd_map.insert(
+    std::make_pair(
+      GET_PLAY_STATUS,
+      std::bind(&CyberdogAudio::GetPlayStatusResponse, this, std::placeholders::_1)));
   cyberdog_audio_service_return_cmd_map.insert(
     std::make_pair(
       SELF_CHECK,
