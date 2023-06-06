@@ -342,7 +342,7 @@ private:
     protocol::msg::AudioPlayExtend msg;
     msg.is_online = true;
     msg.module_name = "audio_action";
-    msg.text = "主人要在人体跟随里告诉铁蛋，你现在在哪儿呢";
+    msg.text = "功能正在开发中，请等待";
     audio_play_pub->publish(msg);
   }
   void Go_Round(const uint8_t & times)

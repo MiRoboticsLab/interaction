@@ -199,6 +199,8 @@ private:
   bool SetVolumeResponse(const std::string & data);
   int8_t GetVolume();
   bool GetVolumeResponse(const std::string & data);
+  int32_t GetPlayStatus();
+  bool GetPlayStatusResponse(const std::string & data);
   // bool GetMiotDid();
   void AccountTokenNotify();
   bool SetToken();
