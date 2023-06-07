@@ -19,6 +19,8 @@ import toml
 import importlib
 from ament_index_python.packages import get_package_share_directory
 from mi.cyberdog_vp.utils import get_workspace
+from mi.cyberdog_vp.abilityset import StateCode
+from mi.cyberdog_vp.abilityset import MotionSequenceServiceResponse
 sys.path.append(os.path.join(get_workspace(), 'choreographer'))
 import dancer
 
@@ -298,7 +300,7 @@ def moonwalk(x_velocity, y_velocity, stride, number):
         sequence_py.write('\n    pace_meta.duration = %ld' %                int(pace_toml['step'][index]['duration']))
         sequence_py.write('\n    sequ.pace_list.push_back(pace_meta)\n')
 
-    sequence_py.write('\n    cyberdog_motion.run_sequence(sequ)\n')
+    sequence_py.write('\n    return cyberdog_motion.run_sequence(sequ)\n')
     sequence_py.close()
     return True
 
@@ -528,7 +530,7 @@ def push_up(frequency, number):
         sequence_py.write('\n    pace_meta.duration = %ld' %                int(pace_toml['step'][index]['duration']))
         sequence_py.write('\n    sequ.pace_list.push_back(pace_meta)\n')
 
-    sequence_py.write('\n    cyberdog_motion.run_sequence(sequ)\n')
+    sequence_py.write('\n    return cyberdog_motion.run_sequence(sequ)\n')
     sequence_py.close()
     return True
 
@@ -541,6 +543,10 @@ def push_up(frequency, number):
 # - args: 参数
 #
 def dance_args(cyberdog_motion_id, type, args):
+    ret = MotionSequenceServiceResponse()
+    ret.state.code = StateCode.fail
+    ret.state.describe = "Ask dance_args(cyberdog_motion_id={}, type={}, args={})".format(cyberdog_motion_id, type, args)
+    print(ret.state.describe)
     make = False
     if type == 'moonwalk':
         if len(args) == 4:
@@ -554,11 +560,16 @@ def dance_args(cyberdog_motion_id, type, args):
             frequency = args[0]
             number = args[1]
             make = push_up(frequency, number)
+    else:
+        ret.state.describe = '\n - The current choreography type is invalid.'
+
     if make:
         importlib.reload(dancer)
-        dancer.show(cyberdog_motion_id)
-        return True
-    return False
+        ret = dancer.show(cyberdog_motion_id)
+    else:
+        ret.state.describe = '\n - The current choreographer failed.'
+
+    return ret
 
 
 #
@@ -568,14 +579,23 @@ def dance_args(cyberdog_motion_id, type, args):
 # - kwargs: 参数
 #
 def dance_kwargs(cyberdog_motion_id, kwargs):
+    ret = MotionSequenceServiceResponse()
+    ret.state.code = StateCode.fail
+    ret.state.describe = "Ask dance_args(cyberdog_motion_id={}, kwargs={})".format(cyberdog_motion_id, kwargs)
+    print(ret.state.describe)
     make = False
     type = kwargs.get('type')
     if type == 'moonwalk':
         make = moonwalk(kwargs.get('x_velocity'), kwargs.get('y_velocity'), kwargs.get('stride'), kwargs.get('number'))
     elif type == 'push_up':
-        make = moonwalk(kwargs.get('frequency'), kwargs.get('number'))
+        make = push_up(kwargs.get('frequency'), kwargs.get('number'))
+    else:
+        ret.state.describe = '\n - The current choreography type is invalid.'
+
     if make:
         importlib.reload(dancer)
-        dancer.show(cyberdog_motion_id)
-        return True
-    return False
+        ret = dancer.show(cyberdog_motion_id)
+    else:
+        ret.state.describe = '\n - The current choreographer failed.'
+
+    return ret

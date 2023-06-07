@@ -1227,7 +1227,7 @@ MotionSequenceServiceResponse Motion::RunSequence(const MotionSequence & _sequen
   return ret;
 }
 
-bool Motion::Choreographer(
+MotionSequenceServiceResponse Motion::Choreographer(
   const std::string _type,
   const py::args _args)
 {
@@ -1236,31 +1236,39 @@ bool Motion::Choreographer(
     _type.c_str(),
     pyArgsToString(_args).c_str());
   Info("%s", funs.c_str());
+  MotionSequenceServiceResponse ret;
+  ret.state.code = StateCode::fail;
+  ret.state.describe = funs;
   try {
     // py::object self = py::get_object_handle(this);  // 新版本 pybind11 接口
     py::handle self = py::cast(this);
     uint64_t pythonId = PyLong_AsLong(PyLong_FromVoidPtr(self.ptr()));
-    return python_.Choreographer(uint64_t(pythonId), _type, _args);
+    ret = python_.Choreographer(uint64_t(pythonId), _type, _args);
   } catch (const std::exception & e) {
     Error("%s error:%s", funs.c_str(), e.what());
+    ret.state.describe += "\n - " + std::string(e.what());
   }
-  return false;
+  return ret;
 }
 
-bool Motion::Choreographer(const py::kwargs _kwargs)
+MotionSequenceServiceResponse Motion::Choreographer(const py::kwargs _kwargs)
 {
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%s) ...",
     pyKwargsToString(_kwargs).c_str());
   Info("%s", funs.c_str());
+  MotionSequenceServiceResponse ret;
+  ret.state.code = StateCode::fail;
+  ret.state.describe = funs;
   try {
     // py::object self = py::get_object_handle(this);  // 新版本 pybind11 接口
     py::handle self = py::cast(this);
     uint64_t pythonId = PyLong_AsLong(PyLong_FromVoidPtr(self.ptr()));
-    return python_.Choreographer(uint64_t(pythonId), _kwargs);
+    ret = python_.Choreographer(uint64_t(pythonId), _kwargs);
   } catch (const std::exception & e) {
     Error("%s error:%s", funs.c_str(), e.what());
+    ret.state.describe += "\n - " + std::string(e.what());
   }
-  return false;
+  return ret;
 }
 }   // namespace cyberdog_visual_programming_abilityset

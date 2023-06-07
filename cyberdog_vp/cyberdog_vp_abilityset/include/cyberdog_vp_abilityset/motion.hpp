@@ -110,10 +110,10 @@ public:
   MotionSequenceServiceResponse RunSequence(
     const MotionSequence &);                      /*!< 运行序列动作 */
 
-  bool Choreographer(
+  MotionSequenceServiceResponse Choreographer(
     const std::string,
     const py::args);                              /*!< 编舞 */
-  bool Choreographer(
+  MotionSequenceServiceResponse Choreographer(
     const py::kwargs);                            /*!< 编舞 */
 
   void InitDependent(

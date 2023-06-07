@@ -38,11 +38,11 @@ public:
   PythonInterpreter() {}
   ~PythonInterpreter() {}
   bool Init();                                    /*!< 初始化 */
-  bool Choreographer(
+  MotionSequenceServiceResponse Choreographer(
     const uint64_t,
     const std::string,
     const py::args);                              /*!< 编舞 */
-  bool Choreographer(
+  MotionSequenceServiceResponse Choreographer(
     const uint64_t,
     const py::kwargs);                            /*!< 编舞 */
 
