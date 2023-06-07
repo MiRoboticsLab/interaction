@@ -42,6 +42,8 @@ bool Train::SetMechanism(const toml::value & _params_toml)
 
     this->training_words_sub_cb_group_ =
       this->node_immortal_ptr_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    this->user_dialogue_sub_cb_group_ =
+      this->node_immortal_ptr_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
     this->training_words_cli_cb_group_ =
       this->node_mortal_ptr_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
 
@@ -53,6 +55,15 @@ bool Train::SetMechanism(const toml::value & _params_toml)
         _params_toml, "vp", "init", "topic", "training_words", "train_plan_word"),
       SubscriptionQos,
       std::bind(&Train::SubTrainingWordsRecognitionCB, this, std::placeholders::_1),
+      sub_option);
+
+    sub_option.callback_group = this->user_dialogue_sub_cb_group_;
+    this->user_dialogue_message_sub_ptr_ =
+      this->node_immortal_ptr_->create_subscription<MsgString>(
+      toml::find_or(
+        _params_toml, "vp", "init", "topic", "user_dialogue", "asr_text"),
+      SubscriptionSensorQos,
+      std::bind(&Train::SubUserDialogueCB, this, std::placeholders::_1),
       sub_option);
 
     this->training_words_recognition_cli_ptr_ =
@@ -77,6 +88,22 @@ void Train::SubTrainingWordsRecognitionCB(const MsgTrainingWords::SharedPtr _msg
     this->training_words_update_ = true;
   }
   training_words_state_cv_.notify_all();
+}
+
+void Train::SubUserDialogueCB(const MsgString::SharedPtr _msg_ptr)
+{
+  for (const MsgTrainingWords & meta : this->training_words_set_.training_set) {
+    if (_msg_ptr->data == meta.trigger) {
+      {
+        // std::lock_guard<std::mutex> lk(training_words_state_cvm_);
+        std::scoped_lock lk(training_words_state_cvm_);
+        this->training_words_ = meta;
+        this->training_words_update_ = true;
+      }
+      training_words_state_cv_.notify_all();
+      break;
+    }
+  }
 }
 
 bool Train::RequestTrainingWordsRecognizedSrv(
@@ -174,6 +201,7 @@ TrainingWordsRecognizedMessageResponse Train::TrainingWordsRecognized(
       ret.state = this->GetState(funs, this->state_.code);
       return ret;
     }
+    this->training_words_set_ = this->GetTrainingWordsSet().response;
     int DEFAULT_TIMEOUT = 3;
     int MAX_TIMEOUT = 60 * 60;
     int MIN_TIMEOUT = 1;

@@ -134,8 +134,8 @@ void DefineState(py::object m)
 
   py::class_<VPA::State>(m, "State", py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("code", &VPA::State::code, R"pbdoc( 状态 )pbdoc")
-  .def_readonly("describe", &VPA::State::describe, R"pbdoc( 描述 )pbdoc")
+  .def_readwrite("code", &VPA::State::code, R"pbdoc( 状态 )pbdoc")
+  .def_readwrite("describe", &VPA::State::describe, R"pbdoc( 描述 )pbdoc")
   .def(
     "__repr__", [](const VPA::State & _state) {
       return std::string(
@@ -157,8 +157,8 @@ void DefineAudioPlaySeviceResponse(py::object m)
 {
   py::class_<VPA::AudioPlaySeviceResponse>(m, "AudioPlaySeviceResponse", py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("state", &VPA::AudioPlaySeviceResponse::state, R"pbdoc( 状态 )pbdoc")
-  .def_readonly("response", &VPA::AudioPlaySeviceResponse::response, R"pbdoc( 反馈 )pbdoc")
+  .def_readwrite("state", &VPA::AudioPlaySeviceResponse::state, R"pbdoc( 状态 )pbdoc")
+  .def_readwrite("response", &VPA::AudioPlaySeviceResponse::response, R"pbdoc( 反馈 )pbdoc")
   .def(
     "__repr__", [](const VPA::AudioPlaySeviceResponse & _ret) {
       return std::string(
@@ -186,8 +186,8 @@ void DefineAudioGetVolumeSeviceResponse(py::object m)
     m, "AudioGetVolumeSeviceResponse",
     py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("state", &VPA::AudioGetVolumeSeviceResponse::state, R"pbdoc( 状态 )pbdoc")
-  .def_readonly("response", &VPA::AudioGetVolumeSeviceResponse::response, R"pbdoc( 反馈 )pbdoc")
+  .def_readwrite("state", &VPA::AudioGetVolumeSeviceResponse::state, R"pbdoc( 状态 )pbdoc")
+  .def_readwrite("response", &VPA::AudioGetVolumeSeviceResponse::response, R"pbdoc( 反馈 )pbdoc")
   .def(
     "__repr__", [](const VPA::AudioGetVolumeSeviceResponse & _ret) {
       return std::string(
@@ -215,8 +215,8 @@ void DefineAudioSetVolumeSeviceResponse(py::object m)
     m, "AudioSetVolumeSeviceResponse",
     py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("state", &VPA::AudioSetVolumeSeviceResponse::state, R"pbdoc( 状态 )pbdoc")
-  .def_readonly("response", &VPA::AudioSetVolumeSeviceResponse::response, R"pbdoc( 反馈 )pbdoc")
+  .def_readwrite("state", &VPA::AudioSetVolumeSeviceResponse::state, R"pbdoc( 状态 )pbdoc")
+  .def_readwrite("response", &VPA::AudioSetVolumeSeviceResponse::response, R"pbdoc( 反馈 )pbdoc")
   .def(
     "__repr__", [](const VPA::AudioSetVolumeSeviceResponse & _ret) {
       return std::string(
@@ -244,8 +244,8 @@ void DefineDialogueResponse(py::object m)
     m, "DialogueResponse",
     py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("time_ns", &VPA::DialogueResponse::time_ns, R"pbdoc( 时间 )pbdoc")
-  .def_readonly("data", &VPA::DialogueResponse::data, R"pbdoc( 数据 )pbdoc")
+  .def_readwrite("time_ns", &VPA::DialogueResponse::time_ns, R"pbdoc( 时间 )pbdoc")
+  .def_readwrite("data", &VPA::DialogueResponse::data, R"pbdoc( 数据 )pbdoc")
   .def(
     "__repr__", [](const VPA::DialogueResponse & _ret) {
       return std::string(
@@ -311,8 +311,8 @@ void DefineAudioGetUserDialogueResponse(py::object m)
     m, "AudioGetUserDialogueResponse",
     py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("state", &VPA::AudioGetUserDialogueResponse::state, R"pbdoc( 状态 )pbdoc")
-  .def_readonly("response", &VPA::AudioGetUserDialogueResponse::response, R"pbdoc( 反馈 )pbdoc")
+  .def_readwrite("state", &VPA::AudioGetUserDialogueResponse::state, R"pbdoc( 状态 )pbdoc")
+  .def_readwrite("response", &VPA::AudioGetUserDialogueResponse::response, R"pbdoc( 反馈 )pbdoc")
   .def(
     "__repr__", [](const VPA::AudioGetUserDialogueResponse & _ret) {
       return std::string(
@@ -467,8 +467,8 @@ void DefineLedSeviceResponse(py::object m)
 {
   py::class_<VPA::LedSeviceResponse>(m, "LedSeviceResponse", py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("state", &VPA::LedSeviceResponse::state, R"pbdoc( 状态 )pbdoc")
-  .def_readonly("response", &VPA::LedSeviceResponse::response, R"pbdoc( 反馈 )pbdoc")
+  .def_readwrite("state", &VPA::LedSeviceResponse::state, R"pbdoc( 状态 )pbdoc")
+  .def_readwrite("response", &VPA::LedSeviceResponse::response, R"pbdoc( 反馈 )pbdoc")
   .def(
     "__repr__", [](const VPA::LedSeviceResponse & _ret) {
       return std::string(
@@ -494,8 +494,8 @@ void DefineMotionResultServiceResponse(py::object m)
 {
   py::class_<VPA::MotionResultServiceResponse>(m, "MotionResultServiceResponse", py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("state", &VPA::MotionResultServiceResponse::state, R"pbdoc( 状态 )pbdoc")
-  .def_readonly("response", &VPA::MotionResultServiceResponse::response, R"pbdoc( 反馈 )pbdoc")
+  .def_readwrite("state", &VPA::MotionResultServiceResponse::state, R"pbdoc( 状态 )pbdoc")
+  .def_readwrite("response", &VPA::MotionResultServiceResponse::response, R"pbdoc( 反馈 )pbdoc")
   .def(
     "__repr__", [](const VPA::MotionResultServiceResponse & _ret) {
       return std::string(
@@ -527,8 +527,8 @@ void DefineMotionSequenceServiceResponse(py::object m)
     m, "MotionSequenceServiceResponse",
     py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("state", &VPA::MotionSequenceServiceResponse::state, R"pbdoc( 状态 )pbdoc")
-  .def_readonly("response", &VPA::MotionSequenceServiceResponse::response, R"pbdoc( 反馈 )pbdoc")
+  .def_readwrite("state", &VPA::MotionSequenceServiceResponse::state, R"pbdoc( 状态 )pbdoc")
+  .def_readwrite("response", &VPA::MotionSequenceServiceResponse::response, R"pbdoc( 反馈 )pbdoc")
   .def(
     "__repr__", [](const VPA::MotionSequenceServiceResponse & _ret) {
       return std::string(
@@ -560,8 +560,8 @@ void DefineMotionServoCmdResponse(py::object m)
 {
   py::class_<VPA::MotionServoCmdResponse>(m, "MotionServoCmdResponse", py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("state", &VPA::MotionServoCmdResponse::state, R"pbdoc( 状态 )pbdoc")
-  .def_readonly("response", &VPA::MotionServoCmdResponse::response, R"pbdoc( 反馈 )pbdoc")
+  .def_readwrite("state", &VPA::MotionServoCmdResponse::state, R"pbdoc( 状态 )pbdoc")
+  .def_readwrite("response", &VPA::MotionServoCmdResponse::response, R"pbdoc( 反馈 )pbdoc")
   .def(
     "__repr__", [](const VPA::MotionServoCmdResponse & _ret) {
       return std::string(
@@ -597,16 +597,16 @@ void DefineMotionParams(py::object m)
 {
   py::class_<VPA::DefaultAndMaximum>(m, "DefaultAndMaximum", py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly(
+  .def_readwrite(
     "minimum_value", &VPA::DefaultAndMaximum::minimum_value,
     R"pbdoc( 最小值 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "default_value", &VPA::DefaultAndMaximum::default_value,
     R"pbdoc( 默认值 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "maximum_value", &VPA::DefaultAndMaximum::maximum_value,
     R"pbdoc( 最大值 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "unit", &VPA::DefaultAndMaximum::unit,
     R"pbdoc( 单位 )pbdoc")
   .def(
@@ -631,55 +631,55 @@ void DefineMotionParams(py::object m)
 
   py::class_<VPA::MotionParams>(m, "MotionParams", py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly(
+  .def_readwrite(
     "front_leg_lift", &VPA::MotionParams::front_leg_lift,
     R"pbdoc( 前腿抬腿高度 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "back_leg_lift", &VPA::MotionParams::back_leg_lift,
     R"pbdoc( 后腿抬腿高度 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "centroid_x", &VPA::MotionParams::centroid_x,
     R"pbdoc( 质心X轴约束 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "centroid_y", &VPA::MotionParams::centroid_y,
     R"pbdoc( 质心Y轴约束 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "centroid_z", &VPA::MotionParams::centroid_z,
     R"pbdoc( 质心Z轴约束 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "fulcrum_x", &VPA::MotionParams::fulcrum_x,
     R"pbdoc( 支点X轴约束 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "fulcrum_y", &VPA::MotionParams::fulcrum_y,
     R"pbdoc( 支点Y轴约束 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "fulcrum_z", &VPA::MotionParams::fulcrum_z,
     R"pbdoc( 支点Z轴约束 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "roll", &VPA::MotionParams::roll,
     R"pbdoc( 机身翻滚 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "pitch", &VPA::MotionParams::pitch,
     R"pbdoc( 机身俯仰 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "yaw", &VPA::MotionParams::yaw,
     R"pbdoc( 机身偏航 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "x_velocity", &VPA::MotionParams::x_velocity,
     R"pbdoc( x速度 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "y_velocity", &VPA::MotionParams::y_velocity,
     R"pbdoc( y速度 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "z_velocity", &VPA::MotionParams::z_velocity,
     R"pbdoc( z角速度 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "distance", &VPA::MotionParams::distance,
     R"pbdoc( 期望距离 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "duration", &VPA::MotionParams::duration,
     R"pbdoc( 期望时间 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "delta", &VPA::MotionParams::delta,
     R"pbdoc( 变化量 )pbdoc")
   .def(
@@ -1483,8 +1483,8 @@ void DefineFaceSeviceResponse(py::object m)
     m, "FaceSeviceResponse",
     py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("state", &VPA::FaceSeviceResponse::state, R"pbdoc( 状态 )pbdoc")
-  .def_readonly(
+  .def_readwrite("state", &VPA::FaceSeviceResponse::state, R"pbdoc( 状态 )pbdoc")
+  .def_readwrite(
     "response", &VPA::FaceSeviceResponse::response,
     R"pbdoc( 反馈 )pbdoc")
   .def(
@@ -1578,9 +1578,9 @@ void DefineFaceRecognizedSeviceResponse(py::object m)
     m, "FaceRecognizedSeviceResponse",
     py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("state", &VPA::FaceRecognizedSeviceResponse::state, R"pbdoc( 状态 )pbdoc")
-  .def_readonly("list", &VPA::FaceRecognizedSeviceResponse::list, R"pbdoc( 列表 )pbdoc")
-  .def_readonly("dictionary", &VPA::FaceRecognizedSeviceResponse::dictionary, R"pbdoc( 字典 )pbdoc")
+  .def_readwrite("state", &VPA::FaceRecognizedSeviceResponse::state, R"pbdoc( 状态 )pbdoc")
+  .def_readwrite("list", &VPA::FaceRecognizedSeviceResponse::list, R"pbdoc( 列表 )pbdoc")
+  .def_readwrite("dictionary", &VPA::FaceRecognizedSeviceResponse::dictionary, R"pbdoc( 字典 )pbdoc")
   .def(
     "__repr__", [](const VPA::FaceRecognizedSeviceResponse & _ret) {
       return std::string(
@@ -1680,11 +1680,11 @@ void DefineTrainingWordsRecognizedSeviceResponse(py::object m)
     m, "TrainingWordsRecognizedSeviceResponse",
     py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("state", &VPA::TrainingWordsRecognizedSeviceResponse::state, R"pbdoc( 状态 )pbdoc")
-  .def_readonly(
+  .def_readwrite("state", &VPA::TrainingWordsRecognizedSeviceResponse::state, R"pbdoc( 状态 )pbdoc")
+  .def_readwrite(
     "response", &VPA::TrainingWordsRecognizedSeviceResponse::response,
     R"pbdoc( 反馈 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "dictionary", &VPA::TrainingWordsRecognizedSeviceResponse::dictionary,
     R"pbdoc( 字典 )pbdoc")
   .def(
@@ -1718,8 +1718,8 @@ void DefineTrainingWordsRecognizedMessageResponse(py::object m)
     m, "TrainingWordsRecognizedMessageResponse",
     py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("state", &VPA::TrainingWordsRecognizedMessageResponse::state, R"pbdoc( 状态 )pbdoc")
-  .def_readonly(
+  .def_readwrite("state", &VPA::TrainingWordsRecognizedMessageResponse::state, R"pbdoc( 状态 )pbdoc")
+  .def_readwrite(
     "response", &VPA::TrainingWordsRecognizedMessageResponse::response,
     R"pbdoc( 反馈 )pbdoc")
   .def(
@@ -1753,9 +1753,9 @@ void DefineVoiceprintRecognizedResponse(py::object m)
     m, "VoiceprintRecognizedResponse",
     py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("state", &VPA::VoiceprintRecognizedResponse::state, R"pbdoc( 状态 )pbdoc")
-  .def_readonly("list", &VPA::VoiceprintRecognizedResponse::list, R"pbdoc( 识别人员列表 )pbdoc")
-  .def_readonly("data", &VPA::VoiceprintRecognizedResponse::data, R"pbdoc( 识别状态数据 )pbdoc")
+  .def_readwrite("state", &VPA::VoiceprintRecognizedResponse::state, R"pbdoc( 状态 )pbdoc")
+  .def_readwrite("list", &VPA::VoiceprintRecognizedResponse::list, R"pbdoc( 识别人员列表 )pbdoc")
+  .def_readwrite("data", &VPA::VoiceprintRecognizedResponse::data, R"pbdoc( 识别状态数据 )pbdoc")
   .def(
     "__repr__", [](const VPA::VoiceprintRecognizedResponse & _ret) {
       return std::string(
@@ -1784,31 +1784,31 @@ void DefineGestureData(py::object m)
     m, "GestureData",
     py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly(
+  .def_readwrite(
     "pulling_hand_or_two_fingers_in", &VPA::GestureData::pulling_hand_or_two_fingers_in,
     R"pbdoc( 手掌拉近 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "pushing_hand_or_two_fingers_away",
     &VPA::GestureData::pushing_hand_or_two_fingers_away, R"pbdoc( 手掌推开 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "sliding_hand_or_two_fingers_up", &VPA::GestureData::sliding_hand_or_two_fingers_up,
     R"pbdoc( 手向上抬 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "sliding_hand_or_two_fingers_down",
     &VPA::GestureData::sliding_hand_or_two_fingers_down, R"pbdoc( 手向下压 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "sliding_hand_or_two_fingers_left",
     &VPA::GestureData::sliding_hand_or_two_fingers_left, R"pbdoc( 手向左推 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "sliding_hand_or_two_fingers_right",
     &VPA::GestureData::sliding_hand_or_two_fingers_right, R"pbdoc( 手向右推 )pbdoc")
-  .def_readonly("stop_sign", &VPA::GestureData::stop_sign, R"pbdoc( 停止手势 )pbdoc")
-  .def_readonly("thumb_down", &VPA::GestureData::thumb_down, R"pbdoc( 大拇指朝下 )pbdoc")
-  .def_readonly("thumb_up", &VPA::GestureData::thumb_up, R"pbdoc( 大拇指朝上 )pbdoc")
-  .def_readonly(
+  .def_readwrite("stop_sign", &VPA::GestureData::stop_sign, R"pbdoc( 停止手势 )pbdoc")
+  .def_readwrite("thumb_down", &VPA::GestureData::thumb_down, R"pbdoc( 大拇指朝下 )pbdoc")
+  .def_readwrite("thumb_up", &VPA::GestureData::thumb_up, R"pbdoc( 大拇指朝上 )pbdoc")
+  .def_readwrite(
     "zooming_in_with_hand_or_two_fingers",
     &VPA::GestureData::zooming_in_with_hand_or_two_fingers, R"pbdoc( 张开手掌或手指 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "zooming_out_with_hand_or_two_fingers",
     &VPA::GestureData::zooming_out_with_hand_or_two_fingers, R"pbdoc( 闭合手掌或手指 )pbdoc")
   .def(
@@ -1910,8 +1910,8 @@ void DefineGestureRecognizedSeviceResponse(py::object m)
     m, "GestureRecognizedSeviceResponse",
     py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("state", &VPA::GestureRecognizedSeviceResponse::state, R"pbdoc( 状态 )pbdoc")
-  .def_readonly("response", &VPA::GestureRecognizedSeviceResponse::response, R"pbdoc( 反馈 )pbdoc")
+  .def_readwrite("state", &VPA::GestureRecognizedSeviceResponse::state, R"pbdoc( 状态 )pbdoc")
+  .def_readwrite("response", &VPA::GestureRecognizedSeviceResponse::response, R"pbdoc( 反馈 )pbdoc")
   .def(
     "__repr__", [](const VPA::GestureRecognizedSeviceResponse & _ret) {
       return std::string(
@@ -1939,8 +1939,8 @@ void DefineGestureRecognizedMessageResponse(py::object m)
     m, "GestureRecognizedMessageResponse",
     py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("state", &VPA::GestureRecognizedMessageResponse::state, R"pbdoc( 状态 )pbdoc")
-  .def_readonly("data", &VPA::GestureRecognizedMessageResponse::data, R"pbdoc( 识别状态数据 )pbdoc")
+  .def_readwrite("state", &VPA::GestureRecognizedMessageResponse::state, R"pbdoc( 状态 )pbdoc")
+  .def_readwrite("data", &VPA::GestureRecognizedMessageResponse::data, R"pbdoc( 识别状态数据 )pbdoc")
   .def(
     "__repr__", [](const VPA::GestureRecognizedMessageResponse & _ret) {
       return std::string(
@@ -2000,8 +2000,8 @@ void DefineSkeletonRecognizedSeviceResponse(py::object m)
     m, "SkeletonRecognizedSeviceResponse",
     py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("state", &VPA::SkeletonRecognizedSeviceResponse::state, R"pbdoc( 状态 )pbdoc")
-  .def_readonly("response", &VPA::SkeletonRecognizedSeviceResponse::response, R"pbdoc( 反馈 )pbdoc")
+  .def_readwrite("state", &VPA::SkeletonRecognizedSeviceResponse::state, R"pbdoc( 状态 )pbdoc")
+  .def_readwrite("response", &VPA::SkeletonRecognizedSeviceResponse::response, R"pbdoc( 反馈 )pbdoc")
   .def(
     "__repr__", [](const VPA::SkeletonRecognizedSeviceResponse & _ret) {
       return std::string(
@@ -2029,8 +2029,8 @@ void DefineSkeletonRecognizedMessageResponse(py::object m)
     m, "SkeletonRecognizedMessageResponse",
     py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("state", &VPA::SkeletonRecognizedMessageResponse::state, R"pbdoc( 状态 )pbdoc")
-  .def_readonly("response", &VPA::SkeletonRecognizedMessageResponse::response, R"pbdoc( 反馈 )pbdoc")
+  .def_readwrite("state", &VPA::SkeletonRecognizedMessageResponse::state, R"pbdoc( 状态 )pbdoc")
+  .def_readwrite("response", &VPA::SkeletonRecognizedMessageResponse::response, R"pbdoc( 反馈 )pbdoc")
   .def(
     "__repr__", [](const VPA::SkeletonRecognizedMessageResponse & _ret) {
       return std::string(
@@ -2128,11 +2128,11 @@ void DefineMapPresetSeviceResponse(py::object m)
     m, "MapPresetSeviceResponse",
     py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("state", &VPA::MapPresetSeviceResponse::state, R"pbdoc( 状态 )pbdoc")
-  .def_readonly("map_name", &VPA::MapPresetSeviceResponse::map_name, R"pbdoc( 地图名称 )pbdoc")
-  .def_readonly("is_outdoor", &VPA::MapPresetSeviceResponse::is_outdoor, R"pbdoc( 是否为户外地图 )pbdoc")
-  .def_readonly("list", &VPA::MapPresetSeviceResponse::list, R"pbdoc( 列表 )pbdoc")
-  .def_readonly("dictionary", &VPA::MapPresetSeviceResponse::dictionary, R"pbdoc( 字典 )pbdoc")
+  .def_readwrite("state", &VPA::MapPresetSeviceResponse::state, R"pbdoc( 状态 )pbdoc")
+  .def_readwrite("map_name", &VPA::MapPresetSeviceResponse::map_name, R"pbdoc( 地图名称 )pbdoc")
+  .def_readwrite("is_outdoor", &VPA::MapPresetSeviceResponse::is_outdoor, R"pbdoc( 是否为户外地图 )pbdoc")
+  .def_readwrite("list", &VPA::MapPresetSeviceResponse::list, R"pbdoc( 列表 )pbdoc")
+  .def_readwrite("dictionary", &VPA::MapPresetSeviceResponse::dictionary, R"pbdoc( 字典 )pbdoc")
   .def(
     "__repr__", [](const VPA::MapPresetSeviceResponse & _ret) {
       return std::string(
@@ -2167,8 +2167,8 @@ void DefineNavigationActionResponse(py::object m)
     m, "NavigationActionResponse",
     py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("state", &VPA::NavigationActionResponse::state, R"pbdoc( 状态 )pbdoc")
-  .def_readonly("response", &VPA::NavigationActionResponse::response, R"pbdoc( 反馈 )pbdoc")
+  .def_readwrite("state", &VPA::NavigationActionResponse::state, R"pbdoc( 状态 )pbdoc")
+  .def_readwrite("response", &VPA::NavigationActionResponse::response, R"pbdoc( 反馈 )pbdoc")
   .def(
     "__repr__", [](const VPA::NavigationActionResponse & _ret) {
       return std::string(

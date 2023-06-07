@@ -43,7 +43,7 @@ bool PythonInterpreter::Init()
   return true;
 }
 
-bool PythonInterpreter::Choreographer(
+MotionSequenceServiceResponse PythonInterpreter::Choreographer(
   const uint64_t _motion_id,
   const std::string _type,
   const py::args _args)
@@ -53,15 +53,19 @@ bool PythonInterpreter::Choreographer(
     _type.c_str(),
     pyArgsToString(_args).c_str());
   INFO("%s", funs.c_str());
+  MotionSequenceServiceResponse ret;
+  ret.state.code = StateCode::fail;
+  ret.state.describe = funs;
   try {
-    return choreographer_dance_args(_motion_id, _type, _args).cast<bool>();
+    ret = choreographer_dance_args(_motion_id, _type, _args).cast<MotionSequenceServiceResponse>();
   } catch (const std::exception & e) {
     ERROR("%s error:%s", funs.c_str(), e.what());
+    ret.state.describe += "\n - " + std::string(e.what());
   }
-  return false;
+  return ret;
 }
 
-bool PythonInterpreter::Choreographer(
+MotionSequenceServiceResponse PythonInterpreter::Choreographer(
   const uint64_t _motion_id,
   const py::kwargs _kwargs)
 {
@@ -69,11 +73,15 @@ bool PythonInterpreter::Choreographer(
     "(%s) ...",
     pyKwargsToString(_kwargs).c_str());
   INFO("%s", funs.c_str());
+  MotionSequenceServiceResponse ret;
+  ret.state.code = StateCode::fail;
+  ret.state.describe = funs;
   try {
-    return choreographer_dance_kwargs(_motion_id, _kwargs).cast<bool>();
+    ret = choreographer_dance_kwargs(_motion_id, _kwargs).cast<MotionSequenceServiceResponse>();
   } catch (const std::exception & e) {
     ERROR("%s error:%s", funs.c_str(), e.what());
+    ret.state.describe += "\n - " + std::string(e.what());
   }
-  return false;
+  return ret;
 }
 }   // namespace cyberdog_visual_programming_abilityset
