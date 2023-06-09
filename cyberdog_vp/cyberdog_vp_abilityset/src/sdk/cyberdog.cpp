@@ -278,7 +278,7 @@ State Cyberdog::Ready(const uint16_t _timeout)
     std::chrono::time_point<std::chrono::system_clock> deadline =
       std::chrono::system_clock::now() + std::chrono::seconds(std::abs(_timeout));
     while (rclcpp::ok() && std::chrono::system_clock::now() < deadline) {
-      if (this->task_.GetProcessor(Processor::task)) {
+      if (this->task_.JudgeFSM()) {
         return this->GetState(funs, StateCode::success);
       }
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
