@@ -54,7 +54,8 @@ public:
       std::bind(&AudioPlay::get_play_status_callback, this));
     std::thread([this]() {rclcpp::spin(get_nodify_node_);}).detach();
   }
-  void LoadSoundYaml(){
+  void LoadSoundYaml()
+  {
     if (access(SOUND_DIRECTORY.c_str(), F_OK) == 0) {
       std::string config_toml_file = SOUND_DIRECTORY + "/yaml/sound.toml";
       if (access(config_toml_file.c_str(), F_OK) == 0) {
