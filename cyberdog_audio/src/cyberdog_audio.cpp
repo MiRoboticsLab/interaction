@@ -162,6 +162,7 @@ cyberdog::interaction::CyberdogAudio::CyberdogAudio()
       std::placeholders::_2),
     rmw_qos_profile_services_default, speech_callback_group_);
   audio_fds_ptr_ = std::make_unique<cyberdog::interaction::AudioFds>();
+  audio_fds_ptr_->get_audio_play_ptr(audio_play_ptr_);
   RegisterAudioCyberdogTopicHandler();
   RegisterCyberdogAudioServiceReturnHandler();
   audio_state.RegisterNotice(
