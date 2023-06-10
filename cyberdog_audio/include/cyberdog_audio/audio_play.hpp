@@ -43,6 +43,19 @@ public:
   AudioPlay(
     std::function<void(const std::shared_ptr<SpeechActionServer::GoalHandleSpeech>)> goal_func)
   {
+    LoadSoundYaml();
+    speech_handler_ptr_ = std::make_shared<SpeechHandler>(goal_func);
+    audio_notify_pub_ =
+      get_nodify_node_->create_publisher<std_msgs::msg::Bool>(
+      "audio_notification_report", rclcpp::SystemDefaultsQoS());
+    timer_pub_ptr_ =
+      get_nodify_node_->create_wall_timer(
+      std::chrono::milliseconds(500),
+      std::bind(&AudioPlay::get_play_status_callback, this));
+    std::thread([this]() {rclcpp::spin(get_nodify_node_);}).detach();
+  }
+  void LoadSoundYaml()
+  {
     if (access(SOUND_DIRECTORY.c_str(), F_OK) == 0) {
       std::string config_toml_file = SOUND_DIRECTORY + "/yaml/sound.toml";
       if (access(config_toml_file.c_str(), F_OK) == 0) {
@@ -103,15 +116,6 @@ public:
         }
       }
     }
-    speech_handler_ptr_ = std::make_shared<SpeechHandler>(goal_func);
-    audio_notify_pub_ =
-      get_nodify_node_->create_publisher<std_msgs::msg::Bool>(
-      "audio_notification_report", rclcpp::SystemDefaultsQoS());
-    timer_pub_ptr_ =
-      get_nodify_node_->create_wall_timer(
-      std::chrono::milliseconds(500),
-      std::bind(&AudioPlay::get_play_status_callback, this));
-    std::thread([this]() {rclcpp::spin(get_nodify_node_);}).detach();
   }
   ~AudioPlay() = default;
   std::shared_ptr<audio_lcm::lcm_data> SoundPlay(play_sound_info & psi)
