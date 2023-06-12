@@ -586,7 +586,11 @@ int32_t cyberdog::interaction::CyberdogAudio::OnDeactive()
 
 int32_t cyberdog::interaction::CyberdogAudio::OnTearDown()
 {
-  // DestroyLcm();
+  if (audio_play_ptr_->GetPlayStatus() == 1) {
+    std::shared_ptr<audio_lcm::lcm_data> l_d(new audio_lcm::lcm_data());
+    l_d->cmd = PLAY_CANCEL;
+    LcmPublish(l_d);
+  }
   return 0;
 }
 
