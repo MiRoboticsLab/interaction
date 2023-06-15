@@ -388,7 +388,15 @@ private:
   }
   void Follow_Me(const uint8_t & times)
   {
-    utc_node_ptr_->send_goal();
+    if (utc_node_ptr_->get_uwb_device() != 0) {
+      utc_node_ptr_->send_goal();
+    } else {
+      protocol::msg::AudioPlayExtend msg;
+      msg.is_online = true;
+      msg.module_name = "audio_action";
+      msg.text = "暂无可跟随标签，请添加配件后再试";
+      audio_play_pub->publish(msg);
+    }
     (void) times;
   }
   void Change_Hands(const uint8_t & times)
