@@ -21,6 +21,7 @@
 #include "cyberdog_common/cyberdog_log.hpp"
 #include "protocol/action/navigation.hpp"
 #include "protocol/srv/stop_algo_task.hpp"
+#include "protocol/srv/ble_scan.hpp"
 
 namespace cyberdog
 {
@@ -43,8 +44,30 @@ public:
       this->create_client<protocol::srv::StopAlgoTask>(
       "stop_algo_task",
       rmw_qos_profile_services_default, stop_callback_group_);
+    current_connected_bluetooth_client_ =
+      this->create_client<protocol::srv::BLEScan>(
+      "get_connected_bluetooth_info",
+      rmw_qos_profile_services_default, stop_callback_group_);
   }
-
+  int get_uwb_device()
+  {
+    int number = 0;
+    if (!current_connected_bluetooth_client_->wait_for_service(std::chrono::seconds(3))) {
+      ERROR("current_connected_bluetooth_devices server not avaiable");
+      return number;
+    }
+    auto req = std::make_shared<protocol::srv::BLEScan::Request>();
+    req->scan_seconds = 0;
+    auto future_result = current_connected_bluetooth_client_->async_send_request(req);
+    std::future_status status = future_result.wait_for(std::chrono::seconds(3));
+    if (status == std::future_status::ready) {
+      auto devices = future_result.get()->device_info_list;
+      number = devices.size();
+    } else {
+      INFO("request get_connected_bluetooth_info service failed!");
+    }
+    return number;
+  }
   void send_goal()
   {
     if (!this->client_ptr_->wait_for_action_server(std::chrono::seconds(3))) {
@@ -129,6 +152,7 @@ private:
   rclcpp_action::Client<Navigation>::SharedPtr client_ptr_;
   rclcpp::CallbackGroup::SharedPtr stop_callback_group_;
   rclcpp::Client<protocol::srv::StopAlgoTask>::SharedPtr stop_algo_task_client_;
+  rclcpp::Client<protocol::srv::BLEScan>::SharedPtr current_connected_bluetooth_client_;
   std::atomic_bool is_running;
 };
 }  // namespace interaction
