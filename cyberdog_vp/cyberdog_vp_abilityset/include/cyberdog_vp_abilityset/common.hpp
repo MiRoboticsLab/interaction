@@ -855,6 +855,55 @@ public:
   MsgSport response;                              /*!< 反馈 */
 };
 
+/*! 皮肤约束 */
+enum SkinConstraint
+{
+  model_flash = 0,                                /*!< [模式]闪烁 */
+  model_wavef,                                    /*!< [模式]动画前向后变 */
+  model_random,                                   /*!< [模式]随机 */
+  model_waveb,                                    /*!< [模式]动画后向前变 */
+  model_control,                                  /*!< [模式]上位机实时控制模式 */
+  model_max = 4,                                  /*!< [模式类型上限] */
+
+  position_body_middle = 0,                       /*!< [部位]背部 */
+  position_left_back_leg,                         /*!< [部位]左后腿 */
+  position_body_left,                             /*!< [部位]左侧 */
+  position_left_front_leg,                        /*!< [部位]左前腿 */
+  position_front_chest,                           /*!< [部位]前胸 */
+  position_right_front_leg,                       /*!< [部位]右前腿 */
+  position_body_right,                            /*!< [部位]右侧 */
+  position_right_back_leg,                        /*!< [部位]右后腿 */
+  position_max = 7,                               /*!< [部位类型上限] */
+
+  rendering_fade_out = 0,                         /*!< [渲染]淡出（由深入浅） */
+  rendering_fade_in,                              /*!< [渲染]淡入（由浅入深） */
+  rendering_max = 1,                              /*!< [渲染类型上限] */
+
+  outset_front_end = 0,                           /*!< [起点]前端（从前向后） */
+  outset_rear_end,                                /*!< [起点]后端（从后向前） */
+  outset_max = 1,                                 /*!< [起点类型上限] */
+};
+
+/*! CAN 数据 */
+struct CanData
+{
+  uint8_t data0;
+  uint8_t data1;
+  uint8_t data2;
+  uint8_t data3;
+};
+
+/*! CAN 数据 */
+class SkinElectrochromicResponse
+{
+public:
+  SkinElectrochromicResponse() {}
+  ~SkinElectrochromicResponse() {}
+  State state;                                    /*!< 状态 */
+  std::string name;                               /*!< 名称 */
+  CanData data;                                   /*!< 数据 */
+};
+
 /*! 训练词识别服务反馈 */
 class TrainingWordsRecognizedSeviceResponse
 {

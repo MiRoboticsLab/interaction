@@ -136,6 +136,13 @@ void DefineSkeletonRecognizedSeviceResponse(
 void DefineSkeletonRecognizedMessageResponse(
   py::object);                                    /*!< 定义 SkeletonRecognizedMessageResponse */
 
+void DefineSkinConstraint(
+  py::object);                                    /*!< 定义 SkinConstraint */
+void DefineCanData(
+  py::object);                                    /*!< 定义 CanData */
+void DefineSkinElectrochromicResponse(
+  py::object);                                    /*!< 定义 SkinElectrochromicResponse */
+
 void DefineTrainingWordsRecognizedSeviceResponse(
   py::object);                                    /*!< 定义 TrainingWordsRecognizedSevice... */
 void DefineTrainingWordsRecognizedMessageResponse(
@@ -155,6 +162,7 @@ void DefineTrain(py::object);                     /*!< 定义 Train */
 void DefinePersonnel(py::object);                 /*!< 定义 Personnel */
 void DefineGesture(py::object);                   /*!< 定义 Gesture */
 void DefineSkeleton(py::object);                  /*!< 定义 Skeleton */
+void DefineSkin(py::object m);                    /*!< 定义 Skin */
 
 void DefineAudio(py::object);                     /*!< 定义 Audio */
 void DefineLed(py::object);                       /*!< 定义 Led */
