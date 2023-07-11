@@ -15,7 +15,7 @@
 #include <string>
 
 #include "vpapy.hpp"
-#include "cyberdog_vp_abilityset/skeleton.hpp"
+#include "cyberdog_vp_abilityset/skin.hpp"
 
 namespace cyberdog_visual_programming_abilityset_py
 {
