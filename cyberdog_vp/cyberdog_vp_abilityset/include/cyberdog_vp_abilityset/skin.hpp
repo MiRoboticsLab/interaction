@@ -15,8 +15,6 @@
 #ifndef CYBERDOG_VP_ABILITYSET__SKIN_HPP_
 #define CYBERDOG_VP_ABILITYSET__SKIN_HPP_
 
-#include <embed_protocol/embed_protocol.hpp>
-
 #include <string>
 #include <memory>
 #include <vector>
@@ -53,8 +51,6 @@ public:
   );                                              /*!< 电致变色 */
 
 private:
-  std::shared_ptr<cyberdog::embed::Protocol<CanData>>
-  can0_ptr_ {nullptr};                            /*!< Can0 */
   int now_model_ {-1};
   SkinElectrochromicResponse can0_response_;      /*!< Can0 回值 */
   const std::unordered_map<int, std::string> constraint_map_ = {

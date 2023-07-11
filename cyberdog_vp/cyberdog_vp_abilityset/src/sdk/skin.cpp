@@ -11,6 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+#include <embed_protocol/embed_protocol.hpp>
+
 #include <string>
 #include <memory>
 #include <vector>
@@ -20,14 +23,15 @@
 
 namespace cyberdog_visual_programming_abilityset
 {
+std::shared_ptr<cyberdog::embed::Protocol<CanData>> can0_ptr_ {nullptr};  /*!< Can0 */
 bool Skin::SetData(const toml::value &)
 {
   try {
     Debug("%s", std::string(__FUNCTION__).c_str());
     std::string params_pkg_dir = ament_index_cpp::get_package_share_directory("cyberdog_vp");
     std::string skin_config_dir = params_pkg_dir + "/config/skin.toml";
-    this->can0_ptr_ = std::make_shared<cyberdog::embed::Protocol<CanData>>(skin_config_dir, false);
-    this->can0_ptr_->SetDataCallback(
+    can0_ptr_ = std::make_shared<cyberdog::embed::Protocol<CanData>>(skin_config_dir, false);
+    can0_ptr_->SetDataCallback(
       std::bind(&Skin::Can0CB, this, std::placeholders::_1, std::placeholders::_2));
   } catch (const std::exception & e) {
     Error("%s Set data failed: %s", this->logger_.c_str(), e.what());
@@ -114,7 +118,7 @@ SkinElectrochromicResponse Skin::Electrochromic(
       uint8_t m = static_cast<uint8_t>(this->now_model_);
       uint8_t d_high = *(reinterpret_cast<uint8_t *>(&duration_ms));
       uint8_t d_low = *(reinterpret_cast<uint8_t *>(&duration_ms) + 1);
-      this->can0_ptr_->Operate(
+      can0_ptr_->Operate(
         this->constraint_map_.at(this->now_model_),
         std::vector<uint8_t>{m, d_low, d_high});
     }
@@ -123,7 +127,7 @@ SkinElectrochromicResponse Skin::Electrochromic(
       uint8_t o = static_cast<uint8_t>(outset);
       uint8_t d_high = *(reinterpret_cast<uint8_t *>(&duration_ms));
       uint8_t d_low = *(reinterpret_cast<uint8_t *>(&duration_ms) + 1);
-      this->can0_ptr_->Operate(
+      can0_ptr_->Operate(
         this->constraint_map_.at(position),
         std::vector<uint8_t>{r, o, d_low, d_high});
     }
