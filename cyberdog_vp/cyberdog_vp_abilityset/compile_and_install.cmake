@@ -92,6 +92,7 @@ function(compile_and_install_sdk)
     protocol
     params
     cyberdog_common
+    cyberdog_embed_protocol
     rapidjson
   )
 
@@ -160,6 +161,34 @@ function(compile_and_install_api)
     message("Compiling and installing API ...")
     message(
       "\nPython info:
+      - Python_FOUND:${Python_FOUND}
+      - Python_Interpreter_FOUND:${Python_Interpreter_FOUND}
+      - Python_Compiler_FOUND:${Python_Compiler_FOUND}
+      - Python_Development_FOUND:${Python_Development_FOUND}
+      - Python_NumPy_FOUND:${Python_NumPy_FOUND}
+      - Python_VERSION:${Python_VERSION}
+      - Python_VERSION_MAJOR:${Python_VERSION_MAJOR}
+      - Python_VERSION_MINOR:${Python_VERSION_MINOR}
+      - Python_VERSION_PATCH:${Python_VERSION_PATCH}
+      - Python_INTERPRETER_ID:${Python_INTERPRETER_ID}
+      - Python_STDLIB:${Python_STDLIB}
+      - Python_STDARCH:${Python_STDARCH}
+      - Python_SITELIB:${Python_SITELIB}
+      - Python_SITEARCH:${Python_SITEARCH}
+      - Python_SOABI:${Python_SOABI}
+      - Python_COMPILER:${Python_COMPILER}
+      - Python_COMPILER_ID:${Python_COMPILER_ID}
+      - PYTHON_EXECUTABLE:${Python_EXECUTABLE}
+      - Python_INCLUDE_DIRS:${Python_INCLUDE_DIRS}
+      - Python_LIBRARIES:${Python_LIBRARIES}
+      - Python_LIBRARY_DIRS:${Python_LIBRARY_DIRS}
+      - Python_RUNTIME_LIBRARY_DIRS:${Python_RUNTIME_LIBRARY_DIRS}
+      - Python_PyPy_VERSION:${Python_PyPy_VERSION}
+      - Python_NumPy_INCLUDE_DIRS:${Python_NumPy_INCLUDE_DIRS}
+      - Python_NumPy_VERSION:${Python_NumPy_VERSION}")
+
+    message(
+      "\nPYTHON INFO:
       - PYTHON_VERSION_MAJOR:${PYTHON_VERSION_MAJOR}
       - PYTHON_VERSION_MINOR:${PYTHON_VERSION_MINOR}
       - PYTHON_EXECUTABLE:${PYTHON_EXECUTABLE}
@@ -235,6 +264,7 @@ function(compile_and_install_api)
     sensor_msgs
     geometry_msgs
     cyberdog_common
+    cyberdog_embed_protocol
     rapidjson
   )
   install(

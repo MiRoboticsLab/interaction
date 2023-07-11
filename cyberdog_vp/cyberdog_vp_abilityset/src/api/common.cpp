@@ -97,6 +97,10 @@ void DefineCommonType(py::object m)
   DefineSkeletonRecognizedSeviceResponse(m);
   DefineSkeletonRecognizedMessageResponse(m);
 
+  DefineSkinConstraint(m);
+  DefineCanData(m);
+  DefineSkinElectrochromicResponse(m);
+
   DefineTrainingWordsRecognizedSeviceResponse(m);
   DefineTrainingWordsRecognizedMessageResponse(m);
 
@@ -107,13 +111,63 @@ void DefineCommonType(py::object m)
 void DefineState(py::object m)
 {
   py::enum_<VPA::StateCode>(m, "StateCode")
-  .value("invalid", VPA::StateCode::invalid, R"pbdoc( 无效 )pbdoc")
-  .value("success", VPA::StateCode::success, R"pbdoc( 成功 )pbdoc")
-  .value("fail", VPA::StateCode::fail, R"pbdoc( 失败 )pbdoc")
-  .value("no_data_update", VPA::StateCode::no_data_update, R"pbdoc( 无数据更新 )pbdoc")
+  .value(
+    "invalid", VPA::StateCode::invalid,
+    R"pbdoc( 无效 )pbdoc")
+  .value(
+    "success", VPA::StateCode::success,
+    R"pbdoc( 成功 )pbdoc")
+  .value(
+    "error_base", VPA::StateCode::error_base,
+    R"pbdoc( 错误基础码 )pbdoc")
+  .value(
+    "fail", VPA::StateCode::fail,
+    R"pbdoc( 失败 )pbdoc")
+  .value(
+    "uninitialized", VPA::StateCode::uninitialized,
+    R"pbdoc( 未初始化 )pbdoc")
+  .value(
+    "fsm_does_not_allow", VPA::StateCode::fsm_does_not_allow,
+    R"pbdoc( 状态机不允许 )pbdoc")
+  .value(
+    "module_status_error", VPA::StateCode::module_status_error,
+    R"pbdoc( 模块状态错误 )pbdoc")
+  .value(
+    "network_error", VPA::StateCode::network_error,
+    R"pbdoc( 网络错误 )pbdoc")
+  .value(
+    "no_operation_authority", VPA::StateCode::no_operation_authority,
+    R"pbdoc( 无操作权限 )pbdoc")
+  .value(
+    "timeout", VPA::StateCode::timeout,
+    R"pbdoc( 超时 )pbdoc")
+  .value(
+    "command_does_not_support", VPA::StateCode::command_does_not_support,
+    R"pbdoc( 指令不支持 )pbdoc")
+  .value(
+    "self_test_failed", VPA::StateCode::self_test_failed,
+    R"pbdoc( 自检失败 )pbdoc")
+  .value(
+    "parameter_is_invalid", VPA::StateCode::parameter_is_invalid,
+    R"pbdoc( 参数不合法 )pbdoc")
+  .value(
+    "status_is_busy", VPA::StateCode::status_is_busy,
+    R"pbdoc( 状态忙碌 )pbdoc")
+  .value(
+    "hardware_error", VPA::StateCode::hardware_error,
+    R"pbdoc( 硬件错误 )pbdoc")
   .value(
     "command_waiting_execute", VPA::StateCode::command_waiting_execute,
     R"pbdoc( 待执行时发生错误 )pbdoc")
+  .value(
+    "spin_future_interrupted", VPA::StateCode::spin_future_interrupted,
+    R"pbdoc( 请求服务中断 )pbdoc")
+  .value(
+    "spin_future_timeout", VPA::StateCode::spin_future_timeout,
+    R"pbdoc( 请求服务超时/延迟 )pbdoc")
+  .value(
+    "no_data_update", VPA::StateCode::no_data_update,
+    R"pbdoc( 无数据更新 )pbdoc")
   .value(
     "service_client_interrupted", VPA::StateCode::service_client_interrupted,
     R"pbdoc( 客户端在请求服务出现时被打断 )pbdoc")
@@ -124,12 +178,20 @@ void DefineState(py::object m)
     "service_request_interrupted", VPA::StateCode::service_request_interrupted,
     R"pbdoc( 请求服务中断 )pbdoc")
   .value(
+    "service_request_rejected", VPA::StateCode::service_request_rejected,
+    R"pbdoc( 请求服务被拒绝 )pbdoc")
+  .value(
     "service_request_timeout", VPA::StateCode::service_request_timeout,
     R"pbdoc( 请求服务超时/延迟 )pbdoc")
   .value(
-    "spin_future_interrupted", VPA::StateCode::spin_future_interrupted,
-    R"pbdoc( 请求服务中断 )pbdoc")
-  .value("spin_future_timeout", VPA::StateCode::spin_future_timeout, R"pbdoc( 请求服务超时/延迟 )pbdoc")
+    "action_request_timeout", VPA::StateCode::action_request_timeout,
+    R"pbdoc( 请求动作超时/延迟 )pbdoc")
+  .value(
+    "action_request_rejected", VPA::StateCode::action_request_rejected,
+    R"pbdoc( 请求动作被拒绝 )pbdoc")
+  .value(
+    "action_result_timeout", VPA::StateCode::action_result_timeout,
+    R"pbdoc( 等待动作结果超时/延迟 )pbdoc")
   ;
 
   py::class_<VPA::State>(m, "State", py::dynamic_attr())
@@ -2054,6 +2116,135 @@ void DefineSkeletonRecognizedMessageResponse(py::object m)
           _ret.response.sport_type,
           _ret.response.counts,
           _ret.response.duration));
+    })
+  ;
+}
+
+void DefineSkinConstraint(py::object m)
+{
+  py::enum_<VPA::SkinConstraint>(m, "SkinConstraint")
+  .value(
+    "model_flash", VPA::SkinConstraint::model_flash,
+    R"pbdoc( [模式]闪烁 )pbdoc")
+  .value(
+    "model_wavef", VPA::SkinConstraint::model_wavef,
+    R"pbdoc( [模式]动画前向后变 )pbdoc")
+  .value(
+    "model_random", VPA::SkinConstraint::model_random,
+    R"pbdoc( [模式]随机 )pbdoc")
+  .value(
+    "model_waveb", VPA::SkinConstraint::model_waveb,
+    R"pbdoc( [模式]动画后向前变 )pbdoc")
+  .value(
+    "model_control", VPA::SkinConstraint::model_control,
+    R"pbdoc( [模式]上位机实时控制模式 )pbdoc")
+
+  .value(
+    "position_body_middle", VPA::SkinConstraint::position_body_middle,
+    R"pbdoc( [部位]背部 )pbdoc")
+  .value(
+    "position_left_back_leg", VPA::SkinConstraint::position_left_back_leg,
+    R"pbdoc( [部位]左后腿 )pbdoc")
+  .value(
+    "position_body_left", VPA::SkinConstraint::position_body_left,
+    R"pbdoc( [部位]左侧 )pbdoc")
+  .value(
+    "position_left_front_leg", VPA::SkinConstraint::position_left_front_leg,
+    R"pbdoc( [部位]左前腿 )pbdoc")
+  .value(
+    "position_front_chest", VPA::SkinConstraint::position_front_chest,
+    R"pbdoc( [部位]前胸 )pbdoc")
+  .value(
+    "position_right_front_leg", VPA::SkinConstraint::position_right_front_leg,
+    R"pbdoc( [部位]右前腿 )pbdoc")
+  .value(
+    "position_body_right", VPA::SkinConstraint::position_body_right,
+    R"pbdoc( [部位]右侧 )pbdoc")
+  .value(
+    "position_right_back_leg", VPA::SkinConstraint::position_right_back_leg,
+    R"pbdoc( [部位]右后腿 )pbdoc")
+
+  .value(
+    "rendering_fade_out", VPA::SkinConstraint::rendering_fade_out,
+    R"pbdoc( [渲染]淡出（由深入浅） )pbdoc")
+  .value(
+    "rendering_fade_in", VPA::SkinConstraint::rendering_fade_in,
+    R"pbdoc( [渲染]淡入（由浅入深） )pbdoc")
+
+  .value(
+    "outset_front_end", VPA::SkinConstraint::outset_front_end,
+    R"pbdoc( [起点]前端（从前向后） )pbdoc")
+  .value(
+    "outset_rear_end", VPA::SkinConstraint::outset_rear_end,
+    R"pbdoc( [起点]后端（从后向前） )pbdoc")
+  ;
+}
+
+void DefineCanData(py::object m)
+{
+  py::class_<VPA::CanData>(
+    m, "CanData",
+    py::dynamic_attr())
+  .def(py::init<>())
+  .def_readwrite("data0", &VPA::CanData::data0, R"pbdoc( data0 )pbdoc")
+  .def_readwrite("data1", &VPA::CanData::data1, R"pbdoc( data1 )pbdoc")
+  .def_readwrite("data2", &VPA::CanData::data2, R"pbdoc( data2 )pbdoc")
+  .def_readwrite("data3", &VPA::CanData::data3, R"pbdoc( data3 )pbdoc")
+  .def(
+    "__repr__", [](const VPA::CanData & _ret) {
+      return std::string(
+        FORMAT(
+          "┌────────────────────────────────────────---"
+          "\n│- type: CanData"
+          "\n├────────────────────────────────────────---"
+          "\n│- data:"
+          "\n│  - data0 = %d"
+          "\n│  - data1 = %d"
+          "\n│  - data2 = %d"
+          "\n│  - data3 = %d"
+          "\n└────────────────────────────────────────---",
+          _ret.data0,
+          _ret.data1,
+          _ret.data2,
+          _ret.data3));
+    })
+  ;
+}
+
+void DefineSkinElectrochromicResponse(py::object m)
+{
+  py::class_<VPA::SkinElectrochromicResponse>(
+    m, "SkinElectrochromicResponse",
+    py::dynamic_attr())
+  .def(py::init<>())
+  .def_readwrite("state", &VPA::SkinElectrochromicResponse::state, R"pbdoc( 状态 )pbdoc")
+  .def_readwrite("name", &VPA::SkinElectrochromicResponse::name, R"pbdoc( 名称 )pbdoc")
+  .def_readwrite("data", &VPA::SkinElectrochromicResponse::data, R"pbdoc( 数据 )pbdoc")
+  .def(
+    "__repr__", [](const VPA::SkinElectrochromicResponse & _ret) {
+      return std::string(
+        FORMAT(
+          "┌────────────────────────────────────────---"
+          "\n│- type: SkinElectrochromicResponse"
+          "\n├────────────────────────────────────────---"
+          "\n│- data:"
+          "\n│  - state:"
+          "\n│    - code = %d"
+          "\n│    - describe = '%s'"
+          "\n│  - name = %s"
+          "\n│  - data:"
+          "\n│    - data0 = %d"
+          "\n│    - data1 = %d"
+          "\n│    - data2 = %d"
+          "\n│    - data3 = %d"
+          "\n└────────────────────────────────────────---",
+          _ret.state.code,
+          _ret.state.describe.c_str(),
+          _ret.name.c_str(),
+          _ret.data.data0,
+          _ret.data.data1,
+          _ret.data.data2,
+          _ret.data.data3));
     })
   ;
 }

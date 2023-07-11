@@ -31,6 +31,7 @@ led = "led_execute"
 wifi = "connect_wifi"
 ip = "ip_state"
 camera = "camera_service"
+lcm_log = "lcm_log_upload"
 
 [connector.initialization.action] # string
 audio = "speech_text_action"

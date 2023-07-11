@@ -36,10 +36,13 @@
 
 #include <cyberdog_common/cyberdog_log.hpp>
 #include <cyberdog_common/cyberdog_toml.hpp>
+#include <file_uploading/lcm_log_uploader.hpp>
 
 #include <sensor_msgs/msg/image.hpp>
 #include <std_msgs/msg/string.hpp>
 #include <std_msgs/msg/bool.hpp>
+
+#include <std_srvs/srv/trigger.hpp>
 
 #include <protocol/msg/audio_play.hpp>
 #include <protocol/msg/connector_status.hpp>
@@ -92,6 +95,7 @@ class Connector final : public rclcpp::Node
   using WiFiSrv = protocol::srv::WifiConnect;                 /*!< [service 类型]WiFi 服务 */
   using LedSrv = protocol::srv::LedExecute;                   /*!< [service 类型]LED 驱动服务 */
   using CameraSrv = protocol::srv::CameraService;             /*!< [service 类型]相机 驱动服务 */
+  using TriggerSrv = std_srvs::srv::Trigger;                  /*!< [service 类型]日志上传 服务 */
 
   using TimeType = std::chrono::time_point<std::chrono::system_clock>;      /*!< 超时 */
   enum ShellEnum
@@ -132,6 +136,9 @@ private:
   void Connect(
     const std::shared_ptr<ConnectorSrv::Request> request,
     std::shared_ptr<ConnectorSrv::Response> response);        /*!< 进行连接 */
+  void Uploader(
+    const std::shared_ptr<TriggerSrv::Request> request,
+    std::shared_ptr<TriggerSrv::Response> response);          /*!< 上传日志 */
   bool CheckInternet();                                       /*!< 检测因特网 */
   void SaveWiFi(
     const std::string &, const std::string &,
@@ -142,6 +149,7 @@ private:
     const std::string &, int &,
     std::string &);                                           /*!< 执行shell */
   bool Interaction(const uint16_t & _id);                     /*!< 执行交互 */
+  bool UserBootsFirstTime();                                  /*!< 用户首次开机 */
 
 private:
   std::string name_ {""};                                     /*!< node 名称 */
@@ -159,7 +167,9 @@ private:
   int touch_signal_invalid_interval_s {1};                    /*!< 触摸板信号无效间隔 */
   TimeType touch_signal_timeout_;                             /*!< 触摸板信号超时 */
   int srv_code_ {0};                                          /*!< 服务返回码 */
+  std::shared_ptr<LcmLogUploader> lcm_log_ptr_ {nullptr};     /*!< lcm 日志 */
   rclcpp::Time touch_previous_time_;                          /*!< Touch 时间戳 */
+  bool judge_first_time_ {true};                              /*!< 第一次判断 */
 
   rclcpp::TimerBase::SharedPtr update_status_timer_ {nullptr};        /*!< [定时器]更新数据 */
   rclcpp::TimerBase::SharedPtr reset_signal_timer_ {nullptr};         /*!< [定时器]重置触摸板 */
@@ -169,11 +179,13 @@ private:
   rclcpp::Subscription<TouchMsg>::SharedPtr touch_sub_ {nullptr};     /*!< [监听器]触摸板状态 */
   rclcpp::Subscription<CameraMsg>::SharedPtr img_sub_ {nullptr};      /*!< [监听器]镜头图像 */
   rclcpp::Service<ConnectorSrv>::SharedPtr connect_service_ {nullptr};  /*!< [服务端]连接 */
+  rclcpp::Service<TriggerSrv>::SharedPtr lcm_log_service_ {nullptr};  /*!< [服务端]连接 */
   std::string KEY {""};                                               /*!< 秘钥 */
   std::string wifi_name {""};                                         /*!< 名称 */
   std::string wifi_password {""};                                     /*!< 密码 */
   std::string ip {""};                                                /*!< ip */
   rclcpp::CallbackGroup::SharedPtr service_cb_group_ {nullptr};       /*!< [回调组] service */
+  rclcpp::CallbackGroup::SharedPtr lcm_log_cb_group_ {nullptr};       /*!< [回调组] service */
   rclcpp::CallbackGroup::SharedPtr timer_cb_group_ {nullptr};         /*!< [回调组] timer */
   rclcpp::CallbackGroup::SharedPtr wifi_cb_group_ {nullptr};          /*!< [回调组] wifi */
   rclcpp::CallbackGroup::SharedPtr disconn_cb_group_ {nullptr};       /*!< [回调组] disconn */
