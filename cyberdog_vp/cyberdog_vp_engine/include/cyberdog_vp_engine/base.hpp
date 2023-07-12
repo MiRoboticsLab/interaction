@@ -115,6 +115,9 @@ public:
   bool BuildFrontendOperate(
     const std::string,
     std::string &);                               /*!< 构建前端操作 */
+  bool BuildBackendOperate(
+    const OperateMsg &,
+    std::string &);                               /*!< 构建后端消息(查询) */
 };  // class Base
 }  // namespace cyberdog_visual_programming_engine
 #endif  // CYBERDOG_VP_ENGINE__BASE_HPP_

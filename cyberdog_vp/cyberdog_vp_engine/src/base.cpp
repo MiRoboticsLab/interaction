@@ -612,4 +612,69 @@ bool Base::BuildFrontendOperate(const std::string _operate, std::string & _front
   }
   return false;
 }
+
+bool Base::BuildBackendOperate(const OperateMsg & _operate, std::string & _backend_msg)
+{
+  try {
+    INFO(
+      "%s [%s] BuildBackendOperate.",
+      this->logger_.c_str(),
+      _operate.id.c_str());
+    if (_operate.operate != OperateMsg::OPERATE_INQUIRY) {
+      INFO(
+        "%s [%s] BuildBackendOperate is error(not inquiry operate).",
+        this->logger_.c_str(),
+        _operate.id.c_str());
+      return false;
+    }
+    std::vector<std::string> target_list;
+    toml::value registry_toml;
+    if (!this->GetRegistryToml(registry_toml)) {
+      return false;
+    }
+    const toml::value now_lists = toml::find(registry_toml, this->type_);
+    if (!now_lists.is_table()) {return false;}
+    std::string now_id = "";
+    for (const auto & meta : now_lists.as_table()) {
+      now_id = meta.first;
+      if ((now_id == "id") ||
+        (now_id == "terminal_default") ||
+        (now_id == "visual_default"))
+      {
+        continue;
+      }
+      target_list.push_back(now_id);
+    }
+    std::sort(
+      target_list.begin(), target_list.end(),
+      [](const std::string a, const std::string b) {
+        return a < b;
+      });
+    rapidjson::Document backend_json;
+    backend_json.SetObject();
+    rapidjson::Document::AllocatorType & allocator = backend_json.GetAllocator();
+    backend_json.AddMember("type", rapidjson::StringRef(this->type_.c_str()), allocator);
+    backend_json.AddMember("id", rapidjson::StringRef(_operate.id.c_str()), allocator);
+    rapidjson::Value target_id_json(rapidjson::kArrayType);
+    for (const auto & tar_id : target_list) {
+      target_id_json.PushBack(rapidjson::StringRef(tar_id.c_str()), allocator);
+    }
+    backend_json.AddMember("target_id", target_id_json, allocator);
+    backend_json.AddMember("operate", rapidjson::StringRef(_operate.operate.c_str()), allocator);
+    backend_json.AddMember("describe", rapidjson::StringRef(""), allocator);
+    backend_json.AddMember("style", rapidjson::StringRef(""), allocator);
+    backend_json.AddMember("mode", rapidjson::StringRef(""), allocator);
+    backend_json.AddMember("condition", rapidjson::StringRef(""), allocator);
+    backend_json.AddMember("body", rapidjson::StringRef(""), allocator);
+    CyberdogJson::Document2String(backend_json, _backend_msg);
+    return true;
+  } catch (const std::exception & e) {
+    ERROR(
+      "%s [%s] Get list data failed: %s",
+      this->logger_.c_str(),
+      _operate.id.c_str(),
+      e.what());
+  }
+  return false;
+}
 }   // namespace cyberdog_visual_programming_engine

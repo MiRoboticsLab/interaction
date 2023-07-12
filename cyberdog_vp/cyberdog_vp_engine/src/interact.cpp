@@ -562,19 +562,26 @@ bool Interact::RespondToFrontAndBackEndRequests(
         if ((_type == CommonEnum::frontend) &&
           this->use_backend_ &&
           (_request_msg.operate == OperateMsg::OPERATE_INQUIRY) &&
-          (_request_msg.target_id.empty()) &&
-          ( (_request_msg.type == OperateMsg::TYPE_TASK) ||
-          (_request_msg.type == OperateMsg::TYPE_MODULE)))
+          (_request_msg.target_id.empty()))
         {
-          auto backend_request_ptr = this->GetRequest(_requests);
-          BackendMsg backend_response;
-          if (this->RequestsBackend(backend_request_ptr, backend_response)) {
-            OperateMsg backend_frontend;
-            for (auto meta : backend_response.data) {
-              this->RespondToFrontAndBackEndRequests(CommonEnum::backend, meta, backend_frontend);
+          std::string backend_msg = "";
+          bool build_backend_msg = false;
+          if (_request_msg.type == OperateMsg::TYPE_TASK) {
+            build_backend_msg = this->task_.BuildBackendOperate(_frontend, backend_msg);
+          } else if (_request_msg.type == OperateMsg::TYPE_MODULE) {
+            build_backend_msg = this->module_.BuildBackendOperate(_frontend, backend_msg);
+          }
+          if (build_backend_msg && !backend_msg.empty()) {
+            auto backend_request_ptr = this->GetRequest(backend_msg);
+            BackendMsg backend_response;
+            if (this->RequestsBackend(backend_request_ptr, backend_response)) {
+              OperateMsg backend_frontend;
+              for (auto meta : backend_response.data) {
+                this->RespondToFrontAndBackEndRequests(CommonEnum::backend, meta, backend_frontend);
+              }
+            } else {
+              WARN("[%s] Requests backend inquiry is error.", head.c_str());
             }
-          } else {
-            WARN("[%s] Requests backend inquiry is error.", head.c_str());
           }
         }
         if (_request_msg.type == OperateMsg::TYPE_TASK) {
