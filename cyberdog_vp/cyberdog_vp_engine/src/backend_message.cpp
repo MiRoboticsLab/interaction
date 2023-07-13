@@ -138,6 +138,7 @@ BackendMessage::BackendMessage(const std::string & msg)
     //       "mode": "mode",
     //       "condition": "condition",
     //       "body": "body"
+    //       "target_id": ["target_id", ...]
     //     },
     //     ...
     //   ]
