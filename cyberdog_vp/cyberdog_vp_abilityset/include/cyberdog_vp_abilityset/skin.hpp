@@ -26,7 +26,7 @@
 
 namespace cyberdog_visual_programming_abilityset
 {
-/*! \file       gesture.hpp
+/*! \file       skin.hpp
     \brief      皮肤模块。
     \details    创建及初始化皮肤模块，以便任务调用皮肤功能。
     \author     尚子涵
@@ -53,7 +53,7 @@ public:
 private:
   int now_model_ {-1};
   SkinElectrochromicResponse can0_response_;      /*!< Can0 回值 */
-  const std::unordered_map<int, std::string> constraint_map_ = {
+  std::unordered_map<int, std::string> constraint_map_ = {
     {static_cast<int>(SkinConstraint::model_control), "model_on"},
     {static_cast<int>(SkinConstraint::position_body_middle), "body_middle"},
     {static_cast<int>(SkinConstraint::position_left_back_leg), "left_back_leg"},

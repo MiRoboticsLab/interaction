@@ -164,6 +164,8 @@ bool Cyberdog::SetData(const toml::value & _params_toml)
       this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_, _params_toml) &&
            this->skeleton_.Init(
       this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_, _params_toml) &&
+           this->skin_.Init(
+      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_, _params_toml) &&
            this->audio_.Init(
       this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_, _params_toml) &&
            this->bms_.Init(
@@ -258,6 +260,7 @@ void Cyberdog::SetLog(const bool _log)
   this->personnel_.SetLog(_log);
   this->gesture_.SetLog(_log);
   this->skeleton_.SetLog(_log);
+  this->skin_.SetLog(_log);
   this->audio_.SetLog(_log);
   this->bms_.SetLog(_log);
   this->led_.SetLog(_log);

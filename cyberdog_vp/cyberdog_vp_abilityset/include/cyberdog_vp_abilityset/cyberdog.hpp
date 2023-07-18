@@ -30,6 +30,7 @@
 #include "cyberdog_vp_abilityset/personnel.hpp"
 #include "cyberdog_vp_abilityset/gesture.hpp"
 #include "cyberdog_vp_abilityset/skeleton.hpp"
+#include "cyberdog_vp_abilityset/skin.hpp"
 
 #include "cyberdog_vp_abilityset/audio.hpp"
 #include "cyberdog_vp_abilityset/bms.hpp"
@@ -77,6 +78,7 @@ public:
   Personnel personnel_;                           /*!< 人员模块句柄 */
   Gesture gesture_;                               /*!< 手势识别模块句柄 */
   Skeleton skeleton_;                             /*!< 骨骼（点）模块句柄 */
+  Skin skin_;                                     /*!< 皮肤模块句柄 */
 
   Audio audio_;                                   /*!< 语音模块句柄 */
   Bms bms_;                                       /*!< Bms模块句柄 */

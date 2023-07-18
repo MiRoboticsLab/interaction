@@ -217,9 +217,23 @@ bool Module::Build(
         _msg.condition, _msg.describe, _msg.body,
         header_py, _dependent))
     {
+      ERROR(
+        "%s [%s] [Build] Get module header failed.",
+        this->logger_.c_str(),
+        _msg.id.c_str());
       this->state_ = StateEnum::abnormally_request;
       this->describe_ = "abnormally request";
       return false;
+    }
+    std::string body_str = _msg.body;
+    if (this->decorate_body_) {
+      if (!this->py_interpreter_ptr_->DecorateBody(body_str)) {
+        ERROR(
+          "%s [%s] [Build] Decorate body failed.",
+          this->logger_.c_str(),
+          _msg.id.c_str());
+        return false;
+      }
     }
     if (this->JudgeModulesLoop(_msg, _dependent)) {
       this->state_ = StateEnum::abnormally_request;
@@ -249,7 +263,7 @@ bool Module::Build(
         file_stream.close();
         return true;
       };
-    std::vector<std::string> body_py = GetVector(_msg.body, '\n', "    ");
+    std::vector<std::string> body_py = GetVector(body_str, '\n', "    ");
     if (!build(header_py, body_py)) {
       return false;
     }

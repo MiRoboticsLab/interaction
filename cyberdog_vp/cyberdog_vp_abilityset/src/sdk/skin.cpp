@@ -23,14 +23,14 @@
 
 namespace cyberdog_visual_programming_abilityset
 {
-std::shared_ptr<cyberdog::embed::Protocol<CanData>> can0_ptr_ {nullptr};  /*!< Can0 */
+std::shared_ptr<cyberdog::embed::Protocol<CanData>> can0_ptr_ = {nullptr};
 bool Skin::SetData(const toml::value &)
 {
   try {
     Debug("%s", std::string(__FUNCTION__).c_str());
     std::string params_pkg_dir = ament_index_cpp::get_package_share_directory("cyberdog_vp");
-    std::string skin_config_dir = params_pkg_dir + "/config/skin.toml";
-    can0_ptr_ = std::make_shared<cyberdog::embed::Protocol<CanData>>(skin_config_dir, false);
+    std::string skin_config = params_pkg_dir + "/config/skin.toml";
+    can0_ptr_ = std::make_shared<cyberdog::embed::Protocol<CanData>>(skin_config, false);
     can0_ptr_->SetDataCallback(
       std::bind(&Skin::Can0CB, this, std::placeholders::_1, std::placeholders::_2));
   } catch (const std::exception & e) {
@@ -113,6 +113,7 @@ SkinElectrochromicResponse Skin::Electrochromic(
     int duration_ms = legalization(
       "duration_ms", _duration_ms,
       static_cast<int>(1000 * 60 * 60 * 24 * 7));
+
     if (this->now_model_ != model) {
       this->now_model_ = model;
       uint8_t m = static_cast<uint8_t>(this->now_model_);

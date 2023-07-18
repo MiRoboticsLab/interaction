@@ -50,6 +50,7 @@ void DefineCyberdog(py::object m)
   .def_readwrite("personnel", &VPA::Cyberdog::personnel_, R"pbdoc( 人员模块句柄 )pbdoc")
   .def_readwrite("gesture", &VPA::Cyberdog::gesture_, R"pbdoc( 手势识别模块句柄 )pbdoc")
   .def_readwrite("skeleton", &VPA::Cyberdog::skeleton_, R"pbdoc( 骨骼（点）识别模块句柄 )pbdoc")
+  .def_readwrite("skin", &VPA::Cyberdog::skin_, R"pbdoc( 皮肤模块句柄 )pbdoc")
 
   .def_readwrite("audio", &VPA::Cyberdog::audio_, R"pbdoc( 语音模块 )pbdoc")
   .def_readwrite("led", &VPA::Cyberdog::led_, R"pbdoc( LED灯 )pbdoc")

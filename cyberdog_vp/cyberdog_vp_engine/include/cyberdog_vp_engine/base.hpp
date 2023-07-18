@@ -80,6 +80,7 @@ protected:
   std::string registry_related_fil_ {""};         /*!< 注册表相关文件 */
   const std::string judge_python_ {"pyflakes "};  /*!< 判断 python */
   std::string type_ {""};                         /*!< 类型 */
+  bool decorate_body_;                            /*!< 装饰身体 */
 
 public:
   std::shared_ptr<PythonInterpreter>

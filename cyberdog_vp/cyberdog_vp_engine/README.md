@@ -115,4 +115,3 @@ limitations under the License.
         🔺app端点击退出低功耗；
         🔺双击狗头退出低功耗；</blockcode></pre>
 </details>
-
