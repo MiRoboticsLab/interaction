@@ -70,5 +70,5 @@ sensitivity_s = 1.0                               # 检测:Tof:林敏度(秒):(�
 publish_log=false                                 # 调试是否启用？
 backend=true                                      # 后端是否启用？
 voice_operation=true                              # 语音操作是否启用？
-decorate_body=true                                # 装饰身体是否启用？
+decorate_body=false                               # 装饰身体是否启用？
 workspace="/home/mi/.cyberdog/cyberdog_vp"        # 工作空间/安装空间（绝对路径）
