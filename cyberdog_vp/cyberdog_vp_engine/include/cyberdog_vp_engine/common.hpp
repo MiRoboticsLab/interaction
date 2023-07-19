@@ -110,9 +110,10 @@ enum StateEnum
   abnormally_operate,                             /*!< 27:异常结束, 当前操作非法 */
   abnormally_request,                             /*!< 28:异常结束, 请求错误 */
   abnormally_other_errors,                        /*!< 29:异常结束, 其他错误 */
-  service_request_interrupted,                    /*!< 30:异常结束, 服务被打断 */
-  service_appear_timeout,                         /*!< 31:异常结束, 等待服务上线超时 */
-  service_request_timeout,                        /*!< 32:异常结束, 请求服务超时 */
+  abnormally_decorate_body,                       /*!< 30:异常结束, 装饰身体失败 */
+  service_request_interrupted,                    /*!< 31:异常结束, 服务被打断 */
+  service_appear_timeout,                         /*!< 32:异常结束, 等待服务上线超时 */
+  service_request_timeout,                        /*!< 33:异常结束, 请求服务超时 */
 };
 
 namespace py = pybind11;

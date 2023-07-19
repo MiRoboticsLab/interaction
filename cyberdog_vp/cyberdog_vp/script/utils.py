@@ -189,7 +189,7 @@ def get_task_header(_ros, _task_id, _task_body):
     header.append("task_parameters = now_task_parameters if len(now_task_parameters) != 0 else ''")
     header.append('')
     header.append('print(time.strftime("任务开始时间为：%Y年%m月%d日 %H点%M分%S秒", time.localtime()))')
-    header.append('print(time.strftime("任务线程标识符：%d", threading.get_ident()))')
+    header.append('print("任务线程标识符：%d" % threading.get_ident())')
     header.append("cyberdog = Cyberdog(task_id, get_namespace(), " + _ros + ", task_parameters)")
     header.append('cyberdog.set_log(False)')
     # for msg in header:
@@ -205,6 +205,7 @@ def get_module_header(_interface, _describe, _body):
         'import os',
         'import sys',
         'import threading',
+        'import mi.cyberdog_vp.electrochromic',
         'import __main__',
     ]
     header += import_time(_body)
@@ -215,7 +216,7 @@ def get_module_header(_interface, _describe, _body):
     message = '    """ Describe: ' + _describe + ''
     header.append(message)
     header.append('    """')
-    header.append('    print(time.strftime("模块线程标识符：%d", threading.get_ident()))')
+    header.append('    print("任务线程标识符：%d" % threading.get_ident())')
     header.append('    cyberdog = __main__.cyberdog')
     return header
 
@@ -233,6 +234,7 @@ def get_terminal_header(_ros, _task_id, _task_body):
         'import time',
         'import threading',
         'from IPython.lib.demo import Demo',
+        'import mi.cyberdog_vp.electrochromic',
         'from mi.cyberdog_bringup.manual import get_namespace',
         'from mi.cyberdog_vp.abilityset import StateCode',
         'from mi.cyberdog_vp.abilityset import LedConstraint',
@@ -291,7 +293,7 @@ def decorate_body(_body):
                     f'{headr}thread2.join()'
                 ]
                 break
-        body.append(new_line)
+        body.extend(new_line)
     return body
 
 

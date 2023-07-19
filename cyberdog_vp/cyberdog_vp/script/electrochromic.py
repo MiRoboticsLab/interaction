@@ -20,9 +20,11 @@ def list():
     """ Describe: 列表
     """
     print('''
-    get_down()
+ ●
+ ┣━━> get_down()
+ ┗━━> resume_standing()
 ''')
-          
+
 
 # electrochromic(
 #      [key]   [value] 0    1    2    3     4      5    6    7
@@ -38,11 +40,25 @@ def get_down():
     """ Describe: 趴下
     """
     cyberdog = __main__.cyberdog
-    cyberdog.skin.electrochromic(0,0,0,0,10000)
+    cyberdog.skin.electrochromic(4,0,0,0,1000)
+    cyberdog.skin.electrochromic(4,1,0,0,1000)
+    cyberdog.skin.electrochromic(4,2,0,0,1000)
+    cyberdog.skin.electrochromic(4,3,0,0,1000)
+    cyberdog.skin.electrochromic(4,4,0,0,1000)
+    cyberdog.skin.electrochromic(4,5,0,0,1000)
+    cyberdog.skin.electrochromic(4,6,0,0,1000)
+    cyberdog.skin.electrochromic(4,7,0,0,1000)
 
 
 def resume_standing():
     """ Describe: 恢复站立
     """
     cyberdog = __main__.cyberdog
-    cyberdog.skin.electrochromic(0,0,0,0,10000)
+    cyberdog.skin.electrochromic(4,0,1,0,1000)
+    cyberdog.skin.electrochromic(4,1,1,0,1000)
+    cyberdog.skin.electrochromic(4,2,1,0,1000)
+    cyberdog.skin.electrochromic(4,3,1,0,1000)
+    cyberdog.skin.electrochromic(4,4,1,0,1000)
+    cyberdog.skin.electrochromic(4,5,1,0,1000)
+    cyberdog.skin.electrochromic(4,6,1,0,1000)
+    cyberdog.skin.electrochromic(4,7,1,0,1000)

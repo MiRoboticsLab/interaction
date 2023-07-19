@@ -228,6 +228,8 @@ bool Module::Build(
     std::string body_str = _msg.body;
     if (this->decorate_body_) {
       if (!this->py_interpreter_ptr_->DecorateBody(body_str)) {
+        this->state_ = StateEnum::abnormally_decorate_body;
+        this->describe_ = "decorate body";
         ERROR(
           "%s [%s] [Build] Decorate body failed.",
           this->logger_.c_str(),
