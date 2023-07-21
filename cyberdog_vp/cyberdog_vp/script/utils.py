@@ -176,7 +176,7 @@ def get_task_header(_ros, _task_id, _task_body):
         'import sys',
         'import time',
         'import threading',
-        'import mi.cyberdog_vp.electrochromic',
+        'import mi.cyberdog_vp.decorator',
         'from mi.cyberdog_bringup.manual import get_namespace',
         'from mi.cyberdog_vp.utils import get_argv',
         'from mi.cyberdog_vp.abilityset import Cyberdog',
@@ -190,6 +190,7 @@ def get_task_header(_ros, _task_id, _task_body):
     header.append('')
     header.append('print(time.strftime("任务开始时间为：%Y年%m月%d日 %H点%M分%S秒", time.localtime()))')
     header.append('print("任务线程标识符：%d" % threading.get_ident())')
+    header.append('print("当前装饰器版本：%s" % mi.cyberdog_vp.decorator.version())')
     header.append("cyberdog = Cyberdog(task_id, get_namespace(), " + _ros + ", task_parameters)")
     header.append('cyberdog.set_log(False)')
     # for msg in header:
@@ -205,7 +206,7 @@ def get_module_header(_interface, _describe, _body):
         'import os',
         'import sys',
         'import threading',
-        'import mi.cyberdog_vp.electrochromic',
+        'import mi.cyberdog_vp.decorator',
         'import __main__',
     ]
     header += import_time(_body)
@@ -217,6 +218,7 @@ def get_module_header(_interface, _describe, _body):
     header.append(message)
     header.append('    """')
     header.append('    print("任务线程标识符：%d" % threading.get_ident())')
+    header.append('    print("当前装饰器版本：%s" % mi.cyberdog_vp.decorator.version())')
     header.append('    cyberdog = __main__.cyberdog')
     return header
 
@@ -234,7 +236,7 @@ def get_terminal_header(_ros, _task_id, _task_body):
         'import time',
         'import threading',
         'from IPython.lib.demo import Demo',
-        'import mi.cyberdog_vp.electrochromic',
+        'import mi.cyberdog_vp.decorator',
         'from mi.cyberdog_bringup.manual import get_namespace',
         'from mi.cyberdog_vp.abilityset import StateCode',
         'from mi.cyberdog_vp.abilityset import LedConstraint',
@@ -285,7 +287,7 @@ def decorate_body(_body):
             headr = line[:index]
             if index != -1:
                 new_line = [
-                    f'{headr}thread1 = threading.Thread(target=mi.cyberdog_vp.electrochromic.{value})',
+                    f'{headr}thread1 = threading.Thread(target=mi.cyberdog_vp.decorator.{value})',
                     f'{headr}thread2 = threading.Thread(target={key})',
                     f'{headr}thread1.start()',
                     f'{headr}thread2.start()',

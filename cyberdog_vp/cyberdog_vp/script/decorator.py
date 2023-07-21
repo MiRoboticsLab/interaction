@@ -16,6 +16,12 @@ import sys
 import __main__
 
 
+def version():
+    """ Describe: 列表
+    """
+    version = "V-1.0.0.0"
+    return version
+
 def list():
     """ Describe: 列表
     """
