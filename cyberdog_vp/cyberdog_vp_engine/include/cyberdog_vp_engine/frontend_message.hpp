@@ -40,16 +40,16 @@ public:
   using CommonEnum = enum
   {
     efficient = 0,                                /*!< 有效 */
-    invalid                             = 8001,   /*!< 1:无效json */
-    type                                = 8002,   /*!< 2:类型 */
-    id                                  = 8003,   /*!< 3:id */
-    target_id                           = 8004,   /*!< 4:目标 id */
-    describe                            = 8005,   /*!< 5:描述 */
-    style                               = 8006,   /*!< 6:样式 */
-    operate                             = 8007,   /*!< 7:操作 */
-    mode                                = 8008,   /*!< 8:模式 */
-    condition                           = 8009,   /*!< 9:条件 */
-    body                                = 8010,   /*!< 10:主体 */
+    invalid                             = 8021,   /*!< 1:无效json */
+    type                                = 8022,   /*!< 2:类型 */
+    id                                  = 8023,   /*!< 3:id */
+    target_id                           = 8024,   /*!< 4:目标 id */
+    describe                            = 8025,   /*!< 5:描述 */
+    style                               = 8026,   /*!< 6:样式 */
+    operate                             = 8027,   /*!< 7:操作 */
+    mode                                = 8028,   /*!< 8:模式 */
+    condition                           = 8029,   /*!< 9:条件 */
+    body                                = 8030,   /*!< 10:主体 */
     /*!< 11~20 */
   };
   const std::unordered_map<CommonEnum, std::string> keys = {
