@@ -17,6 +17,8 @@
 
 namespace cyberdog_visual_programming_abilityset
 {
+State Base::transient_state_;
+
 bool Base::Init(
   const std::string _task_id,
   const rclcpp::Node::SharedPtr _node_immortal_ptr_,
