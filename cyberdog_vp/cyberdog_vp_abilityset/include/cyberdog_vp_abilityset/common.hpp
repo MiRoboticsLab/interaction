@@ -424,7 +424,7 @@ enum MotionId
 };
 
 /*! 通用状态约束:{内部错误码 = 错误码 - 基础码}
-  错误基础码: 8100
+  错误基础码: 7900
   影响运行错误码:
     01~20:全局;
     21~30:模块;
@@ -439,33 +439,33 @@ enum StateCode
 {
   invalid                               = -1,     /*!< 无效 */
   success                               = 0,      /*!< 成功 */
-  error_base                            = 8100,   /*!< 错误基础码 */
-  fail                                  = 8121,   /*!< [ 全局码 ]失败 */
-  uninitialized                         = 8122,   /*!< [ 全局码 ]未初始化 */
-  fsm_does_not_allow                    = 8123,   /*!< [ 全局码 ]状态机不允许 */
-  module_status_error                   = 8124,   /*!< [ 全局码 ]模块状态错误 */
-  network_error                         = 8125,   /*!< [ 全局码 ]网络错误 */
-  no_operation_authority                = 8126,   /*!< [ 全局码 ]无操作权限 */
-  timeout                               = 8127,   /*!< [ 全局码 ]超时 */
-  command_does_not_support              = 8128,   /*!< [ 全局码 ]指令不支持 */
-  self_test_failed                      = 8129,   /*!< [ 全局码 ]自检失败 */
-  parameter_is_invalid                  = 8130,   /*!< [ 全局码 ]参数不合法 */
-  status_is_busy                        = 8131,   /*!< [ 全局码 ]状态忙碌 */
-  hardware_error                        = 8132,   /*!< [ 全局码 ]硬件错误 */
-  command_waiting_execute               = 8141,   /*!< [ 模块码 ]命令等待执行 */
-  spin_future_interrupted               = 8142,   /*!< [  ROS  ]请求循环服务中断 */
-  spin_future_timeout                   = 8143,   /*!< [  ROS  ]请求循环服务超时/延迟 */
-  no_data_update                        = 8144,   /*!< [ Topic ]无数据更新 */
-  service_client_interrupted            = 8145,   /*!< [Service]客户端在请求服务出现时被打断 */
-  service_appear_timeout                = 8146,   /*!< [Service]等待服务出现（启动）超时 */
-  service_request_interrupted           = 8147,   /*!< [Service]请求服务中断 */
-  service_request_rejected              = 8148,   /*!< [Service]请求服务被拒绝 */
-  service_request_timeout               = 8149,   /*!< [Service]请求服务超时/延迟 */
-  action_request_timeout                = 8150,   /*!< [Action ]请求动作超时/延迟 */
-  action_request_rejected               = 8151,   /*!< [Action ]请求动作被拒绝 */
-  action_result_timeout                 = 8152,   /*!< [Action ]等待动作结果超时/延迟 */
+  error_base                            = 7900,   /*!< 错误基础码 */
+  fail                                  = 7921,   /*!< [ 全局码 ]失败 */
+  uninitialized                         = 7922,   /*!< [ 全局码 ]未初始化 */
+  fsm_does_not_allow                    = 7923,   /*!< [ 全局码 ]状态机不允许 */
+  module_status_error                   = 7924,   /*!< [ 全局码 ]模块状态错误 */
+  network_error                         = 7925,   /*!< [ 全局码 ]网络错误 */
+  no_operation_authority                = 7926,   /*!< [ 全局码 ]无操作权限 */
+  timeout                               = 7927,   /*!< [ 全局码 ]超时 */
+  command_does_not_support              = 7928,   /*!< [ 全局码 ]指令不支持 */
+  self_test_failed                      = 7929,   /*!< [ 全局码 ]自检失败 */
+  parameter_is_invalid                  = 7930,   /*!< [ 全局码 ]参数不合法 */
+  status_is_busy                        = 7931,   /*!< [ 全局码 ]状态忙碌 */
+  hardware_error                        = 7932,   /*!< [ 全局码 ]硬件错误 */
+  command_waiting_execute               = 7941,   /*!< [ 模块码 ]命令等待执行 */
+  spin_future_interrupted               = 7942,   /*!< [  ROS  ]请求循环服务中断 */
+  spin_future_timeout                   = 7943,   /*!< [  ROS  ]请求循环服务超时/延迟 */
+  no_data_update                        = 7944,   /*!< [ Topic ]无数据更新 */
+  service_client_interrupted            = 7945,   /*!< [Service]客户端在请求服务出现时被打断 */
+  service_appear_timeout                = 7946,   /*!< [Service]等待服务出现（启动）超时 */
+  service_request_interrupted           = 7947,   /*!< [Service]请求服务中断 */
+  service_request_rejected              = 7948,   /*!< [Service]请求服务被拒绝 */
+  service_request_timeout               = 7949,   /*!< [Service]请求服务超时/延迟 */
+  action_request_timeout                = 7950,   /*!< [Action ]请求动作超时/延迟 */
+  action_request_rejected               = 7951,   /*!< [Action ]请求动作被拒绝 */
+  action_result_timeout                 = 7952,   /*!< [Action ]等待动作结果超时/延迟 */
 
-  motion_error                          = 8161,  /*!< [不影响运行]运控异常 */
+  motion_error                          = 7961,  /*!< [不影响运行]运控异常 */
 };
 
 static std::unordered_map<StateCode, std::string> StateDescribe_ = {
