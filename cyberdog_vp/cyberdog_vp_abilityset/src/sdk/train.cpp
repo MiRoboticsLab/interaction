@@ -106,69 +106,71 @@ void Train::SubUserDialogueCB(const MsgString::SharedPtr _msg_ptr)
   }
 }
 
-bool Train::RequestTrainingWordsRecognizedSrv(
+State Train::RequestTrainingWordsRecognizedSrv(
   SrvTrainingWords::Response & _response,
   std::shared_ptr<SrvTrainingWords::Request> _request_ptr,
   const int _service_start_timeout)
 {
+  State ret;
   try {
     if (!rclcpp::ok()) {
-      this->transient_state_.code = StateCode::service_request_interrupted;
+      ret.code = StateCode::service_request_interrupted;
       Warn(
         "[%s] Client interrupted while requesting for training words recognized service to appear.",
         this->logger_.c_str());
-      return false;
+      return ret;
     }
     if (!this->training_words_recognition_cli_ptr_->wait_for_service(
         std::chrono::seconds(
           _service_start_timeout)))
     {
-      this->transient_state_.code = StateCode::service_appear_timeout;
+      ret.code = StateCode::service_appear_timeout;
       Warn(
         "[%s] Waiting for training words recognized service to appear(start) timeout.",
         this->logger_.c_str());
-      return false;
+      return ret;
     }
     Debug("The interface is requesting training words recognized service.");
     auto result = this->training_words_recognition_cli_ptr_->async_send_request(_request_ptr);
     std::future_status status = result.wait_for(
       std::chrono::seconds(_service_start_timeout));
     if (status != std::future_status::ready) {
-      this->transient_state_.code = StateCode::service_request_timeout;
+      ret.code = StateCode::service_request_timeout;
       Warn(
         "[%s] Waiting for training words recognized service to response timeout.",
         this->logger_.c_str());
-      return false;
+      return ret;
     }
     auto result_ptr = result.get();
-    this->transient_state_.code = StateCode::success;
+    ret.code = StateCode::success;
     _response = *result_ptr;
-    return true;
+    return ret;
   } catch (...) {
-    this->transient_state_.code = StateCode::fail;
+    ret.code = StateCode::fail;
     Warn(
       "[%s] RequestTrainRecognizedSrv() is failed.",
       this->logger_.c_str());
   }
-  return false;
+  return ret;
 }
 
 TrainingWordsRecognizedSeviceResponse Train::GetTrainingWordsSet()
 {
+  transient_state_.code = StateCode::success;
   std::string funs = std::string(__FUNCTION__) + "()";
   TrainingWordsRecognizedSeviceResponse ret;
-  this->transient_state_.code = StateCode::success;
   try {
     Info("%s", funs.c_str());
     if (this->state_.code != StateCode::success) {
       ret.state = this->GetState(funs, this->state_.code);
+      transient_state_ = ret.state;
       return ret;
     }
     SrvTrainingWords::Response response;
-    if (this->RequestTrainingWordsRecognizedSrv(
-        response,
-        std::make_shared<SrvTrainingWords::Request>()))
-    {
+    ret.state = this->RequestTrainingWordsRecognizedSrv(
+      response,
+      std::make_shared<SrvTrainingWords::Request>());
+    if (ret.state.code == StateCode::success) {
       ret.response = response;
       ret.dictionary.clear();
       for (const MsgTrainingWords & meta : ret.response.training_set) {
@@ -182,23 +184,27 @@ TrainingWordsRecognizedSeviceResponse Train::GetTrainingWordsSet()
       "[%s] TrainRecognized() is failed. %s",
       this->logger_.c_str(),
       e.what());
-    this->transient_state_.code = StateCode::fail;
+    ret.state.code = StateCode::fail;
   }
-  ret.state = this->GetState(funs, this->transient_state_.code);
+  ret.state = this->GetState(funs, ret.state.code);
+  if (ret.state.code != StateCode::success) {
+    transient_state_ = ret.state;
+  }
   return ret;
 }
 
 TrainingWordsRecognizedMessageResponse Train::TrainingWordsRecognized(
   const int _timeout)
 {
+  transient_state_.code = StateCode::success;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%d)", _timeout);
   TrainingWordsRecognizedMessageResponse ret;
-  this->transient_state_.code = StateCode::success;
   try {
     Info("%s", funs.c_str());
     if (this->state_.code != StateCode::success) {
       ret.state = this->GetState(funs, this->state_.code);
+      transient_state_ = ret.state;
       return ret;
     }
     this->training_words_set_ = this->GetTrainingWordsSet().response;
@@ -227,9 +233,12 @@ TrainingWordsRecognizedMessageResponse Train::TrainingWordsRecognized(
       "[%s] TrainRecognized() is failed. %s",
       this->logger_.c_str(),
       e.what());
-    this->transient_state_.code = StateCode::fail;
+    ret.state.code = StateCode::fail;
   }
-  ret.state = this->GetState(funs, this->transient_state_.code);
+  ret.state = this->GetState(funs, ret.state.code);
+  if (ret.state.code != StateCode::success) {
+    transient_state_ = ret.state;
+  }
   return ret;
 }
 }   // namespace cyberdog_visual_programming_abilityset

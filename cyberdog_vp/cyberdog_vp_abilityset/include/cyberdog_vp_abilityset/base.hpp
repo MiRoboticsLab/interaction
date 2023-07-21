@@ -40,7 +40,7 @@ public:
   : logger_(_logger), heartbeat_(_heartbeat) {}
   virtual ~Base() {}
   State state_;                                   /*!< 整体状态 */
-  State transient_state_;                         /*!< 瞬时状态 */
+  static State transient_state_;                  /*!< 瞬时状态 */
 
 protected:
   bool log_ {true};                               /*!< 日志开关 */

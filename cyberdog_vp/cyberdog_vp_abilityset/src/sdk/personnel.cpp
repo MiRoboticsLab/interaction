@@ -89,25 +89,25 @@ SrvPersonnel::Response Personnel::RequestPersonnelSrv(
             result_ptr->code,
             msgPersonnelVector(result_ptr->result, "\t").c_str());
         } else {
-          this->transient_state_.code = StateCode::service_request_timeout;
+          transient_state_.code = StateCode::service_request_timeout;
           Warn(
             "[%s] Waiting for personnel service to response timeout.",
             this->logger_.c_str());
         }
       } else {
-        this->transient_state_.code = StateCode::service_appear_timeout;
+        transient_state_.code = StateCode::service_appear_timeout;
         Warn(
           "[%s] Waiting for personnel service to appear(start) timeout.",
           this->logger_.c_str());
       }
     } else {
-      this->transient_state_.code = StateCode::service_request_interrupted;
+      transient_state_.code = StateCode::service_request_interrupted;
       Warn(
         "[%s] Client interrupted while requesting for personnel service to appear.",
         this->logger_.c_str());
     }
   } catch (...) {
-    this->transient_state_.code = StateCode::fail;
+    transient_state_.code = StateCode::fail;
     Error("[%s] RequestPersonnelSrv() is failed.", this->logger_.c_str());
   }
   return ret;
@@ -166,6 +166,7 @@ FaceRecognizedSeviceResponse Personnel::FaceRecognized(
   const bool _and_operation,
   const int _duration)
 {
+  transient_state_.code = StateCode::success;
   FaceRecognizedSeviceResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%s, %s, %d)",
@@ -175,17 +176,21 @@ FaceRecognizedSeviceResponse Personnel::FaceRecognized(
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
+    transient_state_ = ret.state;
     return ret;
   }
-  this->transient_state_.code = StateCode::success;
   std::vector<std::string> target;
   StateCode username_state = this->IdToUsername(_target, target);
-  if (username_state != StateCode::success) {
+  if (username_state == StateCode::success) {
+    ret = this->face_.Recognized(target, _and_operation, _duration);
+  } else {
     ret.state = this->GetState(funs, username_state);
     Error("%s %s", funs.c_str(), ret.state.describe.c_str());
-    return ret;
   }
-  return this->face_.Recognized(target, _and_operation, _duration);
+  if (ret.state.code != StateCode::success) {
+    transient_state_ = ret.state;
+  }
+  return ret;
 }
 
 VoiceprintRecognizedResponse Personnel::VoiceprintRecognized(
@@ -194,6 +199,7 @@ VoiceprintRecognizedResponse Personnel::VoiceprintRecognized(
   const int _duration,
   const int _sensitivity)
 {
+  transient_state_.code = StateCode::success;
   VoiceprintRecognizedResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%s, %s, %d, %d)",
@@ -204,32 +210,35 @@ VoiceprintRecognizedResponse Personnel::VoiceprintRecognized(
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
+    transient_state_ = ret.state;
     return ret;
   }
-  this->transient_state_.code = StateCode::success;
   std::vector<std::string> target;
   StateCode username_state = this->IdToUsername(_target, target);
-  if (username_state != StateCode::success) {
-    ret.state = this->GetState(funs, username_state);
-    Error("%s %s", funs.c_str(), ret.state.describe.c_str());
-    return ret;
-  }
-  ret = this->voiceprint_.Recognized(_duration, _sensitivity);
-  if (ret.data) {
-    for (const auto & voiceprint_name : target) {
-      bool is_recognized =
-        (std::find(ret.list.begin(), ret.list.end(), voiceprint_name) != ret.list.end());
-      if (_and_operation) {
-        if (!is_recognized) {
-          ret.data = false;
-          break;
-        }
-      } else {
-        if (is_recognized) {
-          break;
+  if (username_state == StateCode::success) {
+    ret = this->voiceprint_.Recognized(_duration, _sensitivity);
+    if (ret.data) {
+      for (const auto & voiceprint_name : target) {
+        bool is_recognized =
+          (std::find(ret.list.begin(), ret.list.end(), voiceprint_name) != ret.list.end());
+        if (_and_operation) {
+          if (!is_recognized) {
+            ret.data = false;
+            break;
+          }
+        } else {
+          if (is_recognized) {
+            break;
+          }
         }
       }
     }
+  } else {
+    ret.state = this->GetState(funs, username_state);
+    Error("%s %s", funs.c_str(), ret.state.describe.c_str());
+  }
+  if (ret.state.code != StateCode::success) {
+    transient_state_ = ret.state;
   }
   return ret;
 }

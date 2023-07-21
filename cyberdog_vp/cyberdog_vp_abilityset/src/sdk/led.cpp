@@ -139,6 +139,7 @@ LedSeviceResponse Led::Play(
   const int & _target,
   const int & _effect)
 {
+  transient_state_.code = StateCode::success;
   LedSeviceResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%d, %d)",
@@ -146,6 +147,7 @@ LedSeviceResponse Led::Play(
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
+    transient_state_ = ret.state;
     return ret;
   }
   auto request_ptr = this->GetRequest();
@@ -158,6 +160,9 @@ LedSeviceResponse Led::Play(
       funs.c_str());
   }
   ret.state.describe = this->GetDescribe(funs, ret.state.code);
+  if (ret.state.code != StateCode::success) {
+    transient_state_ = ret.state;
+  }
   return ret;
 }
 
@@ -168,6 +173,7 @@ LedSeviceResponse Led::PlayRgb(
   const int & _g,
   const int & _b)
 {
+  transient_state_.code = StateCode::success;
   LedSeviceResponse ret;
   ret.response.code = -1;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
@@ -176,6 +182,7 @@ LedSeviceResponse Led::PlayRgb(
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
+    transient_state_ = ret.state;
     return ret;
   }
   auto request_ptr = this->GetRequest();
@@ -191,12 +198,16 @@ LedSeviceResponse Led::PlayRgb(
       funs.c_str());
   }
   ret.state.describe = this->GetDescribe(funs, ret.state.code);
+  if (ret.state.code != StateCode::success) {
+    transient_state_ = ret.state;
+  }
   return ret;
 }
 
 LedSeviceResponse Led::Freed(
   const int & _target)
 {
+  transient_state_.code = StateCode::success;
   LedSeviceResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%d)",
@@ -204,6 +215,7 @@ LedSeviceResponse Led::Freed(
   Debug("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
+    transient_state_ = ret.state;
     return ret;
   }
   auto request_ptr = this->GetRequest();
@@ -215,6 +227,9 @@ LedSeviceResponse Led::Freed(
       funs.c_str());
   }
   ret.state.describe = this->GetDescribe(funs, ret.state.code);
+  if (ret.state.code != StateCode::success) {
+    transient_state_ = ret.state;
+  }
   return ret;
 }
 

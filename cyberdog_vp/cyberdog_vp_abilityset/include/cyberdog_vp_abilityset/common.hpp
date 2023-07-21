@@ -414,7 +414,8 @@ enum MotionId
 
   jump_back_and_forth                     = 301,  /*!< [3]前后跳 */
   small_jump_walking                      = 302,  /*!< [3]小跳行走 */
-  trot_walking                            = 303,  /*!< [3]慢速（小跑）行走 */
+  trot_walking                            = 303,  /*!< [3]慢速行走 */
+  fast_walking                            = 308,  /*!< [3]快速行走 */
   automatic_frequency_conversion_walking  = 304,  /*!< [3]自动变频行走 */
   run_fast_walking                        = 305,  /*!< [3]快跑行走 */
   sequence_custom                         = 400,  /*!< [3]序列动作 */
@@ -424,13 +425,15 @@ enum MotionId
 
 /*! 通用状态约束:{内部错误码 = 错误码 - 基础码}
   错误基础码: 5800
-  内部错误码:
+  影响运行错误码:
     01~20:全局;
     21~30:模块;
     31~40:ROS;
     41~50:Topic;
     51~60:Service;
     61~70:Action;
+  不影响运行错误码:
+    100~
 */
 enum StateCode
 {
@@ -461,6 +464,8 @@ enum StateCode
   action_request_timeout                = 5861,   /*!< [Action ]请求动作超时/延迟 */
   action_request_rejected               = 5862,   /*!< [Action ]请求动作被拒绝 */
   action_result_timeout                 = 5863,   /*!< [Action ]等待动作结果超时/延迟 */
+
+  motion_error                          = 58100,  /*!< [不影响运行]运控异常 */
 };
 
 static std::unordered_map<StateCode, std::string> StateDescribe_ = {
@@ -491,6 +496,8 @@ static std::unordered_map<StateCode, std::string> StateDescribe_ = {
   {StateCode::action_request_timeout, "action request timeout"},
   {StateCode::action_request_rejected, "action request rejected"},
   {StateCode::action_result_timeout, "action result timeout"},
+
+  {StateCode::motion_error, "motion error"},
 };                                                /*! 通用状态描述 */
 
 /*! 欧拉角约束调用 角度类型 合法值 */

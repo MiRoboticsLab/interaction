@@ -76,7 +76,7 @@ private:
     const MsgTrainingWords::SharedPtr);           /*!< 训练词响应数据回调 */
   void SubUserDialogueCB(
     const MsgString::SharedPtr);                  /*!< 用户对话数据回调 */
-  bool RequestTrainingWordsRecognizedSrv(
+  State RequestTrainingWordsRecognizedSrv(
     SrvTrainingWords::Response &,
     std::shared_ptr<SrvTrainingWords::Request>,
     const int _service_start_timeout = 10);       /*!< 请求训练词服务 */

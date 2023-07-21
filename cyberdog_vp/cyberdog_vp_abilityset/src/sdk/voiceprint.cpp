@@ -73,16 +73,17 @@ VoiceprintRecognizedResponse Voiceprint::Recognized(
   const int _duration,
   const int _sensitivity)
 {   // 期望值
+  transient_state_.code = StateCode::success;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%d, %d)",
     _duration,
     _sensitivity);
   VoiceprintRecognizedResponse ret;
-  this->transient_state_.code = StateCode::success;
   try {
     Info("%s", funs.c_str());
     if (this->state_.code != StateCode::success) {
       ret.state = this->GetState(funs, this->state_.code);
+      transient_state_ = ret.state;
       return ret;
     }
     int duration = (_duration > 0) ? _duration : 3;
@@ -113,9 +114,12 @@ VoiceprintRecognizedResponse Voiceprint::Recognized(
       "[%s] Voiceprint Recognized() is failed. %s",
       this->logger_.c_str(),
       e.what());
-    this->transient_state_.code = StateCode::fail;
+    ret.state.code = StateCode::fail;
   }
-  ret.state = this->GetState(funs, this->transient_state_.code);
+  ret.state = this->GetState(funs, ret.state.code);
+  if (ret.state.code != StateCode::success) {
+    transient_state_ = ret.state;
+  }
   return ret;
 }
 }   // namespace cyberdog_visual_programming_abilityset
