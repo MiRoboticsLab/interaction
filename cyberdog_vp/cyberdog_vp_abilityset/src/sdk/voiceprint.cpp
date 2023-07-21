@@ -73,7 +73,7 @@ VoiceprintRecognizedResponse Voiceprint::Recognized(
   const int _duration,
   const int _sensitivity)
 {   // 期望值
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%d, %d)",
     _duration,
@@ -83,7 +83,8 @@ VoiceprintRecognizedResponse Voiceprint::Recognized(
     Info("%s", funs.c_str());
     if (this->state_.code != StateCode::success) {
       ret.state = this->GetState(funs, this->state_.code);
-      transient_state_ = ret.state;
+      this->transient_state_ptr_->code = ret.state.code;
+      this->transient_state_ptr_->describe = ret.state.describe;
       return ret;
     }
     int duration = (_duration > 0) ? _duration : 3;
@@ -118,7 +119,8 @@ VoiceprintRecognizedResponse Voiceprint::Recognized(
   }
   ret.state = this->GetState(funs, ret.state.code);
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }

@@ -549,8 +549,8 @@ class State
 public:
   State()
   {
-    code = StateCode::invalid;
-    describe = StateDescribe_[StateCode::invalid];
+    code = StateCode::success;
+    describe = StateDescribe_[StateCode::success];
   }
   ~State() {}
   StateCode code;                                 /*!< 状态 */

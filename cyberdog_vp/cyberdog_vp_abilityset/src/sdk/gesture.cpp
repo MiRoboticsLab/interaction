@@ -102,7 +102,7 @@ bool Gesture::RequestGestureRecognizedSrv(
 {
   try {
     if (!rclcpp::ok()) {
-      transient_state_.code = StateCode::service_request_interrupted;
+      this->transient_state_ptr_->code = StateCode::service_request_interrupted;
       Warn(
         "[%s] Client interrupted while requesting for gesture recognized service to appear.",
         this->logger_.c_str());
@@ -112,7 +112,7 @@ bool Gesture::RequestGestureRecognizedSrv(
         std::chrono::seconds(
           _service_start_timeout)))
     {
-      transient_state_.code = StateCode::service_appear_timeout;
+      this->transient_state_ptr_->code = StateCode::service_appear_timeout;
       Warn(
         "[%s] Waiting for gesture recognized service to appear(start) timeout.",
         this->logger_.c_str());
@@ -123,18 +123,18 @@ bool Gesture::RequestGestureRecognizedSrv(
     std::future_status status = result.wait_for(
       std::chrono::seconds(_service_start_timeout));
     if (status != std::future_status::ready) {
-      transient_state_.code = StateCode::service_request_timeout;
+      this->transient_state_ptr_->code = StateCode::service_request_timeout;
       Warn(
         "[%s] Waiting for gesture recognized service to response timeout.",
         this->logger_.c_str());
       return false;
     }
     auto result_ptr = result.get();
-    transient_state_.code = StateCode::success;
+    this->transient_state_ptr_->code = StateCode::success;
     _response = *result_ptr;
     return true;
   } catch (...) {
-    transient_state_.code = StateCode::fail;
+    this->transient_state_ptr_->code = StateCode::fail;
     Warn(
       "[%s] RequestGestureRecognizedSrv() is failed.",
       this->logger_.c_str());
@@ -146,7 +146,7 @@ GestureRecognizedMessageResponse Gesture::Recognized(
   const int _duration,
   const int _sensitivity)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%d, %d)",
     _duration,
@@ -156,7 +156,8 @@ GestureRecognizedMessageResponse Gesture::Recognized(
     Info("%s", funs.c_str());
     if (this->state_.code != StateCode::success) {
       ret.state = this->GetState(funs, this->state_.code);
-      transient_state_ = ret.state;
+      this->transient_state_ptr_->code = ret.state.code;
+      this->transient_state_ptr_->describe = ret.state.describe;
       return ret;
     }
     if (this->TurnOnRecognition(_duration).response.code == SrvGesture::Response::RESULT_SUCCESS) {
@@ -172,7 +173,8 @@ GestureRecognizedMessageResponse Gesture::Recognized(
   }
   ret.state = this->GetState(funs, ret.state.code);
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }
@@ -180,7 +182,7 @@ GestureRecognizedMessageResponse Gesture::Recognized(
 GestureRecognizedSeviceResponse Gesture::TurnOnRecognition(
   const int _duration)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%d)",
     _duration);
@@ -189,7 +191,8 @@ GestureRecognizedSeviceResponse Gesture::TurnOnRecognition(
     Info("%s", funs.c_str());
     if (this->state_.code != StateCode::success) {
       ret.state = this->GetState(funs, this->state_.code);
-      transient_state_ = ret.state;
+      this->transient_state_ptr_->code = ret.state.code;
+      this->transient_state_ptr_->describe = ret.state.describe;
       return ret;
     }
     SrvGesture::Response response;
@@ -210,21 +213,23 @@ GestureRecognizedSeviceResponse Gesture::TurnOnRecognition(
   }
   ret.state = this->GetState(funs, ret.state.code);
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }
 
 GestureRecognizedSeviceResponse Gesture::TurnOffRecognition()
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   std::string funs = std::string(__FUNCTION__) + "()";
   GestureRecognizedSeviceResponse ret;
   try {
     Info("%s", funs.c_str());
     if (this->state_.code != StateCode::success) {
       ret.state = this->GetState(funs, this->state_.code);
-      transient_state_ = ret.state;
+      this->transient_state_ptr_->code = ret.state.code;
+      this->transient_state_ptr_->describe = ret.state.describe;
       return ret;
     }
     SrvGesture::Response response;
@@ -244,7 +249,8 @@ GestureRecognizedSeviceResponse Gesture::TurnOffRecognition()
   }
   ret.state = this->GetState(funs, ret.state.code);
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }
@@ -253,7 +259,7 @@ GestureRecognizedMessageResponse Gesture::RecognizedDesignatedGesture(
   const int _timeout,
   const int _gesture_id)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%d, %d)",
     _timeout,
@@ -263,7 +269,8 @@ GestureRecognizedMessageResponse Gesture::RecognizedDesignatedGesture(
     Info("%s", funs.c_str());
     if (this->state_.code != StateCode::success) {
       ret.state = this->GetState(funs, this->state_.code);
-      transient_state_ = ret.state;
+      this->transient_state_ptr_->code = ret.state.code;
+      this->transient_state_ptr_->describe = ret.state.describe;
       return ret;
     }
     int sensitivity = 1;
@@ -373,7 +380,8 @@ GestureRecognizedMessageResponse Gesture::RecognizedDesignatedGesture(
   }
   ret.state = this->GetState(funs, ret.state.code);
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }
@@ -382,7 +390,7 @@ GestureRecognizedMessageResponse Gesture::RecognizedAnyGesture(
   const int _timeout,
   const int _sensitivity)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%d, %d)",
     _timeout,
@@ -392,7 +400,8 @@ GestureRecognizedMessageResponse Gesture::RecognizedAnyGesture(
     Info("%s", funs.c_str());
     if (this->state_.code != StateCode::success) {
       ret.state = this->GetState(funs, this->state_.code);
-      transient_state_ = ret.state;
+      this->transient_state_ptr_->code = ret.state.code;
+      this->transient_state_ptr_->describe = ret.state.describe;
       return ret;
     }
     int sensitivity = (_sensitivity > 0) ? _sensitivity : 1;
@@ -491,7 +500,8 @@ GestureRecognizedMessageResponse Gesture::RecognizedAnyGesture(
   }
   ret.state = this->GetState(funs, ret.state.code);
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }

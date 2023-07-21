@@ -101,7 +101,7 @@ bool Face::RequestFaceRecognizedSrv(
 {
   try {
     if (!rclcpp::ok()) {
-      transient_state_.code = StateCode::service_request_interrupted;
+      this->transient_state_ptr_->code = StateCode::service_request_interrupted;
       Warn(
         "[%s] Client interrupted while requesting for face recognized service to appear.",
         this->logger_.c_str());
@@ -111,7 +111,7 @@ bool Face::RequestFaceRecognizedSrv(
         std::chrono::seconds(
           _service_start_timeout)))
     {
-      transient_state_.code = StateCode::service_appear_timeout;
+      this->transient_state_ptr_->code = StateCode::service_appear_timeout;
       Warn(
         "[%s] Waiting for face recognized service to appear(start) timeout.",
         this->logger_.c_str());
@@ -122,7 +122,7 @@ bool Face::RequestFaceRecognizedSrv(
     std::future_status status = result.wait_for(
       std::chrono::seconds(_service_start_timeout));
     if (status != std::future_status::ready) {
-      transient_state_.code = StateCode::service_request_timeout;
+      this->transient_state_ptr_->code = StateCode::service_request_timeout;
       Warn(
         "[%s] Waiting for face recognized service to response timeout.",
         this->logger_.c_str());
@@ -131,13 +131,13 @@ bool Face::RequestFaceRecognizedSrv(
     auto result_ptr = result.get();
     _response = *result_ptr;
     if (_response.result == SrvFaceRec::Response::ENABLE_SUCCESS) {
-      transient_state_.code = StateCode::success;
+      this->transient_state_ptr_->code = StateCode::success;
     } else {
-      transient_state_.code = StateCode::service_request_rejected;
+      this->transient_state_ptr_->code = StateCode::service_request_rejected;
     }
     return static_cast<bool>(_response.result == SrvFaceRec::Response::ENABLE_SUCCESS);
   } catch (...) {
-    transient_state_.code = StateCode::fail;
+    this->transient_state_ptr_->code = StateCode::fail;
     Warn(
       "[%s] RequestFaceRecognizedSrv() is failed.",
       this->logger_.c_str());
@@ -150,19 +150,20 @@ FaceRecognizedSeviceResponse Face::Recognized(
   const bool _and_operation,
   const int _duration)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%s, %s, %d)",
     stringVector(_voiceprint_target).c_str(),
     std::string(_and_operation ? "True" : "False").c_str(),
     _duration);
   FaceRecognizedSeviceResponse ret;
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   try {
     Info("%s", funs.c_str());
     if (this->state_.code != StateCode::success) {
       ret.state = this->GetState(funs, this->state_.code);
-      transient_state_ = ret.state;
+      this->transient_state_ptr_->code = ret.state.code;
+      this->transient_state_ptr_->describe = ret.state.describe;
       return ret;
     }
     this->face_target_id_.clear();
@@ -209,7 +210,7 @@ FaceRecognizedSeviceResponse Face::Recognized(
         }
         this->face_recognition_life_cycle_ = false;
         if (!recognized) {
-          transient_state_.code = StateCode::fail;
+          this->transient_state_ptr_->code = StateCode::fail;
         }
       };
     std::string now_time = GetTime(TimeMode::_Y_M_D_H_M_S);
@@ -248,9 +249,9 @@ FaceRecognizedSeviceResponse Face::Recognized(
       "[%s] FaceRecognized() is failed. %s",
       this->logger_.c_str(),
       e.what());
-    transient_state_.code = StateCode::fail;
+    this->transient_state_ptr_->code = StateCode::fail;
   }
-  ret.state = this->GetState(funs, transient_state_.code);
+  ret.state = this->GetState(funs, this->transient_state_ptr_->code);
   ret.list = this->face_recognition_data_;
   for (const MsgFaceRes & meta : ret.list) {
     ret.dictionary.insert(
@@ -258,7 +259,8 @@ FaceRecognizedSeviceResponse Face::Recognized(
         meta.username, meta));
   }
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }
@@ -266,7 +268,7 @@ FaceRecognizedSeviceResponse Face::Recognized(
 FaceSeviceResponse Face::CancelRecognize(
   const int _timeout)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%d)",
     _timeout);
@@ -275,7 +277,8 @@ FaceSeviceResponse Face::CancelRecognize(
     Info("%s", funs.c_str());
     if (this->state_.code != StateCode::success) {
       ret.state = this->GetState(funs, this->state_.code);
-      transient_state_ = ret.state;
+      this->transient_state_ptr_->code = ret.state.code;
+      this->transient_state_ptr_->describe = ret.state.describe;
       return ret;
     }
     std::shared_ptr<SrvFaceRec::Request> request_ptr = this->GetFaceRecognitionRequest();
@@ -295,7 +298,8 @@ FaceSeviceResponse Face::CancelRecognize(
   }
   ret.state = this->GetState(funs, StateCode::success);
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }

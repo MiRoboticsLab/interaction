@@ -342,8 +342,8 @@ void Task::GetBlockJson(
   int state = _state;
   std::string describe = _describe;
   if (state == 0) {
-    state = transient_state_.code;
-    describe = transient_state_.describe;
+    state = this->transient_state_ptr_->code;
+    describe = this->transient_state_ptr_->describe;
   }
   rapidjson::Document feedback_json(rapidjson::kObjectType);
   CyberdogJson::Add(feedback_json, "type", MsgVisualProgrammingOperate::TYPE_TASK);

@@ -16,6 +16,7 @@
 #define CYBERDOG_VP_ABILITYSET__BASE_HPP_
 
 #include <string>
+#include <memory>
 #include "cyberdog_vp_abilityset/common.hpp"
 #include "cyberdog_vp_abilityset/log.hpp"
 
@@ -40,7 +41,7 @@ public:
   : logger_(_logger), heartbeat_(_heartbeat) {}
   virtual ~Base() {}
   State state_;                                   /*!< 整体状态 */
-  static State transient_state_;                  /*!< 瞬时状态 */
+  std::shared_ptr<State> transient_state_ptr_;    /*!< 瞬时状态 */
 
 protected:
   bool log_ {true};                               /*!< 日志开关 */
@@ -76,6 +77,7 @@ public:
     const std::string,
     const rclcpp::Node::SharedPtr,
     const rclcpp::Node::SharedPtr,
+    const std::shared_ptr<State>,
     const toml::value &);                         /*!< 初始化 */
   bool GetToml(
     const std::string &,

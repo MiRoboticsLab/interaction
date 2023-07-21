@@ -533,7 +533,7 @@ MotionResultServiceResponse Motion::Request(
   const int32_t _motion_id,
   const int32_t _duration)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   MotionResultServiceResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(motion_id = %d,"
@@ -543,7 +543,8 @@ MotionResultServiceResponse Motion::Request(
   Info("%s ...", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   auto request = [&](const int32_t __motion_id, const int32_t __duration = 0) {
@@ -580,7 +581,8 @@ MotionResultServiceResponse Motion::Request(
     request(_motion_id, _duration);
   }
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   ret.state.describe = this->GetDescribe(funs, ret.state.code);
   Info("%s is ok, %s.", funs.c_str(), ret.state.describe.c_str());
@@ -620,7 +622,7 @@ MotionResultServiceResponse Motion::AbsoluteForceControlAttitude(
   const double _yaw,
   const double _duration)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   MotionResultServiceResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(centroid_z = %lf,"
@@ -634,7 +636,8 @@ MotionResultServiceResponse Motion::AbsoluteForceControlAttitude(
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   MsgPose centroid;
@@ -657,7 +660,8 @@ MotionResultServiceResponse Motion::AbsoluteForceControlAttitude(
     fulcrum);
   ret.state.describe = this->GetDescribe(funs, ret.state.code);
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }
@@ -671,7 +675,7 @@ MotionResultServiceResponse Motion::RelativelyForceControlAttitude(
   const double _yaw,
   const double _duration)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   MotionResultServiceResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(centroid_x = %lf, centroid_y = %lf, centroid_z = %lf,"
@@ -687,7 +691,8 @@ MotionResultServiceResponse Motion::RelativelyForceControlAttitude(
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   MsgPose centroid;
@@ -710,7 +715,8 @@ MotionResultServiceResponse Motion::RelativelyForceControlAttitude(
     fulcrum);
   ret.state.describe = this->GetDescribe(funs, ret.state.code);
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }
@@ -719,7 +725,7 @@ MotionResultServiceResponse Motion::AbsolutePositionControlAttitude(
   const double _centroid_z,
   const double _duration)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   MotionResultServiceResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(centroid_z = %lf,"
@@ -729,7 +735,8 @@ MotionResultServiceResponse Motion::AbsolutePositionControlAttitude(
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   MsgPose centroid;
@@ -752,7 +759,8 @@ MotionResultServiceResponse Motion::AbsolutePositionControlAttitude(
     fulcrum);
   ret.state.describe = this->GetDescribe(funs, ret.state.code);
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }
@@ -769,7 +777,7 @@ MotionResultServiceResponse Motion::RelativelyPositionControlAttitude(
   const double _fulcrum_z,
   const double _duration)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   MotionResultServiceResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(centroid_x = %lf, centroid_y = %lf, centroid_z = %lf,"
@@ -789,7 +797,8 @@ MotionResultServiceResponse Motion::RelativelyPositionControlAttitude(
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   MsgPose centroid;
@@ -812,7 +821,8 @@ MotionResultServiceResponse Motion::RelativelyPositionControlAttitude(
     fulcrum);
   ret.state.describe = this->GetDescribe(funs, ret.state.code);
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }
@@ -839,7 +849,7 @@ MotionResultServiceResponse Motion::WalkTheDog(
   const double _front_leg_lift,
   const double _back_leg_lift)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   MotionResultServiceResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%lf, %lf)", _front_leg_lift,
@@ -847,7 +857,8 @@ MotionResultServiceResponse Motion::WalkTheDog(
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   this->ServiceBaseMotionLh(
@@ -856,7 +867,8 @@ MotionResultServiceResponse Motion::WalkTheDog(
     _front_leg_lift, _back_leg_lift);
   ret.state.describe = this->GetDescribe(funs, ret.state.code);
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }
@@ -1007,7 +1019,7 @@ MotionServoCmdResponse Motion::JumpBackAndForth(
   const double _duration,
   const uint _compensation_frame_size)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   MotionServoCmdResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%lf, %lf, %lf, %lf, %lf, %lf, %lf)",
@@ -1017,7 +1029,8 @@ MotionServoCmdResponse Motion::JumpBackAndForth(
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   this->ServoBaseMotionVxyzLh(
@@ -1028,7 +1041,8 @@ MotionServoCmdResponse Motion::JumpBackAndForth(
     _distance, _duration, _compensation_frame_size);
   ret.state.describe = this->GetDescribe(funs, ret.state.code);
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }
@@ -1043,7 +1057,7 @@ MotionServoCmdResponse Motion::SmallJumpWalking(
   const double _duration,
   const uint _compensation_frame_size)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   MotionServoCmdResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%lf, %lf, %lf, %lf, %lf, %lf, %lf)",
@@ -1053,7 +1067,8 @@ MotionServoCmdResponse Motion::SmallJumpWalking(
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   this->ServoBaseMotionVxyzLh(
@@ -1064,7 +1079,8 @@ MotionServoCmdResponse Motion::SmallJumpWalking(
     _distance, _duration, _compensation_frame_size);
   ret.state.describe = this->GetDescribe(funs, ret.state.code);
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }
@@ -1079,7 +1095,7 @@ MotionServoCmdResponse Motion::AutomaticFrequencyConversionWalking(
   const double _duration,
   const uint _compensation_frame_size)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   MotionServoCmdResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%lf, %lf, %lf, %lf, %lf, %lf, %lf)",
@@ -1089,7 +1105,8 @@ MotionServoCmdResponse Motion::AutomaticFrequencyConversionWalking(
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   this->ServoBaseMotionVxyzLh(
@@ -1100,7 +1117,8 @@ MotionServoCmdResponse Motion::AutomaticFrequencyConversionWalking(
     _distance, _duration, _compensation_frame_size);
   ret.state.describe = this->GetDescribe(funs, ret.state.code);
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }
@@ -1115,7 +1133,7 @@ MotionServoCmdResponse Motion::TrotWalking(
   const double _duration,
   const uint _compensation_frame_size)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   MotionServoCmdResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%lf, %lf, %lf, %lf, %lf, %lf, %lf)",
@@ -1125,7 +1143,8 @@ MotionServoCmdResponse Motion::TrotWalking(
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   this->ServoBaseMotionVxyzLh(
@@ -1136,7 +1155,8 @@ MotionServoCmdResponse Motion::TrotWalking(
     _distance, _duration, _compensation_frame_size);
   ret.state.describe = this->GetDescribe(funs, ret.state.code);
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }
@@ -1151,7 +1171,7 @@ MotionServoCmdResponse Motion::RunFastWalking(
   const double _duration,
   const uint _compensation_frame_size)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   MotionServoCmdResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%lf, %lf, %lf, %lf, %lf, %lf, %lf)",
@@ -1161,7 +1181,8 @@ MotionServoCmdResponse Motion::RunFastWalking(
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   this->ServoBaseMotionVxyzLh(
@@ -1172,20 +1193,22 @@ MotionServoCmdResponse Motion::RunFastWalking(
     _distance, _duration, _compensation_frame_size);
   ret.state.describe = this->GetDescribe(funs, ret.state.code);
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }
 
 MotionServoCmdResponse Motion::Turn(const double _angle, double _duration)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   MotionServoCmdResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT("(%lf, %lf)", _angle, _duration);
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   auto sign = [](const double data) -> int {
@@ -1201,7 +1224,8 @@ MotionServoCmdResponse Motion::Turn(const double _angle, double _duration)
     motion_params_.front_leg_lift.default_value, motion_params_.back_leg_lift.default_value,
     0.0, _duration);
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }
@@ -1211,7 +1235,7 @@ MotionServoCmdResponse Motion::GoStraight(
   const double _distance,
   const double _duration)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   MotionServoCmdResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%lf, %lf, %lf)", x_velocity, _distance,
@@ -1219,7 +1243,8 @@ MotionServoCmdResponse Motion::GoStraight(
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   ret = this->AutomaticFrequencyConversionWalking(
@@ -1227,7 +1252,8 @@ MotionServoCmdResponse Motion::GoStraight(
     motion_params_.front_leg_lift.default_value, motion_params_.back_leg_lift.default_value,
     _distance, _duration);
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }
@@ -1237,7 +1263,7 @@ MotionServoCmdResponse Motion::LateralMovement(
   const double _distance,
   const double _duration)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   MotionServoCmdResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%lf, %lf, %lf)", y_velocity, _distance,
@@ -1245,7 +1271,8 @@ MotionServoCmdResponse Motion::LateralMovement(
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   ret = this->AutomaticFrequencyConversionWalking(
@@ -1253,14 +1280,15 @@ MotionServoCmdResponse Motion::LateralMovement(
     motion_params_.front_leg_lift.default_value, motion_params_.back_leg_lift.default_value,
     _distance, _duration);
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }
 
 MotionSequenceServiceResponse Motion::RunSequence(const MotionSequence & _sequence)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   MotionSequenceServiceResponse ret;
   std::string funs = std::string(__FUNCTION__) +
     std::string(
@@ -1298,7 +1326,8 @@ MotionSequenceServiceResponse Motion::RunSequence(const MotionSequence & _sequen
   Debug("sequence msg is:\n%s", sequence_str.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   if (this->RequestSequenceSrv(
@@ -1310,7 +1339,8 @@ MotionSequenceServiceResponse Motion::RunSequence(const MotionSequence & _sequen
       funs.c_str());
   }
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }
@@ -1319,7 +1349,7 @@ MotionSequenceServiceResponse Motion::Choreographer(
   const std::string _type,
   const py::args _args)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%s, %s) ...",
     _type.c_str(),
@@ -1331,7 +1361,8 @@ MotionSequenceServiceResponse Motion::Choreographer(
   try {
     if (this->state_.code != StateCode::success) {
       ret.state = this->GetState(funs, this->state_.code);
-      transient_state_ = ret.state;
+      this->transient_state_ptr_->code = ret.state.code;
+      this->transient_state_ptr_->describe = ret.state.describe;
       return ret;
     }
     // py::object self = py::get_object_handle(this);  // 新版本 pybind11 接口
@@ -1344,14 +1375,15 @@ MotionSequenceServiceResponse Motion::Choreographer(
     ret.state.describe += "\n - " + std::string(e.what());
   }
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }
 
 MotionSequenceServiceResponse Motion::Choreographer(const py::kwargs _kwargs)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%s) ...",
     pyKwargsToString(_kwargs).c_str());
@@ -1362,7 +1394,8 @@ MotionSequenceServiceResponse Motion::Choreographer(const py::kwargs _kwargs)
   try {
     if (this->state_.code != StateCode::success) {
       ret.state = this->GetState(funs, this->state_.code);
-      transient_state_ = ret.state;
+      this->transient_state_ptr_->code = ret.state.code;
+      this->transient_state_ptr_->describe = ret.state.describe;
       return ret;
     }
     // py::object self = py::get_object_handle(this);  // 新版本 pybind11 接口
@@ -1375,7 +1408,8 @@ MotionSequenceServiceResponse Motion::Choreographer(const py::kwargs _kwargs)
     ret.state.describe += "\n - " + std::string(e.what());
   }
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }

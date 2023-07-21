@@ -210,7 +210,7 @@ SkeletonRecognizedSeviceResponse Skeleton::TurnOnRecognition(
   const int _counts,
   const int _timeout)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%d, %d, %d)", _sport_type, _counts, _timeout);
   SkeletonRecognizedSeviceResponse ret;
@@ -218,7 +218,8 @@ SkeletonRecognizedSeviceResponse Skeleton::TurnOnRecognition(
     Info("%s", funs.c_str());
     if (this->state_.code != StateCode::success) {
       ret.state = this->GetState(funs, this->state_.code);
-      transient_state_ = ret.state;
+      this->transient_state_ptr_->code = ret.state.code;
+      this->transient_state_ptr_->describe = ret.state.describe;
       return ret;
     }
     SrvSport::Response response;
@@ -241,21 +242,23 @@ SkeletonRecognizedSeviceResponse Skeleton::TurnOnRecognition(
   }
   ret.state = this->GetState(funs, ret.state.code);
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }
 
 SkeletonRecognizedSeviceResponse Skeleton::TurnOffRecognition()
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   std::string funs = std::string(__FUNCTION__) + "";
   SkeletonRecognizedSeviceResponse ret;
   try {
     Info("%s", funs.c_str());
     if (this->state_.code != StateCode::success) {
       ret.state = this->GetState(funs, this->state_.code);
-      transient_state_ = ret.state;
+      this->transient_state_ptr_->code = ret.state.code;
+      this->transient_state_ptr_->describe = ret.state.describe;
       return ret;
     }
     SrvSport::Response response;
@@ -271,7 +274,8 @@ SkeletonRecognizedSeviceResponse Skeleton::TurnOffRecognition()
   }
   ret.state = this->GetState(funs, ret.state.code);
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }
@@ -279,14 +283,15 @@ SkeletonRecognizedSeviceResponse Skeleton::TurnOffRecognition()
 SkeletonRecognizedMessageResponse Skeleton::BlockingRecognized(
   const int _timeout)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   std::string funs = std::string(__FUNCTION__) + "";
   SkeletonRecognizedMessageResponse ret;
   try {
     Info("%s", funs.c_str());
     if (this->state_.code != StateCode::success) {
       ret.state = this->GetState(funs, this->state_.code);
-      transient_state_ = ret.state;
+      this->transient_state_ptr_->code = ret.state.code;
+      this->transient_state_ptr_->describe = ret.state.describe;
       return ret;
     }
     int timeout = 0;
@@ -317,21 +322,23 @@ SkeletonRecognizedMessageResponse Skeleton::BlockingRecognized(
   }
   ret.state = this->GetState(funs, ret.state.code);
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }
 
 SkeletonRecognizedMessageResponse Skeleton::InstantRecognized()
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   std::string funs = std::string(__FUNCTION__) + "";
   SkeletonRecognizedMessageResponse ret;
   try {
     Info("%s", funs.c_str());
     if (this->state_.code != StateCode::success) {
       ret.state = this->GetState(funs, this->state_.code);
-      transient_state_ = ret.state;
+      this->transient_state_ptr_->code = ret.state.code;
+      this->transient_state_ptr_->describe = ret.state.describe;
       return ret;
     }
     ret.response = this->recognition_;
@@ -344,7 +351,8 @@ SkeletonRecognizedMessageResponse Skeleton::InstantRecognized()
   }
   ret.state = this->GetState(funs, ret.state.code);
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }
@@ -357,7 +365,7 @@ SkeletonRecognizedMessageResponse Skeleton::SportsRecognition(
   const bool _instantly,
   const int _volume)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%d, %d, %d, %d, %d, %d)", _sport_type, _counts, _timeout, _interact, _instantly, _volume);
   SkeletonRecognizedMessageResponse ret;
@@ -365,7 +373,8 @@ SkeletonRecognizedMessageResponse Skeleton::SportsRecognition(
     Info("%s", funs.c_str());
     if (this->state_.code != StateCode::success) {
       ret.state = this->GetState(funs, this->state_.code);
-      transient_state_ = ret.state;
+      this->transient_state_ptr_->code = ret.state.code;
+      this->transient_state_ptr_->describe = ret.state.describe;
       return ret;
     }
     int timeout = 0;
@@ -407,7 +416,8 @@ SkeletonRecognizedMessageResponse Skeleton::SportsRecognition(
   }
   ret.state = this->GetState(funs, ret.state.code);
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }

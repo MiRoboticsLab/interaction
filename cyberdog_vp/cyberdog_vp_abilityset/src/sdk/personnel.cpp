@@ -25,13 +25,15 @@ bool Personnel::SetData(const toml::value & _params_toml)
   try {
     Debug("%s", std::string(__FUNCTION__).c_str());
     if (!this->face_.Init(
-        this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_, _params_toml))
+        this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_,
+        this->transient_state_ptr_, _params_toml))
     {
       Error("%s Init face is failed.", this->logger_.c_str());
       return false;
     }
     if (!this->voiceprint_.Init(
-        this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_, _params_toml))
+        this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_,
+        this->transient_state_ptr_, _params_toml))
     {
       Error("%s Init voiceprint is failed.", this->logger_.c_str());
       return false;
@@ -89,25 +91,25 @@ SrvPersonnel::Response Personnel::RequestPersonnelSrv(
             result_ptr->code,
             msgPersonnelVector(result_ptr->result, "\t").c_str());
         } else {
-          transient_state_.code = StateCode::service_request_timeout;
+          this->transient_state_ptr_->code = StateCode::service_request_timeout;
           Warn(
             "[%s] Waiting for personnel service to response timeout.",
             this->logger_.c_str());
         }
       } else {
-        transient_state_.code = StateCode::service_appear_timeout;
+        this->transient_state_ptr_->code = StateCode::service_appear_timeout;
         Warn(
           "[%s] Waiting for personnel service to appear(start) timeout.",
           this->logger_.c_str());
       }
     } else {
-      transient_state_.code = StateCode::service_request_interrupted;
+      this->transient_state_ptr_->code = StateCode::service_request_interrupted;
       Warn(
         "[%s] Client interrupted while requesting for personnel service to appear.",
         this->logger_.c_str());
     }
   } catch (...) {
-    transient_state_.code = StateCode::fail;
+    this->transient_state_ptr_->code = StateCode::fail;
     Error("[%s] RequestPersonnelSrv() is failed.", this->logger_.c_str());
   }
   return ret;
@@ -166,7 +168,7 @@ FaceRecognizedSeviceResponse Personnel::FaceRecognized(
   const bool _and_operation,
   const int _duration)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   FaceRecognizedSeviceResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%s, %s, %d)",
@@ -176,7 +178,8 @@ FaceRecognizedSeviceResponse Personnel::FaceRecognized(
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   std::vector<std::string> target;
@@ -188,7 +191,8 @@ FaceRecognizedSeviceResponse Personnel::FaceRecognized(
     Error("%s %s", funs.c_str(), ret.state.describe.c_str());
   }
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }
@@ -199,7 +203,7 @@ VoiceprintRecognizedResponse Personnel::VoiceprintRecognized(
   const int _duration,
   const int _sensitivity)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   VoiceprintRecognizedResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%s, %s, %d, %d)",
@@ -210,7 +214,8 @@ VoiceprintRecognizedResponse Personnel::VoiceprintRecognized(
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   std::vector<std::string> target;
@@ -238,7 +243,8 @@ VoiceprintRecognizedResponse Personnel::VoiceprintRecognized(
     Error("%s %s", funs.c_str(), ret.state.describe.c_str());
   }
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }

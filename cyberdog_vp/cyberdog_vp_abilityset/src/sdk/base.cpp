@@ -12,17 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include <string>
-
+#include <memory>
 #include "cyberdog_vp_abilityset/base.hpp"
 
 namespace cyberdog_visual_programming_abilityset
 {
-State Base::transient_state_;
-
 bool Base::Init(
   const std::string _task_id,
   const rclcpp::Node::SharedPtr _node_immortal_ptr_,
   const rclcpp::Node::SharedPtr _node_mortal_ptr_,
+  const std::shared_ptr<State> _transient_state_ptr_,
   const toml::value & _params_toml)
 {
   try {
@@ -36,6 +35,7 @@ bool Base::Init(
     this->task_id_ = _task_id;
     this->node_immortal_ptr_ = _node_immortal_ptr_;
     this->node_mortal_ptr_ = _node_mortal_ptr_;
+    this->transient_state_ptr_ = _transient_state_ptr_;
     if (this->heartbeat_) {
       this->heartbeat_cb_group_ =
         this->node_immortal_ptr_->create_callback_group(

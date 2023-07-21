@@ -156,14 +156,15 @@ State Train::RequestTrainingWordsRecognizedSrv(
 
 TrainingWordsRecognizedSeviceResponse Train::GetTrainingWordsSet()
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   std::string funs = std::string(__FUNCTION__) + "()";
   TrainingWordsRecognizedSeviceResponse ret;
   try {
     Info("%s", funs.c_str());
     if (this->state_.code != StateCode::success) {
       ret.state = this->GetState(funs, this->state_.code);
-      transient_state_ = ret.state;
+      this->transient_state_ptr_->code = ret.state.code;
+      this->transient_state_ptr_->describe = ret.state.describe;
       return ret;
     }
     SrvTrainingWords::Response response;
@@ -188,7 +189,8 @@ TrainingWordsRecognizedSeviceResponse Train::GetTrainingWordsSet()
   }
   ret.state = this->GetState(funs, ret.state.code);
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }
@@ -196,7 +198,7 @@ TrainingWordsRecognizedSeviceResponse Train::GetTrainingWordsSet()
 TrainingWordsRecognizedMessageResponse Train::TrainingWordsRecognized(
   const int _timeout)
 {
-  transient_state_.code = StateCode::success;
+  this->transient_state_ptr_->code = StateCode::success;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%d)", _timeout);
   TrainingWordsRecognizedMessageResponse ret;
@@ -204,7 +206,8 @@ TrainingWordsRecognizedMessageResponse Train::TrainingWordsRecognized(
     Info("%s", funs.c_str());
     if (this->state_.code != StateCode::success) {
       ret.state = this->GetState(funs, this->state_.code);
-      transient_state_ = ret.state;
+      this->transient_state_ptr_->code = ret.state.code;
+      this->transient_state_ptr_->describe = ret.state.describe;
       return ret;
     }
     this->training_words_set_ = this->GetTrainingWordsSet().response;
@@ -237,7 +240,8 @@ TrainingWordsRecognizedMessageResponse Train::TrainingWordsRecognized(
   }
   ret.state = this->GetState(funs, ret.state.code);
   if (ret.state.code != StateCode::success) {
-    transient_state_ = ret.state;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
 }

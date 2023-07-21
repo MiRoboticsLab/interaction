@@ -62,6 +62,7 @@ Cyberdog::Cyberdog(std::string _task_id, std::string _namespace, bool _ros, std:
     this->node_immortal_ptr_ = rclcpp::Node::make_shared(name, _namespace);
     name = "vpa_" + this->task_id_ + "_mortal_node";    // visual programming abilityset mortal
     this->node_mortal_ptr_ = rclcpp::Node::make_shared(name, _namespace);
+    this->transient_state_ptr_ = std::make_shared<State>();
     // if (!py::is_initialized()) {
     if (!Py_IsInitialized()) {
       py::scoped_interpreter guard{};
@@ -90,7 +91,8 @@ bool Cyberdog::Start()
       return false;
     }
     if (this->Init(
-        this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_, params_toml))
+        this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_,
+        this->transient_state_ptr_, params_toml))
     {
       this->task_.InitDependent(
         std::bind(&Cyberdog::Shutdown, this, std::placeholders::_1),
@@ -147,45 +149,65 @@ bool Cyberdog::SetData(const toml::value & _params_toml)
   try {
     Debug("%s", std::string(__FUNCTION__).c_str());
     return this->network_.Init(
-      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_, _params_toml) &&
+      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_,
+      this->transient_state_ptr_, _params_toml) &&
            this->follow_.Init(
-      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_, _params_toml) &&
+      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_,
+      this->transient_state_ptr_, _params_toml) &&
            this->motion_.Init(
-      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_, _params_toml) &&
+      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_,
+      this->transient_state_ptr_, _params_toml) &&
            this->navigation_.Init(
-      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_, _params_toml) &&
+      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_,
+      this->transient_state_ptr_, _params_toml) &&
            this->task_.Init(
-      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_, _params_toml) &&
+      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_,
+      this->transient_state_ptr_, _params_toml) &&
            this->train_.Init(
-      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_, _params_toml) &&
+      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_,
+      this->transient_state_ptr_, _params_toml) &&
            this->personnel_.Init(
-      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_, _params_toml) &&
+      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_,
+      this->transient_state_ptr_, _params_toml) &&
            this->gesture_.Init(
-      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_, _params_toml) &&
+      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_,
+      this->transient_state_ptr_, _params_toml) &&
            this->skeleton_.Init(
-      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_, _params_toml) &&
+      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_,
+      this->transient_state_ptr_, _params_toml) &&
            this->skin_.Init(
-      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_, _params_toml) &&
+      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_,
+      this->transient_state_ptr_, _params_toml) &&
            this->audio_.Init(
-      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_, _params_toml) &&
+      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_,
+      this->transient_state_ptr_, _params_toml) &&
            this->bms_.Init(
-      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_, _params_toml) &&
+      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_,
+      this->transient_state_ptr_, _params_toml) &&
            this->led_.Init(
-      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_, _params_toml) &&
+      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_,
+      this->transient_state_ptr_, _params_toml) &&
            this->touch_.Init(
-      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_, _params_toml) &&
+      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_,
+      this->transient_state_ptr_, _params_toml) &&
            this->imu_.Init(
-      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_, _params_toml) &&
+      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_,
+      this->transient_state_ptr_, _params_toml) &&
            this->odometer_.Init(
-      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_, _params_toml) &&
+      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_,
+      this->transient_state_ptr_, _params_toml) &&
            this->gps_.Init(
-      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_, _params_toml) &&
+      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_,
+      this->transient_state_ptr_, _params_toml) &&
            this->lidar_.Init(
-      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_, _params_toml) &&
+      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_,
+      this->transient_state_ptr_, _params_toml) &&
            this->tof_.Init(
-      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_, _params_toml) &&
+      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_,
+      this->transient_state_ptr_, _params_toml) &&
            this->ultrasonic_.Init(
-      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_, _params_toml)
+      this->task_id_, this->node_immortal_ptr_, this->node_mortal_ptr_,
+      this->transient_state_ptr_, _params_toml)
     ;
   } catch (const std::exception & e) {
     Error("%s Set data failed: %s", this->logger_.c_str(), e.what());
