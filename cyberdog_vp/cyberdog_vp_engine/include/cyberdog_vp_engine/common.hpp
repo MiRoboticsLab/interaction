@@ -101,19 +101,19 @@ enum TimeMode_
 enum StateEnum
 {
   normally = 0,                                   /*!< 正常结束 */
-  abnormally_mkdir_path = 21,                     /*!< 21:异常结束, 无法创建路径 */
-  abnormally_open_file,                           /*!< 22:异常结束, 无法打开文件 */
-  abnormally_build,                               /*!< 23:异常结束, 无法构建 */
-  abnormally_register,                            /*!< 24:异常结束, 无法注册 */
-  abnormally_update_list,                         /*!< 25:异常结束, 无法更新列表 */
-  abnormally_perform,                             /*!< 26:异常结束, 无法执行 */
-  abnormally_operate,                             /*!< 27:异常结束, 当前操作非法 */
-  abnormally_request,                             /*!< 28:异常结束, 请求错误 */
-  abnormally_other_errors,                        /*!< 29:异常结束, 其他错误 */
-  abnormally_decorate_body,                       /*!< 30:异常结束, 装饰身体失败 */
-  service_request_interrupted,                    /*!< 31:异常结束, 服务被打断 */
-  service_appear_timeout,                         /*!< 32:异常结束, 等待服务上线超时 */
-  service_request_timeout,                        /*!< 33:异常结束, 请求服务超时 */
+  abnormally_mkdir_path               = 8021,     /*!< 21:异常结束, 无法创建路径 */
+  abnormally_open_file                = 8022,     /*!< 22:异常结束, 无法打开文件 */
+  abnormally_build                    = 8023,     /*!< 23:异常结束, 无法构建 */
+  abnormally_register                 = 8024,     /*!< 24:异常结束, 无法注册 */
+  abnormally_update_list              = 8025,     /*!< 25:异常结束, 无法更新列表 */
+  abnormally_perform                  = 8026,     /*!< 26:异常结束, 无法执行 */
+  abnormally_operate                  = 8027,     /*!< 27:异常结束, 当前操作非法 */
+  abnormally_request                  = 8028,     /*!< 28:异常结束, 请求错误 */
+  abnormally_other_errors             = 8029,     /*!< 29:异常结束, 其他错误 */
+  abnormally_decorate_body            = 8030,     /*!< 30:异常结束, 装饰身体失败 */
+  service_request_interrupted         = 8031,     /*!< 31:异常结束, 服务被打断 */
+  service_appear_timeout              = 8032,     /*!< 32:异常结束, 等待服务上线超时 */
+  service_request_timeout             = 8033,     /*!< 33:异常结束, 请求服务超时 */
 };
 
 namespace py = pybind11;
