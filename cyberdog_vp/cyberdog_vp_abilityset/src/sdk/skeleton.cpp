@@ -156,52 +156,53 @@ std::shared_ptr<SrvSport::Request> Skeleton::GetSkeletonRecognitionRequest()
   return request_ptr;
 }
 
-bool Skeleton::RequestSkeletonRecognizedSrv(
+State Skeleton::RequestSkeletonRecognizedSrv(
   SrvSport::Response & _response,
   std::shared_ptr<SrvSport::Request> _request_ptr,
   const int _service_start_timeout)
 {
+  State ret;
   try {
     if (!rclcpp::ok()) {
-      this->transient_state_.code = StateCode::service_request_interrupted;
+      ret.code = StateCode::service_request_interrupted;
       Warn(
         "[%s] Client interrupted while requesting for skeleton recognized service to appear.",
         this->logger_.c_str());
-      return false;
+      return ret;
     }
     if (!this->skeleton_recognition_cli_ptr_->wait_for_service(
         std::chrono::seconds(
           _service_start_timeout)))
     {
-      this->transient_state_.code = StateCode::service_appear_timeout;
+      ret.code = StateCode::service_appear_timeout;
       Warn(
         "[%s] Waiting for skeleton recognized service to appear(start) timeout.",
         this->logger_.c_str());
-      return false;
+      return ret;
     }
     Debug("The interface is requesting skeleton recognized service.");
     auto result = this->skeleton_recognition_cli_ptr_->async_send_request(_request_ptr);
     std::future_status status = result.wait_for(
       std::chrono::seconds(_service_start_timeout));
     if (status != std::future_status::ready) {
-      this->transient_state_.code = StateCode::service_request_timeout;
+      ret.code = StateCode::service_request_timeout;
       Warn(
         "[%s] Waiting for skeleton recognized service to response timeout.",
         this->logger_.c_str());
-      return false;
+      return ret;
     }
     auto result_ptr = result.get();
-    this->transient_state_.code = (result_ptr->result == SrvSport::Response::ENABLE_SUCCESS) ?
+    ret.code = (result_ptr->result == SrvSport::Response::ENABLE_SUCCESS) ?
       StateCode::success : StateCode::fail;
     _response = *result_ptr;
-    return true;
+    return ret;
   } catch (...) {
-    this->transient_state_.code = StateCode::fail;
+    ret.code = StateCode::fail;
     Warn(
       "[%s] RequestSkeletonRecognizedSrv() is failed.",
       this->logger_.c_str());
   }
-  return false;
+  return ret;
 }
 
 SkeletonRecognizedSeviceResponse Skeleton::TurnOnRecognition(
@@ -209,14 +210,16 @@ SkeletonRecognizedSeviceResponse Skeleton::TurnOnRecognition(
   const int _counts,
   const int _timeout)
 {
+  this->transient_state_ptr_->code = StateCode::success;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%d, %d, %d)", _sport_type, _counts, _timeout);
   SkeletonRecognizedSeviceResponse ret;
-  this->transient_state_.code = StateCode::success;
   try {
     Info("%s", funs.c_str());
     if (this->state_.code != StateCode::success) {
       ret.state = this->GetState(funs, this->state_.code);
+      this->transient_state_ptr_->code = ret.state.code;
+      this->transient_state_ptr_->describe = ret.state.describe;
       return ret;
     }
     SrvSport::Response response;
@@ -226,60 +229,69 @@ SkeletonRecognizedSeviceResponse Skeleton::TurnOnRecognition(
     request_ptr->counts = _counts;
     request_ptr->sport_type = _sport_type;
     request_ptr->timeout = _timeout;
-    if (this->RequestSkeletonRecognizedSrv(
-        response, request_ptr,
-        SrvSport::Request::ALGORITHM_LOAD_DURATION))
-    {
-      ret.response = response;
-    }
+    ret.state = this->RequestSkeletonRecognizedSrv(
+      response, request_ptr,
+      SrvSport::Request::ALGORITHM_LOAD_DURATION);
+    ret.response = response;
   } catch (const std::exception & e) {
     Warn(
       "[%s] SkeletonRecognized() is failed. %s",
       this->logger_.c_str(),
       e.what());
-    this->transient_state_.code = StateCode::fail;
+    ret.state.code = StateCode::fail;
   }
-  ret.state = this->GetState(funs, this->transient_state_.code);
+  ret.state = this->GetState(funs, ret.state.code);
+  if (ret.state.code != StateCode::success) {
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
+  }
   return ret;
 }
 
 SkeletonRecognizedSeviceResponse Skeleton::TurnOffRecognition()
 {
+  this->transient_state_ptr_->code = StateCode::success;
   std::string funs = std::string(__FUNCTION__) + "";
   SkeletonRecognizedSeviceResponse ret;
-  this->transient_state_.code = StateCode::success;
   try {
     Info("%s", funs.c_str());
     if (this->state_.code != StateCode::success) {
       ret.state = this->GetState(funs, this->state_.code);
+      this->transient_state_ptr_->code = ret.state.code;
+      this->transient_state_ptr_->describe = ret.state.describe;
       return ret;
     }
     SrvSport::Response response;
     std::shared_ptr<SrvSport::Request> request_ptr = this->GetSkeletonRecognitionRequest();
-    if (this->RequestSkeletonRecognizedSrv(response, request_ptr)) {
-      ret.response = response;
-    }
+    ret.state = this->RequestSkeletonRecognizedSrv(response, request_ptr);
+    ret.response = response;
   } catch (const std::exception & e) {
     Warn(
       "[%s] SkeletonRecognized() is failed. %s",
       this->logger_.c_str(),
       e.what());
-    this->transient_state_.code = StateCode::fail;
+    ret.state.code = StateCode::fail;
   }
-  ret.state = this->GetState(funs, this->transient_state_.code);
+  ret.state = this->GetState(funs, ret.state.code);
+  if (ret.state.code != StateCode::success) {
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
+  }
   return ret;
 }
 
 SkeletonRecognizedMessageResponse Skeleton::BlockingRecognized(
   const int _timeout)
 {
+  this->transient_state_ptr_->code = StateCode::success;
   std::string funs = std::string(__FUNCTION__) + "";
   SkeletonRecognizedMessageResponse ret;
-  this->transient_state_.code = StateCode::success;
   try {
     Info("%s", funs.c_str());
     if (this->state_.code != StateCode::success) {
       ret.state = this->GetState(funs, this->state_.code);
+      this->transient_state_ptr_->code = ret.state.code;
+      this->transient_state_ptr_->describe = ret.state.describe;
       return ret;
     }
     int timeout = 0;
@@ -306,21 +318,27 @@ SkeletonRecognizedMessageResponse Skeleton::BlockingRecognized(
       "[%s] SkeletonRecognized() is failed. %s",
       this->logger_.c_str(),
       e.what());
-    this->transient_state_.code = StateCode::fail;
+    ret.state.code = StateCode::fail;
   }
-  ret.state = this->GetState(funs, this->transient_state_.code);
+  ret.state = this->GetState(funs, ret.state.code);
+  if (ret.state.code != StateCode::success) {
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
+  }
   return ret;
 }
 
 SkeletonRecognizedMessageResponse Skeleton::InstantRecognized()
 {
+  this->transient_state_ptr_->code = StateCode::success;
   std::string funs = std::string(__FUNCTION__) + "";
   SkeletonRecognizedMessageResponse ret;
-  this->transient_state_.code = StateCode::success;
   try {
     Info("%s", funs.c_str());
     if (this->state_.code != StateCode::success) {
       ret.state = this->GetState(funs, this->state_.code);
+      this->transient_state_ptr_->code = ret.state.code;
+      this->transient_state_ptr_->describe = ret.state.describe;
       return ret;
     }
     ret.response = this->recognition_;
@@ -329,9 +347,13 @@ SkeletonRecognizedMessageResponse Skeleton::InstantRecognized()
       "[%s] SkeletonRecognized() is failed. %s",
       this->logger_.c_str(),
       e.what());
-    this->transient_state_.code = StateCode::fail;
+    ret.state.code = StateCode::fail;
   }
-  ret.state = this->GetState(funs, this->transient_state_.code);
+  ret.state = this->GetState(funs, ret.state.code);
+  if (ret.state.code != StateCode::success) {
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
+  }
   return ret;
 }
 
@@ -343,14 +365,16 @@ SkeletonRecognizedMessageResponse Skeleton::SportsRecognition(
   const bool _instantly,
   const int _volume)
 {
+  this->transient_state_ptr_->code = StateCode::success;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%d, %d, %d, %d, %d, %d)", _sport_type, _counts, _timeout, _interact, _instantly, _volume);
   SkeletonRecognizedMessageResponse ret;
-  this->transient_state_.code = StateCode::success;
   try {
     Info("%s", funs.c_str());
     if (this->state_.code != StateCode::success) {
       ret.state = this->GetState(funs, this->state_.code);
+      this->transient_state_ptr_->code = ret.state.code;
+      this->transient_state_ptr_->describe = ret.state.describe;
       return ret;
     }
     int timeout = 0;
@@ -365,32 +389,36 @@ SkeletonRecognizedMessageResponse Skeleton::SportsRecognition(
     }
     if (this->TurnOnRecognition(
         _sport_type, _counts,
-        timeout).response.result !=
+        timeout).response.result ==
       SrvSport::Response::ENABLE_SUCCESS)
     {
-      ret.state = this->GetState(funs, this->transient_state_.code);
-      return ret;
-    }
-    this->interact_ = _interact;
-    this->volume_ = _volume;
-    this->instantly_ = _instantly;
-    {
-      std::unique_lock<std::mutex> lk(skeleton_recognition_state_cvm_);
-      this->skeleton_update_ = false;
-      skeleton_recognition_state_cv_.wait_for(
-        lk, std::chrono::seconds(timeout), [&] {
-          return this->skeleton_update_ && (this->recognition_.algo_switch != MsgSport::ALGO_OPEN);
-        });
-      ret.response = this->recognition_;
+      this->interact_ = _interact;
+      this->volume_ = _volume;
+      this->instantly_ = _instantly;
+      {
+        std::unique_lock<std::mutex> lk(skeleton_recognition_state_cvm_);
+        this->skeleton_update_ = false;
+        skeleton_recognition_state_cv_.wait_for(
+          lk, std::chrono::seconds(
+            timeout), [&] {
+            return this->skeleton_update_ &&
+            (this->recognition_.algo_switch != MsgSport::ALGO_OPEN);
+          });
+        ret.response = this->recognition_;
+      }
     }
   } catch (const std::exception & e) {
     Warn(
       "[%s] SkeletonRecognized() is failed. %s",
       this->logger_.c_str(),
       e.what());
-    this->transient_state_.code = StateCode::fail;
+    ret.state.code = StateCode::fail;
   }
-  ret.state = this->GetState(funs, this->transient_state_.code);
+  ret.state = this->GetState(funs, ret.state.code);
+  if (ret.state.code != StateCode::success) {
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
+  }
   return ret;
 }
 }   // namespace cyberdog_visual_programming_abilityset

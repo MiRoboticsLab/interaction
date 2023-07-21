@@ -414,7 +414,8 @@ enum MotionId
 
   jump_back_and_forth                     = 301,  /*!< [3]前后跳 */
   small_jump_walking                      = 302,  /*!< [3]小跳行走 */
-  trot_walking                            = 303,  /*!< [3]慢速（小跑）行走 */
+  trot_walking                            = 303,  /*!< [3]慢速行走 */
+  fast_walking                            = 308,  /*!< [3]快速行走 */
   automatic_frequency_conversion_walking  = 304,  /*!< [3]自动变频行走 */
   run_fast_walking                        = 305,  /*!< [3]快跑行走 */
   sequence_custom                         = 400,  /*!< [3]序列动作 */
@@ -423,44 +424,48 @@ enum MotionId
 };
 
 /*! 通用状态约束:{内部错误码 = 错误码 - 基础码}
-  错误基础码: 5800
-  内部错误码:
+  错误基础码: 7900
+  影响运行错误码:
     01~20:全局;
     21~30:模块;
     31~40:ROS;
     41~50:Topic;
     51~60:Service;
     61~70:Action;
+  不影响运行错误码:
+    100~
 */
 enum StateCode
 {
   invalid                               = -1,     /*!< 无效 */
   success                               = 0,      /*!< 成功 */
-  error_base                            = 5800,   /*!< 错误基础码 */
-  fail                                  = 5801,   /*!< [ 全局码 ]失败 */
-  uninitialized                         = 5802,   /*!< [ 全局码 ]未初始化 */
-  fsm_does_not_allow                    = 5803,   /*!< [ 全局码 ]状态机不允许 */
-  module_status_error                   = 5804,   /*!< [ 全局码 ]模块状态错误 */
-  network_error                         = 5805,   /*!< [ 全局码 ]网络错误 */
-  no_operation_authority                = 5806,   /*!< [ 全局码 ]无操作权限 */
-  timeout                               = 5807,   /*!< [ 全局码 ]超时 */
-  command_does_not_support              = 5808,   /*!< [ 全局码 ]指令不支持 */
-  self_test_failed                      = 5809,   /*!< [ 全局码 ]自检失败 */
-  parameter_is_invalid                  = 5810,   /*!< [ 全局码 ]参数不合法 */
-  status_is_busy                        = 5811,   /*!< [ 全局码 ]状态忙碌 */
-  hardware_error                        = 5812,   /*!< [ 全局码 ]硬件错误 */
-  command_waiting_execute               = 5821,   /*!< [ 模块码 ]命令等待执行 */
-  spin_future_interrupted               = 5831,   /*!< [  ROS  ]请求服务中断 */
-  spin_future_timeout                   = 5832,   /*!< [  ROS  ]请求服务超时/延迟 */
-  no_data_update                        = 5841,   /*!< [ Topic ]无数据更新 */
-  service_client_interrupted            = 5851,   /*!< [Service]客户端在请求服务出现时被打断 */
-  service_appear_timeout                = 5852,   /*!< [Service]等待服务出现（启动）超时 */
-  service_request_interrupted           = 5853,   /*!< [Service]请求服务中断 */
-  service_request_rejected              = 5854,   /*!< [Service]请求服务被拒绝 */
-  service_request_timeout               = 5855,   /*!< [Service]请求服务超时/延迟 */
-  action_request_timeout                = 5861,   /*!< [Action ]请求动作超时/延迟 */
-  action_request_rejected               = 5862,   /*!< [Action ]请求动作被拒绝 */
-  action_result_timeout                 = 5863,   /*!< [Action ]等待动作结果超时/延迟 */
+  error_base                            = 7900,   /*!< 错误基础码 */
+  fail                                  = 7921,   /*!< [ 全局码 ]失败 */
+  uninitialized                         = 7922,   /*!< [ 全局码 ]未初始化 */
+  fsm_does_not_allow                    = 7923,   /*!< [ 全局码 ]状态机不允许 */
+  module_status_error                   = 7924,   /*!< [ 全局码 ]模块状态错误 */
+  network_error                         = 7925,   /*!< [ 全局码 ]网络错误 */
+  no_operation_authority                = 7926,   /*!< [ 全局码 ]无操作权限 */
+  timeout                               = 7927,   /*!< [ 全局码 ]超时 */
+  command_does_not_support              = 7928,   /*!< [ 全局码 ]指令不支持 */
+  self_test_failed                      = 7929,   /*!< [ 全局码 ]自检失败 */
+  parameter_is_invalid                  = 7930,   /*!< [ 全局码 ]参数不合法 */
+  status_is_busy                        = 7931,   /*!< [ 全局码 ]状态忙碌 */
+  hardware_error                        = 7932,   /*!< [ 全局码 ]硬件错误 */
+  command_waiting_execute               = 7941,   /*!< [ 模块码 ]命令等待执行 */
+  spin_future_interrupted               = 7942,   /*!< [  ROS  ]请求循环服务中断 */
+  spin_future_timeout                   = 7943,   /*!< [  ROS  ]请求循环服务超时/延迟 */
+  no_data_update                        = 7944,   /*!< [ Topic ]无数据更新 */
+  service_client_interrupted            = 7945,   /*!< [Service]客户端在请求服务出现时被打断 */
+  service_appear_timeout                = 7946,   /*!< [Service]等待服务出现（启动）超时 */
+  service_request_interrupted           = 7947,   /*!< [Service]请求服务中断 */
+  service_request_rejected              = 7948,   /*!< [Service]请求服务被拒绝 */
+  service_request_timeout               = 7949,   /*!< [Service]请求服务超时/延迟 */
+  action_request_timeout                = 7950,   /*!< [Action ]请求动作超时/延迟 */
+  action_request_rejected               = 7951,   /*!< [Action ]请求动作被拒绝 */
+  action_result_timeout                 = 7952,   /*!< [Action ]等待动作结果超时/延迟 */
+
+  motion_error                          = 7961,  /*!< [不影响运行]运控异常 */
 };
 
 static std::unordered_map<StateCode, std::string> StateDescribe_ = {
@@ -491,6 +496,8 @@ static std::unordered_map<StateCode, std::string> StateDescribe_ = {
   {StateCode::action_request_timeout, "action request timeout"},
   {StateCode::action_request_rejected, "action request rejected"},
   {StateCode::action_result_timeout, "action result timeout"},
+
+  {StateCode::motion_error, "motion error"},
 };                                                /*! 通用状态描述 */
 
 /*! 欧拉角约束调用 角度类型 合法值 */
@@ -542,8 +549,8 @@ class State
 public:
   State()
   {
-    code = StateCode::invalid;
-    describe = StateDescribe_[StateCode::invalid];
+    code = StateCode::success;
+    describe = StateDescribe_[StateCode::success];
   }
   ~State() {}
   StateCode code;                                 /*!< 状态 */

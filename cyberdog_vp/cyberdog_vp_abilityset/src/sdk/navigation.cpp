@@ -320,6 +320,7 @@ ActNavigation::Result Navigation::RequestNavigationAct(
 
 MapPresetSeviceResponse Navigation::GetPreset(const int _timeout)
 {
+  this->transient_state_ptr_->code = StateCode::success;
   MapPresetSeviceResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%d)",
@@ -327,6 +328,8 @@ MapPresetSeviceResponse Navigation::GetPreset(const int _timeout)
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   SrvGetPreset::Response response =
@@ -343,6 +346,10 @@ MapPresetSeviceResponse Navigation::GetPreset(const int _timeout)
       std::map<std::string, MsgPreset>::value_type(
         meta.label_name, meta));
   }
+  if (ret.state.code != StateCode::success) {
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
+  }
   return ret;
 }
 
@@ -352,6 +359,7 @@ NavigationActionResponse Navigation::TurnOnNavigation(
   const bool _interact,
   const int _volume)
 {
+  this->transient_state_ptr_->code = StateCode::success;
   NavigationActionResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%d, %d, %d, %d)",
@@ -359,6 +367,8 @@ NavigationActionResponse Navigation::TurnOnNavigation(
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   auto target_algorithm_ready = [&]() -> int {  // 0:空闲-自启 1:已启-就绪 2:占用冲突
@@ -403,16 +413,23 @@ NavigationActionResponse Navigation::TurnOnNavigation(
   }
   this->assisted_relocation_ = false;
   this->assisted_relocation_interact_ = false;
+  if (ret.state.code != StateCode::success) {
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
+  }
   return ret;
 }
 
 NavigationActionResponse Navigation::TurnOffNavigation()
 {
+  this->transient_state_ptr_->code = StateCode::success;
   NavigationActionResponse ret;
   std::string funs = std::string(__FUNCTION__) + "()";
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   // ActNavigation::Goal goal;
@@ -432,12 +449,17 @@ NavigationActionResponse Navigation::TurnOffNavigation()
   ret.state = this->GetState(
     funs, (ret.response.result ==
     SrvCancelNavigation::Response::SUCCESS) ? StateCode::success : StateCode::fail);
+  if (ret.state.code != StateCode::success) {
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
+  }
   return ret;
 }
 
 NavigationActionResponse Navigation::NavigationToPreset(
   const std::string _preset_name)
 {
+  this->transient_state_ptr_->code = StateCode::success;
   NavigationActionResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(const std::string preset_name = '%s')",
@@ -445,19 +467,26 @@ NavigationActionResponse Navigation::NavigationToPreset(
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   MapPresetSeviceResponse preset = this->GetPreset();
-  if (!preset.dictionary.count(_preset_name)) {
+  if (preset.dictionary.count(_preset_name)) {
+    ret = this->NavigationToCoordinates(
+      preset.is_outdoor,
+      static_cast<double>(preset.dictionary[_preset_name].physic_x),
+      static_cast<double>(preset.dictionary[_preset_name].physic_y));
+  } else {
     Warn("%s is failed, target(%s) lable is not find.", funs.c_str(), _preset_name.c_str());
     ret.state = this->GetState(funs, StateCode::fail);
     ret.response.result = 3;
-    return ret;
   }
-  return this->NavigationToCoordinates(
-    preset.is_outdoor,
-    static_cast<double>(preset.dictionary[_preset_name].physic_x),
-    static_cast<double>(preset.dictionary[_preset_name].physic_y));
+  if (ret.state.code != StateCode::success) {
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
+  }
+  return ret;
 }
 
 NavigationActionResponse Navigation::NavigationToCoordinates(
@@ -469,6 +498,7 @@ NavigationActionResponse Navigation::NavigationToCoordinates(
   const double _pitch,
   const double _yaw)
 {
+  this->transient_state_ptr_->code = StateCode::success;
   NavigationActionResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%lf, %lf, %lf, %lf, %lf, %lf)", _x, _y,
@@ -476,6 +506,8 @@ NavigationActionResponse Navigation::NavigationToCoordinates(
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   MsgPoseStamped target;
@@ -493,11 +525,16 @@ NavigationActionResponse Navigation::NavigationToCoordinates(
   ret.state = this->GetState(
     funs, (ret.response.result ==
     ActNavigation::Result::NAVIGATION_RESULT_TYPE_SUCCESS) ? StateCode::success : StateCode::fail);
+  if (ret.state.code != StateCode::success) {
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
+  }
   return ret;
 }
 
 NavigationActionResponse Navigation::NavigationToPose(const MsgPose & _pose)
 {
+  this->transient_state_ptr_->code = StateCode::success;
   NavigationActionResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "({(x=%lf, y=%lf, z=%lf), (x=%lf, y=%lf, z=%lf, w=%lf)})",
@@ -506,6 +543,8 @@ NavigationActionResponse Navigation::NavigationToPose(const MsgPose & _pose)
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   MsgPoseStamped target;
@@ -519,16 +558,23 @@ NavigationActionResponse Navigation::NavigationToPose(const MsgPose & _pose)
   ret.state = this->GetState(
     funs, (ret.response.result ==
     ActNavigation::Result::NAVIGATION_RESULT_TYPE_SUCCESS) ? StateCode::success : StateCode::fail);
+  if (ret.state.code != StateCode::success) {
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
+  }
   return ret;
 }
 
 NavigationActionResponse Navigation::CancelNavigation(const int _timeout)
 {
+  this->transient_state_ptr_->code = StateCode::success;
   NavigationActionResponse ret;
   std::string funs = std::string(__FUNCTION__) + "()";
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   std::shared_ptr<SrvCancelNavigation::Request> request_ptr =
@@ -541,6 +587,10 @@ NavigationActionResponse Navigation::CancelNavigation(const int _timeout)
   ret.state = this->GetState(
     funs, (ret.response.result ==
     SrvCancelNavigation::Response::SUCCESS) ? StateCode::success : StateCode::fail);
+  if (ret.state.code != StateCode::success) {
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
+  }
   return ret;
 }
 
@@ -550,6 +600,7 @@ NavigationActionResponse Navigation::ToPreset(
   const bool _interact,
   const int _volume)
 {
+  this->transient_state_ptr_->code = StateCode::success;
   NavigationActionResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%s, %d, %d, %d)",
@@ -557,26 +608,32 @@ NavigationActionResponse Navigation::ToPreset(
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   MapPresetSeviceResponse preset = this->GetPreset();
-  if (!preset.dictionary.count(_preset_name)) {
+  if (preset.dictionary.count(_preset_name)) {
+    ret = this->TurnOnNavigation(
+      preset.is_outdoor,
+      _assisted_relocation, _interact,
+      _volume);
+    if (ret.state.code == StateCode::success) {
+      ret = this->NavigationToCoordinates(
+        preset.is_outdoor,
+        static_cast<double>(preset.dictionary[_preset_name].physic_x),
+        static_cast<double>(preset.dictionary[_preset_name].physic_y));
+    }
+  } else {
     Warn("%s is failed, target(%s) lable is not find.", funs.c_str(), _preset_name.c_str());
     ret.state = this->GetState(funs, StateCode::fail);
     ret.response.result = 3;
-    return ret;
   }
-  ret = this->TurnOnNavigation(
-    preset.is_outdoor,
-    _assisted_relocation, _interact,
-    _volume);
   if (ret.state.code != StateCode::success) {
-    return ret;
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
   }
-  return this->NavigationToCoordinates(
-    preset.is_outdoor,
-    static_cast<double>(preset.dictionary[_preset_name].physic_x),
-    static_cast<double>(preset.dictionary[_preset_name].physic_y));
+  return ret;
 }
 
 State Navigation::AddPreset(const std::string _preset_name)

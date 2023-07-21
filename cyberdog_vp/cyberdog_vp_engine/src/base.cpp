@@ -42,6 +42,8 @@ bool Base::Init(
     this->node_ptr_ = _node_ptr;
     this->py_interpreter_ptr_ = _py_interpreter_ptr;
     this->params_toml_ = _params_toml;
+    this->decorate_body_ = toml::find_or(
+      this->params_toml_, "vp", "init", "environment", "decorate_body", false);
     if (!GetWorkspace(this->base_path_)) {
       ERROR("%s Get workspace failed.", this->logger_.c_str());
       return false;

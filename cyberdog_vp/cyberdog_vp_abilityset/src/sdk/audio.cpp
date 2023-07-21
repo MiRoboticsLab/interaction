@@ -283,12 +283,15 @@ AudioPlaySeviceResponse Audio::OnlinePlay(
   const std::string _message,
   const int8_t _volume)
 {
+  this->transient_state_ptr_->code = StateCode::success;
   AudioPlaySeviceResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%s, %d) ...", _message.c_str(), _volume);
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   if (_volume >= 0) {
@@ -302,6 +305,10 @@ AudioPlaySeviceResponse Audio::OnlinePlay(
       funs.c_str());
   }
   ret.state.describe = this->GetDescribe(funs, ret.state.code);
+  if (ret.state.code != StateCode::success) {
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
+  }
   return ret;
 }
 
@@ -331,12 +338,15 @@ AudioPlaySeviceResponse Audio::OfflinePlay(
   const uint16_t _audio_id,
   const int8_t _volume)
 {
+  this->transient_state_ptr_->code = StateCode::success;
   AudioPlaySeviceResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT(
     "(%d, %d) ...", _audio_id, _volume);
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   if (_volume >= 0) {
@@ -352,6 +362,10 @@ AudioPlaySeviceResponse Audio::OfflinePlay(
       funs.c_str());
   }
   ret.state.describe = this->GetDescribe(funs, ret.state.code);
+  if (ret.state.code != StateCode::success) {
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
+  }
   return ret;
 }
 
@@ -379,11 +393,14 @@ State Audio::OfflineInstantlyPlay(
 
 AudioGetVolumeSeviceResponse Audio::GetVolume()
 {
+  this->transient_state_ptr_->code = StateCode::success;
   AudioGetVolumeSeviceResponse ret;
   std::string funs = std::string(__FUNCTION__) + "() ...";
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   if (!this->RequestGetVolumeSrv(ret, std::string(__FUNCTION__))) {
@@ -392,16 +409,23 @@ AudioGetVolumeSeviceResponse Audio::GetVolume()
       funs.c_str());
   }
   ret.state.describe = this->GetDescribe(funs, ret.state.code);
+  if (ret.state.code != StateCode::success) {
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
+  }
   return ret;
 }
 
 AudioSetVolumeSeviceResponse Audio::SetVolume(const uint8_t _volume)
 {
+  this->transient_state_ptr_->code = StateCode::success;
   AudioSetVolumeSeviceResponse ret;
   std::string funs = std::string(__FUNCTION__) + FORMAT("(%d) ...", _volume);
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   auto request_ptr = this->GetSetVolumeRequest();
@@ -412,6 +436,10 @@ AudioSetVolumeSeviceResponse Audio::SetVolume(const uint8_t _volume)
       funs.c_str());
   }
   ret.state.describe = this->GetDescribe(funs, ret.state.code);
+  if (ret.state.code != StateCode::success) {
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
+  }
   return ret;
 }
 
@@ -448,12 +476,15 @@ State Audio::ResetUserDialogue()
 AudioGetUserDialogueResponse Audio::GetUserDialogue(
   const uint16_t _timeout)
 {
+  this->transient_state_ptr_->code = StateCode::success;
   AudioGetUserDialogueResponse ret;
   ret.state.code = StateCode::timeout;
   std::string funs = std::string(__FUNCTION__) + FORMAT("(%d) ...", _timeout);
   Info("%s", funs.c_str());
   if (this->state_.code != StateCode::success) {
     ret.state = this->GetState(funs, this->state_.code);
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
     return ret;
   }
   this->user_dialogue_state_.code = StateCode::timeout;
@@ -472,6 +503,10 @@ AudioGetUserDialogueResponse Audio::GetUserDialogue(
       return false;
     });
   ret.state.describe = this->GetDescribe(funs, ret.state.code);
+  if (ret.state.code != StateCode::success) {
+    this->transient_state_ptr_->code = ret.state.code;
+    this->transient_state_ptr_->describe = ret.state.describe;
+  }
   return ret;
 }
 }   // namespace cyberdog_visual_programming_abilityset
