@@ -86,6 +86,7 @@ public:
   {
     peer_connection_ = peer_connection;
   }
+  void SetVideoParam(int height, int width, const std::string & alignment);
   void OnReceiveSDP(webrtc::SessionDescriptionInterface * desc);
   void OnReceiveCandidate(webrtc::IceCandidateInterface * candidate);
   bool IsDisconnected()
@@ -128,6 +129,8 @@ private:
   mutable std::mutex sdp_order_mutex_;
   std::atomic_bool is_connected_ {false};
   int disconnected_counts_ {0};
+  int height_ {0}, width_ {0};
+  std::string alignment_;
 
   LOGGER_MINOR_INSTANCE("PCConductor");
 };
