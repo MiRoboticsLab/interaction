@@ -61,6 +61,13 @@ PCConductor::~PCConductor()
   INFO_STREAM("pc_conductor has been destructed");
 }
 
+void PCConductor::SetVideoParam(int height, int width, const std::string & alignment)
+{
+  height_ = height;
+  width_ = width;
+  alignment_ = alignment;
+}
+
 void PCConductor::OnReceiveSDP(webrtc::SessionDescriptionInterface * desc)
 {
   peer_connection_->SetRemoteDescription(DummySetSessionDescriptionObserver::Create(this), desc);
@@ -106,8 +113,18 @@ void PCConductor::OnIceConnectionChange(
     ::IceConnectionState::kIceConnectionFailed)
   {
     connection_stage_disconnect_ = true;
-  } else if (new_state == 2) {
+  } else if (new_state == 2) {  // kIceConnectionConnected
     is_connected_ = true;
+    if (height_ != 0 && width_ != 0) {
+      if (!manager_->CallNotifyService(true, height_, width_, alignment_)) {
+        manager_->PublishError(1001, "Fail to connect to camera service", uid_);
+      }
+    } else {
+      WARN("Not recieve video param, use default height width and alignment");
+      if (!manager_->CallNotifyService(true, 720, 1280, "middle")) {
+        manager_->PublishError(1001, "Fail to connect to camera service", uid_);
+      }
+    }
   }
 }
 
@@ -237,7 +254,7 @@ void WebRTCManager::parseMsg(const std_msgs::msg::String::SharedPtr msg, const s
       !rtc::GetIntFromJsonObject(core_msg, "sdpMLineIndex", &sdp_mlineindex) ||
       !rtc::GetStringFromJsonObject(core_msg, "candidate", &sdp))
     {
-      WARN_STREAM("Can't parse received message.");
+      WARN_STREAM("Not able to parse ice candicate message.");
       return;
     }
     std::unique_ptr<webrtc::IceCandidateInterface> candidate(
@@ -276,13 +293,6 @@ void WebRTCManager::parseMsg(const std_msgs::msg::String::SharedPtr msg, const s
     }
   } else if (root.isMember("error")) {
     DEBUG_STREAM("error msg");
-  } else {
-    INFO_STREAM("It's stop signal");
-    if (killPC(uid)) {
-      PublishStop(uid);
-    } else {
-      WARN("uid: %s is not connected.", uid.c_str());
-    }
   }
 }
 
@@ -310,7 +320,7 @@ void WebRTCManager::msgCallback(const std_msgs::msg::String::SharedPtr msg)
         !rtc::GetIntFromJsonObject(root, "width", &w) ||
         !rtc::GetStringFromJsonObject(root, "alignment", &alg))
       {
-        WARN_STREAM("Can't parse received message.");
+        WARN_STREAM("Not able to parse param information.");
         return;
       }
     }
@@ -349,7 +359,7 @@ bool WebRTCManager::addNewPC(
   const std::string & uid, int height, int width, const std::string & alignment)
 {
   if (pc_conductors_.find(uid) != pc_conductors_.end()) {
-    INFO_STREAM("Got existed pc");
+    INFO_STREAM("Got an existed pc.");
   } else {
     bool no_conductors = pc_conductors_.empty();
     pc_conductors_[uid] = new rtc::RefCountedObject<PCConductor>(
@@ -370,12 +380,10 @@ bool WebRTCManager::addNewPC(
       return false;
     }
     pc_conductors_[uid]->SetPC(new_pc);
-    INFO_STREAM("Got a new pc");
+    INFO_STREAM("A new pc is created.");
   }
   if (height != 0 && width != 0) {
-    if (!CallNotifyService(true, height, width, alignment)) {
-      PublishError(1001, "Fail to connect to camera service", uid);
-    }
+    pc_conductors_[uid]->SetVideoParam(height, width, alignment);
   }
   return true;
 }
