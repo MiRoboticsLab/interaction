@@ -322,7 +322,9 @@ void sport::Ai_Sport_Result_Callback(VisionMsg msg)
     INFO(
       "Number of human bodies recognized, %d.",
       static_cast<int>(msg.body_info.count));
-    if (msg.body_info.count != 1) {
+    this->flag_++;
+    if ((flag_ % 20 == 0) && msg.body_info.count != 1) {
+      INFO("multi_flag: %d", flag_);
       INFO("Recognition to multiple people.");
       this->sport_audiomsg_ptr_->play_id = AudioMsg::PID_BONE_POINT_DETECTING;
       this->audio_pub_->publish(*(this->sport_audiomsg_ptr_));
@@ -353,15 +355,18 @@ void sport::Ai_Sport_Result_Callback(VisionMsg msg)
       }
       INFO("Keypoint size: %d.", single_human.size());
       // audio prompt
-      this->flag_++;
-      if (flag_ % 20 == 0 && ((single_human[2].x == 0 && single_human[2].y == 0) &&
+      if ((flag_ % 20 == 0) && ((single_human[2].x == 0 && single_human[2].y == 0) &&
         (single_human[3].x == 0 && single_human[3].y == 0) &&
         (single_human[4].x == 0 && single_human[4].y == 0)) ||
         ((single_human[17].x == 0 && single_human[17].y == 0) &&
         (single_human[18].x == 0 && single_human[18].y == 0)))
       {
-        this->sport_audiomsg_ptr_->play_id = AudioMsg::PID_BONE_POINT_BACK;
-        this->audio_pub_->publish(*(this->sport_audiomsg_ptr_));
+        if (flag_ % 20 == 0) {
+          INFO("back flag: %d", flag_);
+          INFO("Incomplete Keypoints recognition.");
+          this->sport_audiomsg_ptr_->play_id = AudioMsg::PID_BONE_POINT_BACK;
+          this->audio_pub_->publish(*(this->sport_audiomsg_ptr_));
+        }
       }
       mult_human.push_back(single_human);
     }
