@@ -47,6 +47,8 @@ ai_skeleton = "sport_manager"                     # [AI]骨骼点识别服务
 training_words = "query_all_train_plan"           # [AI]训练词集合查询服务
 slam_preset = "get_label"                         # [SLAM]预置点
 slam_navigation = "stop_algo_task"                # [SLAM]取消导航
+skin_enable = "enable_elec_skin"                  # [皮肤]使能变色
+skin_set = "set_elec_skin"                        # [皮肤]设置变色
 
 [vp.init.action]                                  # 动作：string
 slam_navigation = "start_algo_task"               # [SLAM]开启导航
