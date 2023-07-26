@@ -95,6 +95,7 @@
 #include <protocol/srv/stop_algo_task.hpp>
 #include <protocol/srv/sport_manager.hpp>
 #include <protocol/srv/train_plan_all.hpp>
+#include <protocol/srv/elec_skin.hpp>
 
 #include <protocol/action/navigation.hpp>
 
@@ -227,6 +228,7 @@ using SrvGetPreset = protocol::srv::GetMapLabel;  /*!< audio 获取预置点 */
 using SrvCancelNavigation =
   protocol::srv::StopAlgoTask;                    /*!< 取消导航 */
 using SrvSetBool = std_srvs::srv::SetBool;        /*!< bool类型 */
+using SrvElecSkin = protocol::srv::ElecSkin;      /*!< skin 设置皮肤 */
 
 using ActNavigation =
   protocol::action::Navigation;                   /*!< 导航动作 */
@@ -866,28 +868,30 @@ public:
 enum SkinConstraint
 {
   model_flash = 0,                                /*!< [模式]闪烁 */
-  model_wavef,                                    /*!< [模式]动画前向后变 */
-  model_random,                                   /*!< [模式]随机 */
-  model_waveb,                                    /*!< [模式]动画后向前变 */
-  model_control,                                  /*!< [模式]上位机实时控制模式 */
+  model_wavef = 1,                                /*!< [模式]动画前向后变 */
+  model_random = 2,                               /*!< [模式]随机 */
+  model_waveb = 3,                                /*!< [模式]动画后向前变 */
+  model_control = 4,                              /*!< [模式]上位机实时控制模式 */
   model_max = 4,                                  /*!< [模式类型上限] */
+  model_dynamic = 5,                              /*!< [模式]动态：随落地腿变色 */
 
   position_body_middle = 0,                       /*!< [部位]背部 */
-  position_left_back_leg,                         /*!< [部位]左后腿 */
-  position_body_left,                             /*!< [部位]左侧 */
-  position_left_front_leg,                        /*!< [部位]左前腿 */
-  position_front_chest,                           /*!< [部位]前胸 */
-  position_right_front_leg,                       /*!< [部位]右前腿 */
-  position_body_right,                            /*!< [部位]右侧 */
-  position_right_back_leg,                        /*!< [部位]右后腿 */
+  position_left_back_leg = 1,                     /*!< [部位]左后腿 */
+  position_body_left = 2,                         /*!< [部位]左侧 */
+  position_left_front_leg = 3,                    /*!< [部位]左前腿 */
+  position_front_chest = 4,                       /*!< [部位]前胸 */
+  position_right_front_leg = 5,                   /*!< [部位]右前腿 */
+  position_body_right = 6,                        /*!< [部位]右侧 */
+  position_right_back_leg = 7,                    /*!< [部位]右后腿 */
   position_max = 7,                               /*!< [部位类型上限] */
+  position_whole_body = 8,                        /*!< [部位]全身 */
 
   rendering_fade_out = 0,                         /*!< [渲染]淡出（由深入浅） */
-  rendering_fade_in,                              /*!< [渲染]淡入（由浅入深） */
+  rendering_fade_in = 1,                          /*!< [渲染]淡入（由浅入深） */
   rendering_max = 1,                              /*!< [渲染类型上限] */
 
   outset_front_end = 0,                           /*!< [起点]前端（从前向后） */
-  outset_rear_end,                                /*!< [起点]后端（从后向前） */
+  outset_rear_end = 1,                            /*!< [起点]后端（从后向前） */
   outset_max = 1,                                 /*!< [起点类型上限] */
 };
 

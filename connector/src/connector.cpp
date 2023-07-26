@@ -150,8 +150,6 @@ bool Connector::Init(
     }
     this->service_cb_group_ = this->create_callback_group(
       rclcpp::CallbackGroupType::MutuallyExclusive);
-    this->lcm_log_cb_group_ = this->create_callback_group(
-      rclcpp::CallbackGroupType::MutuallyExclusive);
     this->timer_cb_group_ =
       this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
     this->wifi_cb_group_ =
@@ -206,14 +204,6 @@ bool Connector::Init(
         this->params_toml_, "connector", "initialization", "service", "connection"),
       std::bind(&Connector::Connect, this, std::placeholders::_1, std::placeholders::_2),
       rclcpp::ServicesQoS().get_rmw_qos_profile(), this->service_cb_group_);
-
-    this->lcm_log_service_ = this->create_service<TriggerSrv>(
-      toml::find<std::string>(
-        this->params_toml_, "connector", "initialization", "service", "lcm_log"),
-      std::bind(&Connector::Uploader, this, std::placeholders::_1, std::placeholders::_2),
-      rclcpp::ServicesQoS().get_rmw_qos_profile(), this->lcm_log_cb_group_);
-
-    this->lcm_log_ptr_ = std::make_shared<LcmLogUploader>(this->shared_from_this());
   } catch (const std::exception & e) {
     ERROR("Init data failed: <%s>", e.what());
     return false;
@@ -782,24 +772,6 @@ bool Connector::Interaction(const uint16_t & _id)
   this->CtrlAudio(_id);
   this->CtrlLed(_id);
   return true;
-}
-
-void Connector::Uploader(
-  const std::shared_ptr<TriggerSrv::Request>,
-  std::shared_ptr<TriggerSrv::Response> response)
-{
-  try {
-    if (this->lcm_log_ptr_ != nullptr) {
-      int state = this->lcm_log_ptr_->checkAndUploadLcmLog();
-      response->success = (state == 0) ? true : false;
-      response->message = "The current return value of interface checkAndUploadLcmLog() is " +
-        std::to_string(state);
-    } else {
-      WARN("Uploader lcm log is failed: <lcm_log_ptr_ == nullptr>");
-    }
-  } catch (const std::exception & e) {
-    WARN("Connect service is failed: <%s>", e.what());
-  }
 }
 }   // namespace interaction
 }   // namespace cyberdog

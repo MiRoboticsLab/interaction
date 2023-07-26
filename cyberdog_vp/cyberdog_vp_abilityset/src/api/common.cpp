@@ -2138,6 +2138,9 @@ void DefineSkinConstraint(py::object m)
   .value(
     "model_control", VPA::SkinConstraint::model_control,
     R"pbdoc( [模式]上位机实时控制模式 )pbdoc")
+  .value(
+    "model_dynamic", VPA::SkinConstraint::model_dynamic,
+    R"pbdoc( [模式]动态：随落地腿变色 )pbdoc")
 
   .value(
     "position_body_middle", VPA::SkinConstraint::position_body_middle,
@@ -2163,6 +2166,9 @@ void DefineSkinConstraint(py::object m)
   .value(
     "position_right_back_leg", VPA::SkinConstraint::position_right_back_leg,
     R"pbdoc( [部位]右后腿 )pbdoc")
+  .value(
+    "position_whole_body", VPA::SkinConstraint::position_whole_body,
+    R"pbdoc( [部位]全身 )pbdoc")
 
   .value(
     "rendering_fade_out", VPA::SkinConstraint::rendering_fade_out,

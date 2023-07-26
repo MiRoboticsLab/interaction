@@ -33,9 +33,9 @@ def list():
 
 
 # electrochromic(
-#      [key]   [value] 0    1    2    3     4      5    6    7
-#   model       [模式] 闪烁 前后变 随机 后前变 上位机
-#   position    [部位] 背部 左后腿 左侧 左前腿 前胸   右前腿 右侧 右后腿
+#      [key]   [value] 0    1    2    3     4      5    6    7     8
+#   model       [模式] 闪烁 前后变 随机 后前变 上位机  动态
+#   position    [部位] 背部 左后腿 左侧 左前腿 前胸   右前腿 右侧 右后腿  全身
 #   rendering   [渲染] 淡出 淡入
 #   outset      [起点] 前端 后端
 #   duration_ms [时长] 
@@ -46,25 +46,27 @@ def get_down():
     """ Describe: 趴下
     """
     cyberdog = __main__.cyberdog
-    cyberdog.skin.electrochromic(4,0,0,0,1000)
-    cyberdog.skin.electrochromic(4,1,0,0,1000)
-    cyberdog.skin.electrochromic(4,2,0,0,1000)
-    cyberdog.skin.electrochromic(4,3,0,0,1000)
-    cyberdog.skin.electrochromic(4,4,0,0,1000)
-    cyberdog.skin.electrochromic(4,5,0,0,1000)
-    cyberdog.skin.electrochromic(4,6,0,0,1000)
-    cyberdog.skin.electrochromic(4,7,0,0,1000)
+    for i in range(5):
+        cyberdog.skin.electrochromic(4,0,0,0,1000)
+        cyberdog.skin.electrochromic(4,1,0,0,1000)
+        cyberdog.skin.electrochromic(4,2,0,0,1000)
+        cyberdog.skin.electrochromic(4,3,0,0,1000)
+        cyberdog.skin.electrochromic(4,4,0,0,1000)
+        cyberdog.skin.electrochromic(4,5,0,0,1000)
+        cyberdog.skin.electrochromic(4,6,0,0,1000)
+        cyberdog.skin.electrochromic(4,7,0,0,1000)
 
 
 def resume_standing():
     """ Describe: 恢复站立
     """
     cyberdog = __main__.cyberdog
-    cyberdog.skin.electrochromic(4,0,1,0,1000)
-    cyberdog.skin.electrochromic(4,1,1,0,1000)
-    cyberdog.skin.electrochromic(4,2,1,0,1000)
-    cyberdog.skin.electrochromic(4,3,1,0,1000)
-    cyberdog.skin.electrochromic(4,4,1,0,1000)
-    cyberdog.skin.electrochromic(4,5,1,0,1000)
-    cyberdog.skin.electrochromic(4,6,1,0,1000)
-    cyberdog.skin.electrochromic(4,7,1,0,1000)
+    for i in range(5):
+        cyberdog.skin.electrochromic(4,0,1,0,1000)
+        cyberdog.skin.electrochromic(4,1,1,0,1000)
+        cyberdog.skin.electrochromic(4,2,1,0,1000)
+        cyberdog.skin.electrochromic(4,3,1,0,1000)
+        cyberdog.skin.electrochromic(4,4,1,0,1000)
+        cyberdog.skin.electrochromic(4,5,1,0,1000)
+        cyberdog.skin.electrochromic(4,6,1,0,1000)
+        cyberdog.skin.electrochromic(4,7,1,0,1000)
