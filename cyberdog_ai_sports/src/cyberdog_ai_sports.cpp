@@ -371,7 +371,7 @@ void sport::Ai_Sport_Result_Callback(VisionMsg msg)
       mult_human.push_back(single_human);
     }
     // keypoints processing
-    int32_t counts = this->ProcessKeypoint(mult_human, width, height);
+    int32_t counts = this->ProcessKeypoint(mult_human, height, width);
     if (this->sport_type_ != 5 && update_counts_ < counts) {
       std::shared_ptr<SportMsg> sport_counts_result_msg_ =
         std::make_shared<SportMsg>();
