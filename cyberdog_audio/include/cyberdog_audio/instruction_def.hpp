@@ -74,6 +74,20 @@
 #define  PERSONALIZE_INSTRUCTION "personalize_instruction"
 #define  CONTINUE_DIALOG        "continue_dialog"
 #define  GET_PLAY_STATUS        "get_play_status"
+#define  SET_CONTROL_STATE      "set_control_state"
+#define  NLP_CONTROL            "nlp_control"
+
+struct nlp_control
+{
+  std::string text;
+  XPACK(O(text))
+};
+
+struct set_control_state
+{
+  bool on;
+  XPACK(O(on))
+};
 
 struct play_status
 {

@@ -245,7 +245,6 @@ public:
     (void) direction;
     utc_node_ptr_->cancel_goal();
   }
-
 private:
   void GetCurrentMotionID(const protocol::msg::MotionStatus::SharedPtr msg)
   {
@@ -521,7 +520,7 @@ private:
     INFO("enter Jump");
     auto req = std::make_shared<protocol::srv::MotionResultCmd::Request>();
     protocol::srv::MotionResultCmd::Response rsp;
-    req->motion_id = 162;
+    req->motion_id = 136;
     callMotionServoCmd(req, rsp);
     if (rsp.code != 0) {
       ERROR("call motion_result_cmd service result code:%d", rsp.code);
@@ -545,10 +544,6 @@ private:
     protocol::srv::MotionResultCmd::Response & rsp)
   {
     std::chrono::seconds timeout(15);
-    // if (!motion_ressult_client_->wait_for_service()) {
-    // INFO("callMotionServoCmd server not avalible");
-    // return;
-    // }
     DEBUG("callMotionServoCmd motion_id: %d.", req->motion_id);
     INFO("callMotionServoCmd motion_id: %d.", req->motion_id);
     req->cmd_source = 1;
