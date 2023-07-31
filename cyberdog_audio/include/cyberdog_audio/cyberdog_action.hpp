@@ -245,6 +245,7 @@ public:
     (void) direction;
     utc_node_ptr_->cancel_goal();
   }
+
 private:
   void GetCurrentMotionID(const protocol::msg::MotionStatus::SharedPtr msg)
   {

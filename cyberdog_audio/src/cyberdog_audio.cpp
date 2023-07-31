@@ -1213,7 +1213,7 @@ void cyberdog::interaction::CyberdogAudio::BmsStatus(
   battery_capicity_ = msg->batt_soc;
 }
 void cyberdog::interaction::CyberdogAudio::NlpControl(
-   const std_msgs::msg::String::SharedPtr msg)
+  const std_msgs::msg::String::SharedPtr msg)
 {
   nlp_control cd;
   cd.text = msg->data;
