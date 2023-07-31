@@ -203,7 +203,6 @@ private:
   bool GetVolumeResponse(const std::string & data);
   int32_t GetPlayStatus();
   bool GetPlayStatusResponse(const std::string & data);
-  // bool GetMiotDid();
   void AccountTokenNotify();
   bool SetToken();
   bool SetTokenResponse(const std::string & data);
@@ -230,10 +229,6 @@ private:
   void RegisterNotify(SelfCheckState & code);
 
 private:
-  // std::shared_ptr<lcm::LCM> lcm_;
-  // std::shared_ptr<LcmServer> server;
-  // std::thread server_thread;
-  // std::thread message_thread;
   std::unique_ptr<ReadySnNode> ready_sn_ptr {nullptr};
   std::unique_ptr<LcmCtoaTopic> lcm_ctoa_topic_ {nullptr};
   std::unique_ptr<LcmAtocTopic> lcm_atoc_topic_ {nullptr};
@@ -286,12 +281,10 @@ private:
   rclcpp::Client<std_srvs::srv::Trigger>::SharedPtr reboot_client_;
   rclcpp::Client<protocol::srv::TrainPlan>::SharedPtr train_plan_client_;
   rclcpp::TimerBase::SharedPtr power_timer_;
-  // std::shared_ptr<SpeechHandler> speech_handler_ptr_;
   std::shared_ptr<AudioPlay> audio_play_ptr_;
   std::shared_ptr<VoiceControl> voice_control_ptr_;
   uint32_t recv_msg_cnt;
   AudioState audio_state;
-  // bool is_audio_normal;
   SelfCheckState check_state;
   std::atomic_bool is_wifi_connected;
   bool first_notified_net;
