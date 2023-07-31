@@ -111,8 +111,8 @@ public:
       "speech_play_extend", rclcpp::SystemDefaultsQoS());
     motion_ressult_client_ =
       this->create_client<protocol::srv::MotionResultCmd>("motion_result_cmd");
-    bms_status_sub_ = 
-       this->create_subscription<protocol::msg::BmsStatus>(
+    bms_status_sub_ =
+      this->create_subscription<protocol::msg::BmsStatus>(
       "bms_status", 10,
       std::bind(&CyberdogAction::BmsStatus, this, std::placeholders::_1));
     execute_dog_action_map.insert(
@@ -225,8 +225,8 @@ public:
   {
     INFO("execute action:%s", action.c_str());
     (void) count;
-    INFO("action_enable:%d",static_cast<int>(action_enable));
-    if(action_enable){
+    INFO("action_enable:%d", static_cast<int>(action_enable));
+    if (action_enable) {
       INFO("充电中，不响应垂域指令控制");
       protocol::msg::AudioPlayExtend msg;
       msg.is_online = true;
@@ -580,6 +580,7 @@ private:
     rsp.result = future_result.get()->result;
     rsp.code = future_result.get()->code;
   }
+
 private:
   rclcpp::Publisher<protocol::msg::AudioPlayExtend>::SharedPtr audio_play_pub;
   rclcpp::Publisher<protocol::msg::MotionServoCmd>::SharedPtr motion_servo_request_pub_;

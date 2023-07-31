@@ -146,6 +146,7 @@ public:
   {
     return action_enable;
   }
+
 public:
   const std::string CONFIG_DIR = "/home/mi/.cyberdog/audio";
   const std::string CONFIG_FILE = "settings.json";
