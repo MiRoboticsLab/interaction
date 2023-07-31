@@ -196,6 +196,7 @@ cyberdog::interaction::CyberdogAudio::CyberdogAudio()
   } else {
     INFO("machine state init success.");
   }
+  SetControlState(action_control_enable_);
   // auto srv_func_ = [this]() {
   //     server = std::make_shared<LcmServer>(
   //       ATOC_SERVICE,
@@ -411,6 +412,9 @@ int32_t cyberdog::interaction::CyberdogAudio::OnActive()
     continue_dialog_sub_ = this->create_subscription<std_msgs::msg::Bool>(
       "continue_dialog", rclcpp::SystemDefaultsQoS(),
       std::bind(&CyberdogAudio::ContinueDialog, this, std::placeholders::_1));
+    nlp_control_sub_ = this->create_subscription<std_msgs::msg::String>(
+      "nlp_get", rclcpp::SystemDefaultsQoS(),
+      std::bind(&CyberdogAudio::NlpControl, this, std::placeholders::_1));
     audio_set_status_srv_ =
       this->create_service<protocol::srv::AudioExecute>(
       "set_audio_state",
@@ -603,6 +607,7 @@ int32_t cyberdog::interaction::CyberdogAudio::OnOta()
 {
   if (voice_control_ptr_) {
     voice_control_ptr_->SetAcitionControl(false);
+    SetControlState(false);
   }
   return 0;
 }
@@ -629,13 +634,6 @@ void cyberdog::interaction::CyberdogAudio::SpeechCallback(
   const protocol::msg::AudioPlay::SharedPtr msg)
 {
   INFO("module name:%s, speech play: %d", msg->module_name.c_str(), msg->play_id);
-  // if (msg->play_id == protocol::msg::AudioPlay::PID_BATTERY_CAPICITY_LOW) {
-  //   LcmPublish(speech_handler_ptr_->Play("电量低于10%"));
-  // } else if (msg->play_id == 9999) {
-  //   LcmPublish(speech_handler_ptr_->PlayCancel());
-  // } else {
-  //   LcmPublish(speech_handler_ptr_->Play(msg->play_id));
-  // }
   play_sound_info psi;
   psi.play_id = msg->play_id;
   LcmPublish(audio_play_ptr_->SoundPlay(psi));
@@ -648,7 +646,6 @@ void cyberdog::interaction::CyberdogAudio::SpeechExtendCallback(
     INFO(
       "topic online module name:%s, speech text: %s", msg->module_name.c_str(),
       msg->text.c_str());
-    // LcmPublish(speech_handler_ptr_->Play(msg->text));
     play_sound_info psi;
     psi.is_online = msg->is_online;
     psi.play_text = msg->text;
@@ -675,9 +672,6 @@ void cyberdog::interaction::CyberdogAudio::WifiCallback(
       }
     }
   }
-  // else {
-  //   is_wifi_connected = msg->is_connected;
-  // }
 }
 
 void cyberdog::interaction::CyberdogAudio::WakeWordCallback(
@@ -1081,6 +1075,8 @@ void cyberdog::interaction::CyberdogAudio::AudioActionSetCallback(
   CyberdogJson::Add(json_document, "action_control", action_control_val);
   CyberdogJson::WriteJsonToFile(path, json_document);
   voice_control_ptr_->SetAcitionControl(request->data);
+  bool state_ = request->data;
+  SetControlState(state_);
   response->success = true;
   response->message = "success";
 }
@@ -1215,6 +1211,17 @@ void cyberdog::interaction::CyberdogAudio::BmsStatus(
   const protocol::msg::BmsStatus::SharedPtr msg)
 {
   battery_capicity_ = msg->batt_soc;
+}
+void cyberdog::interaction::CyberdogAudio::NlpControl(
+  const std_msgs::msg::String::SharedPtr msg)
+{
+  nlp_control cd;
+  cd.text = msg->data;
+  INFO("nlpsontrol: %s", (msg->data).c_str());
+  std::shared_ptr<audio_lcm::lcm_data> l_d(new audio_lcm::lcm_data());
+  l_d->cmd = NLP_CONTROL;
+  l_d->data = xpack::json::encode(cd);
+  LcmPublish(l_d);
 }
 
 void cyberdog::interaction::CyberdogAudio::ContinueDialog(
@@ -1610,7 +1617,18 @@ bool cyberdog::interaction::CyberdogAudio::ClientRequest2(
   }
   return result;
 }
-
+bool cyberdog::interaction::CyberdogAudio::SetControlState(bool on)
+{
+  audio_lcm::lcm_data req;
+  audio_lcm::lcm_data res;
+  req.cmd = SET_CONTROL_STATE;
+  set_control_state set_control_;
+  set_control_.on = on;
+  req.data = xpack::json::encode(set_control_);
+  INFO("set_control_state request:%s", req.data.c_str());
+  bool result = ClientRequest(req, res);
+  return result;
+}
 bool cyberdog::interaction::CyberdogAudio::SelfCheck()
 {
   // 开机自检
@@ -1621,7 +1639,7 @@ bool cyberdog::interaction::CyberdogAudio::SelfCheck()
   self_check sc;
   sc.counter = counter++;
   req.data = xpack::json::encode(sc);
-  DEBUG("self check request:%s", req.data.c_str());
+  INFO("self check request:%s", req.data.c_str());
   bool result = ClientRequest(req, res);
   return result;
 }

@@ -183,6 +183,18 @@ private:
         return false;
       }
     }
+    file_path = SDCARD + AUDIO_CATEGORY + "/" + AUDIO_MODULE;
+    version_file = file_path + "/" + VERSION_FILE;
+    if (!File_Exist(file_path)) {
+      if (!Mk_Folder(file_path)) {
+        return false;
+      }
+    }
+    if (!File_Exist(version_file)) {
+      if (!Mk_File(version_file)) {
+        return false;
+      }
+    }
     if (!Download(BASIS_MODULE)) {
       return false;
     }
@@ -205,6 +217,9 @@ private:
       return false;
     }
     if (!Download(POWER_MODULE)) {
+      return false;
+    }
+    if (!Download(AUDIO_MODULE)) {
       return false;
     }
     return true;
@@ -345,7 +360,7 @@ private:
   const std::string WIFI_MODULE = "wifi";
   const std::string YAML_MODULE = "yaml";
   const std::string POWER_MODULE = "power";
-
+  const std::string AUDIO_MODULE = "audio";
   std::thread t_fds_;
   std::mutex fds_mtx_;
   bool is_update_{false};

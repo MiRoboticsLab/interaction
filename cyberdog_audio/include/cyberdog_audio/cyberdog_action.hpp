@@ -26,6 +26,7 @@
 #include "cyberdog_audio/follow_me.hpp"
 #include "protocol/msg/audio_play_extend.hpp"
 #include "std_msgs/msg/string.hpp"
+#include "protocol/msg/bms_status.hpp"
 
 // using std::chrono_literals::operator""ms;
 
@@ -110,6 +111,10 @@ public:
       "speech_play_extend", rclcpp::SystemDefaultsQoS());
     motion_ressult_client_ =
       this->create_client<protocol::srv::MotionResultCmd>("motion_result_cmd");
+    bms_status_sub_ =
+      this->create_subscription<protocol::msg::BmsStatus>(
+      "bms_status", 10,
+      std::bind(&CyberdogAction::BmsStatus, this, std::placeholders::_1));
     execute_dog_action_map.insert(
       std::make_pair(
         DogAction::ACTION_UNKOWN,
@@ -212,11 +217,24 @@ public:
         std::bind(&CyberdogAction::AND_LAZY, this, std::placeholders::_1)));
   }
   ~CyberdogAction() = default;
-
+  void BmsStatus(const protocol::msg::BmsStatus::SharedPtr msg)
+  {
+    action_enable = msg->power_wired_charging || msg->power_wp_charging;
+  }
   void ExecuteAction(const std::string & action, const uint8_t & count)
   {
     INFO("execute action:%s", action.c_str());
     (void) count;
+    INFO("action_enable:%d", static_cast<int>(action_enable));
+    if (action_enable) {
+      INFO("充电中，不响应垂域指令控制");
+      protocol::msg::AudioPlayExtend msg;
+      msg.is_online = true;
+      msg.module_name = "audio_action";
+      msg.text = "充电中，无法控制设备，请断开电源后再试";
+      audio_play_pub->publish(msg);
+      return;
+    }
     auto control_iter = control_dog_action_map.find(action);
     if (control_iter == control_dog_action_map.end()) {
       WARN("new action:%s", action.c_str());
@@ -521,7 +539,7 @@ private:
     INFO("enter Jump");
     auto req = std::make_shared<protocol::srv::MotionResultCmd::Request>();
     protocol::srv::MotionResultCmd::Response rsp;
-    req->motion_id = 162;
+    req->motion_id = 136;
     callMotionServoCmd(req, rsp);
     if (rsp.code != 0) {
       ERROR("call motion_result_cmd service result code:%d", rsp.code);
@@ -545,10 +563,6 @@ private:
     protocol::srv::MotionResultCmd::Response & rsp)
   {
     std::chrono::seconds timeout(15);
-    // if (!motion_ressult_client_->wait_for_service()) {
-    // INFO("callMotionServoCmd server not avalible");
-    // return;
-    // }
     DEBUG("callMotionServoCmd motion_id: %d.", req->motion_id);
     INFO("callMotionServoCmd motion_id: %d.", req->motion_id);
     req->cmd_source = 1;
@@ -624,6 +638,8 @@ private:
     {"CALM", DogEmotion::EMOTION_CALM},
   };
   std::map<DogAction, DOG_ACTION_CALLBACK> execute_dog_action_map;
+  bool action_enable = false;
+  rclcpp::Subscription<protocol::msg::BmsStatus>::SharedPtr bms_status_sub_;
 };
 }  // namespace interaction
 }  // namespace cyberdog
