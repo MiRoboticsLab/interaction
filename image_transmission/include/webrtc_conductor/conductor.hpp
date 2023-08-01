@@ -170,6 +170,7 @@ private:
     const std::string & alignment = "middle");  // add a new peer_connection to the map
   bool killPC(const std::string & uid);
   rclcpp::Node * ros_node_;  // ros2 node to create signal publisher, subscriber and service client
+  rclcpp::CallbackGroup::SharedPtr callback_group_;
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr signal_publisher_;
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr signal_subscription_;
   rclcpp::Client<protocol::srv::CameraService>::SharedPtr status_notify_client_;

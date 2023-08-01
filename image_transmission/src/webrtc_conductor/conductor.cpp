@@ -181,14 +181,20 @@ WebRTCManager::WebRTCManager(
 : ros_node_(ros_node), video_source_(video_source)
 {
   // ros initialization
+  callback_group_ = ros_node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+  rclcpp::SubscriptionOptions sub_option;
+  rclcpp::PublisherOptions pub_option;
+  sub_option.callback_group = callback_group_;
+  pub_option.callback_group = callback_group_;
   signal_publisher_ = ros_node_->create_publisher<std_msgs::msg::String>(
-    "img_trans_signal_out", 200);
+    "img_trans_signal_out", 200, pub_option);
   signal_subscription_ = ros_node_->create_subscription<std_msgs::msg::String>(
     "img_trans_signal_in", 200, std::bind(
       &WebRTCManager::msgCallback,
-      this, std::placeholders::_1));
+      this, std::placeholders::_1), sub_option);
   monitor_timer_ = ros_node_->create_wall_timer(
-    std::chrono::duration<int, std::milli>(100), std::bind(&WebRTCManager::timerCallback, this));
+    std::chrono::duration<int, std::milli>(100), std::bind(&WebRTCManager::timerCallback, this),
+    callback_group_);
   monitor_timer_->cancel();
   status_notify_client_ = ros_node_->create_client<protocol::srv::CameraService>("camera_service");
   // webrtc initialization
