@@ -204,6 +204,11 @@ TrainingWordsRecognizedMessageResponse Train::TrainingWordsRecognized(
   TrainingWordsRecognizedMessageResponse ret;
   try {
     Info("%s", funs.c_str());
+    {
+      // std::lock_guard<std::mutex> lk(training_words_state_cvm_);
+      std::scoped_lock lk(training_words_state_cvm_);
+      this->training_words_ = MsgTrainingWords();
+    }
     if (this->state_.code != StateCode::success) {
       ret.state = this->GetState(funs, this->state_.code);
       this->transient_state_ptr_->code = ret.state.code;

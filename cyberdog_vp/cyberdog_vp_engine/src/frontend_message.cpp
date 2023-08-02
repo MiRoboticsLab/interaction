@@ -229,6 +229,60 @@ FrontendMessage::FrontendMessage(const std::string & msg)
           (this->frontend_.operate == OperateMsg::OPERATE_RECOVER));
       };
 
+    auto judge_describe_uniqueness = [&]() -> bool {
+        std::string workspace = "";
+        if (!GetWorkspace(workspace)) {
+          ERROR("%s Get workspace failed.", this->frontend_.id.c_str());
+          return false;
+        }
+        std::string registry_file = workspace + "/" + this->frontend_.type + "/" +
+          this->frontend_.type + ".toml";
+        if (!JudgeConfileFile(registry_file)) {
+          ERROR("%s Judge task registry file failed.", this->frontend_.id.c_str());
+          return false;
+        }
+        using TomlList = std::vector<OperateMsg>;
+        toml::value registry_toml;
+        if (!cyberdog::common::CyberdogToml::ParseFile(
+            registry_file.c_str(), registry_toml))
+        {
+          ERROR("%s Parse task registry file failed.", this->frontend_.id.c_str());
+          return false;
+        }
+        const toml::value now_lists = toml::find(registry_toml, this->frontend_.type);
+        if (!now_lists.is_table()) {
+          ERROR("%s Toml is not table.", this->frontend_.id.c_str());
+          return false;
+        }
+        TomlList tag_list;
+        for (const auto & meta : now_lists.as_table()) {
+          const std::string & id = meta.first;
+          if ((id == "id") ||
+            (id == "terminal_default") ||
+            (id == "visual_default") ||
+            (id == OperateMsg::OPERATE_DEBUG))
+          {
+            continue;
+          }
+          // const toml::table& table = meta.second;
+          // for (const auto& keyVal : table) {
+          //   const std::string& key = keyVal.first;
+          //   const toml::value& value = keyVal.second;
+          //   std::cout << "  " << key << " = " << value << std::endl;
+          // }
+          std::string describe = toml::find_or(
+            registry_toml, this->frontend_.type, id, "describe",
+            "");
+          if (describe == this->frontend_.describe) {
+            ERROR(
+              "%s Describe the conflict, same as task %s.", this->frontend_.id.c_str(),
+              id.c_str());
+            return false;
+          }
+        }
+        return true;
+      };
+
     auto judge_task = [&]() -> bool {
         this->state_ = CommonEnum::efficient;
         if (this->frontend_.operate == OperateMsg::OPERATE_SAVE) {
@@ -414,6 +468,16 @@ FrontendMessage::FrontendMessage(const std::string & msg)
       // if (!this->frontend_.style.empty()) {
       //   this->frontend_.style = Subreplace(this->frontend_.style, "\"", "\\\"");
       // }
+      if (((this->frontend_.operate == OperateMsg::OPERATE_SAVE) ||
+        (this->frontend_.operate == OperateMsg::OPERATE_DEBUG)) &&
+        !judge_describe_uniqueness())
+      {
+        this->state_ = CommonEnum::describe;
+        this->describe_ =
+          "[Judge Task] Received message and resolved 'describe', but value is invalid, " +
+          this->frontend_.describe;
+      }
+
       if (this->frontend_.type == OperateMsg::TYPE_TASK) {
         judge_task();
       } else if (this->frontend_.type == OperateMsg::TYPE_MODULE) {
