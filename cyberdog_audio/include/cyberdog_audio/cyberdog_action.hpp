@@ -229,9 +229,9 @@ public:
     if (action_enable) {
       INFO("充电中，不响应垂域指令控制");
       protocol::msg::AudioPlayExtend msg;
-      msg.is_online = true;
+      msg.is_online = false;
       msg.module_name = "audio_action";
-      msg.text = "充电中，无法控制设备，请断开电源后再试";
+      msg.speech.play_id = 4001;
       audio_play_pub->publish(msg);
       return;
     }
