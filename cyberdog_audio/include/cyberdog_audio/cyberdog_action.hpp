@@ -25,7 +25,6 @@
 #include "protocol/msg/motion_status.hpp"
 #include "cyberdog_audio/follow_me.hpp"
 #include "protocol/msg/audio_play_extend.hpp"
-#include <protocol/msg/audio_play.hpp>
 #include "std_msgs/msg/string.hpp"
 #include "protocol/msg/bms_status.hpp"
 
@@ -110,9 +109,6 @@ public:
     audio_play_pub =
       this->create_publisher<protocol::msg::AudioPlayExtend>(
       "speech_play_extend", rclcpp::SystemDefaultsQoS());
-    // audio_play_pub_ =
-    //   this->create_publisher<protocol::msg::AudioPlay>(
-    //   "speech_play_extend", rclcpp::SystemDefaultsQoS());
     motion_ressult_client_ =
       this->create_client<protocol::srv::MotionResultCmd>("motion_result_cmd");
     bms_status_sub_ =
@@ -587,7 +583,6 @@ private:
 
 private:
   rclcpp::Publisher<protocol::msg::AudioPlayExtend>::SharedPtr audio_play_pub;
-  // rclcpp::Publisher<protocol::msg::AudioPlay>::SharedPtr audio_play_pub_;
   rclcpp::Publisher<protocol::msg::MotionServoCmd>::SharedPtr motion_servo_request_pub_;
   rclcpp::Subscription<protocol::msg::MotionStatus>::SharedPtr motion_status_sub_;
   int motion_id_;
