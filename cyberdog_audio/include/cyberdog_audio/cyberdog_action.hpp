@@ -25,6 +25,7 @@
 #include "protocol/msg/motion_status.hpp"
 #include "cyberdog_audio/follow_me.hpp"
 #include "protocol/msg/audio_play_extend.hpp"
+#include <protocol/msg/audio_play.hpp>
 #include "std_msgs/msg/string.hpp"
 #include "protocol/msg/bms_status.hpp"
 
@@ -109,6 +110,9 @@ public:
     audio_play_pub =
       this->create_publisher<protocol::msg::AudioPlayExtend>(
       "speech_play_extend", rclcpp::SystemDefaultsQoS());
+    // audio_play_pub_ =
+    //   this->create_publisher<protocol::msg::AudioPlay>(
+    //   "speech_play_extend", rclcpp::SystemDefaultsQoS());
     motion_ressult_client_ =
       this->create_client<protocol::srv::MotionResultCmd>("motion_result_cmd");
     bms_status_sub_ =
@@ -229,9 +233,9 @@ public:
     if (action_enable) {
       INFO("充电中，不响应垂域指令控制");
       protocol::msg::AudioPlayExtend msg;
-      msg.is_online = true;
+      msg.is_online = false;
       msg.module_name = "audio_action";
-      msg.text = "充电中，无法控制设备，请断开电源后再试";
+      msg.speech.play_id = 4001;
       audio_play_pub->publish(msg);
       return;
     }
@@ -583,6 +587,7 @@ private:
 
 private:
   rclcpp::Publisher<protocol::msg::AudioPlayExtend>::SharedPtr audio_play_pub;
+  // rclcpp::Publisher<protocol::msg::AudioPlay>::SharedPtr audio_play_pub_;
   rclcpp::Publisher<protocol::msg::MotionServoCmd>::SharedPtr motion_servo_request_pub_;
   rclcpp::Subscription<protocol::msg::MotionStatus>::SharedPtr motion_status_sub_;
   int motion_id_;
