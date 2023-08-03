@@ -138,24 +138,31 @@ bool Base::GetRegistryToml(toml::value & _registry_toml, bool _is_registry_file)
 {
   try {
     if (_is_registry_file) {
-      if (cyberdog::common::CyberdogToml::ParseFile(
+      if (!cyberdog::common::CyberdogToml::ParseFile(
           this->registry_fil_.c_str(), _registry_toml))
       {
-        return true;
+        ERROR(
+          "%s Toml config file is not in toml format, config file dir:\n%s",
+          this->logger_.c_str(),
+          this->registry_fil_.c_str());
+        return false;
       }
     } else {
-      if (cyberdog::common::CyberdogToml::ParseFile(
+      if (!cyberdog::common::CyberdogToml::ParseFile(
           this->registry_related_fil_.c_str(), _registry_toml))
       {
-        return true;
+        ERROR(
+          "%s Toml config file is not in toml format, config file dir:\n%s",
+          this->logger_.c_str(),
+          this->registry_related_fil_.c_str());
+        return false;
       }
     }
-    ERROR(
-      "%s Toml config file is not in toml format, config file dir:\n%s",
-      this->logger_.c_str(),
-      _is_registry_file ?
-      this->registry_fil_.c_str() :
-      this->registry_related_fil_.c_str());
+    if (_registry_toml.is_uninitialized()) {
+      ERROR("Set registry toml config file is empty.");
+      return false;
+    }
+    return true;
   } catch (const std::exception & e) {
     ERROR("%s [GetRegistryToml] error:%s", this->logger_.c_str(), e.what());
   }
@@ -165,6 +172,10 @@ bool Base::GetRegistryToml(toml::value & _registry_toml, bool _is_registry_file)
 bool Base::SetRegistryToml(const toml::value & _registry_toml, bool _is_registry_file)
 {
   try {
+    if (_registry_toml.is_uninitialized()) {
+      ERROR("Set registry toml config file is empty.");
+      return false;
+    }
     if (_registry_toml.is_table()) {
       if (_is_registry_file) {
         std::ofstream ofs(this->registry_fil_, std::ofstream::out);

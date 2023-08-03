@@ -291,10 +291,15 @@ SkinElectrochromicResponse Skin::Discolored(
     }
     this->response_.state = this->GetState(funs, StateCode::success);
     {
+      SrvSetBool::Response response;
       std::shared_ptr<SrvSetBool::Request> request_ptr =
         std::make_shared<SrvSetBool::Request>();
+      request_ptr->data = false;
+      this->response_.state = this->RequestEnableSrv(response, request_ptr);
+      if (this->response_.state.code != StateCode::success) {
+        return this->response_;
+      }
       request_ptr->data = true;
-      SrvSetBool::Response response;
       this->response_.state = this->RequestEnableSrv(response, request_ptr);
       if (this->response_.state.code != StateCode::success) {
         return this->response_;
