@@ -15,6 +15,7 @@
 #include <memory>
 #include <chrono>
 #include <map>
+#include <regex>
 
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
@@ -580,14 +581,31 @@ bool Connector::DoConnect(std::string name, std::string password, std::string pr
       }
       return false;
     };
+  auto judge_string = [&](std::string msg) -> bool {
+      std::regex pattern("^[a-zA-Z0-9_]+$");
+      return std::regex_match(msg, pattern) && msg.find_first_not_of(" \t") == std::string::npos;
+    };
   try {
     INFO(
       "Connect wifi:{name=<%s>, password=<%s>, provider=<%s>}", name.c_str(),
       password.c_str(), provider.c_str());
     if (name.empty()) {
+      WARN(
+        "The current WiFi(%s) name to be connected is empty, and the security is low",
+        name.c_str());
       this->Interaction(AudioMsg::PID_WIFI_CONNECTION_FAILED_0);
       this->srv_code_ = ConnectorSrv::Response::CODE_WIFI_NAME_FAIL;
       return return_false(" Wifi name is empty.");
+    } else {
+      if (!judge_string(name)) {
+        WARN(
+          "The current WiFi(%s) name to be connected is invalid, "
+          "there is a risk of security breaches.",
+          name.c_str());
+        this->Interaction(AudioMsg::PID_WIFI_CONNECTION_FAILED_0);
+        this->srv_code_ = ConnectorSrv::Response::CODE_WIFI_NAME_FAIL;
+        return return_false(" Wifi name is invalid.");
+      }
     }
     if (password.empty()) {
       WARN(
@@ -596,6 +614,16 @@ bool Connector::DoConnect(std::string name, std::string password, std::string pr
       // 变更Jira参见：https://jira.n.xiaomi.com/browse/CARPO-1031?filter=1426943
       // this->Interaction(AudioMsg::PID_WIFI_CONNECTION_FAILED_1);
       // return return_false("Wifi password is empty.");
+    } else {
+      if (!judge_string(password)) {
+        WARN(
+          "The current WiFi(%s) password(%s) to be connected is invalid, "
+          "there is a risk of security breaches.",
+          name.c_str(),
+          password.c_str());
+        this->Interaction(AudioMsg::PID_WIFI_CONNECTION_FAILED_1);
+        return return_false("Wifi password is invalid.");
+      }
     }
     if (provider.empty()) {
       // 手机端IP错误，会导致无法与设备通讯
