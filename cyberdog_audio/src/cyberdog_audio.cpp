@@ -689,6 +689,7 @@ void cyberdog::interaction::CyberdogAudio::DogInfoCallback(
   ss << std::put_time(std::localtime(&t), "%Y-%m-%d %X");
   personal_info.activate_date = ss.str();
   personal_info.weight = CONST_WEIGHT;
+  INFO("CONST_WEIGHT : %f", CONST_WEIGHT);
   DogInfoNotify();
 }
 
@@ -1904,6 +1905,9 @@ void cyberdog::interaction::CyberdogAudio::DogInfoNotify()
   di.name = personal_info.name;
   di.activate_date = personal_info.activate_date;
   di.weight = personal_info.weight;
+  INFO(
+    "DOG_INFO name: %s, weight:%f",
+    personal_info.name.c_str(), personal_info.weight);
   l_d->cmd = DOG_INFO;
   l_d->data = xpack::json::encode(di);
   LcmPublish(l_d);
