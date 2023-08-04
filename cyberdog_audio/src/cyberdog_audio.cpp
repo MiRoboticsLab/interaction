@@ -1906,7 +1906,7 @@ void cyberdog::interaction::CyberdogAudio::DogInfoNotify()
   di.activate_date = personal_info.activate_date;
   di.weight = personal_info.weight;
   INFO("DOG_INFO name: %s, weight:%f",
-      personal_info.name.c_sre(), personal_info.weight);
+      personal_info.name.c_str(), personal_info.weight);
   l_d->cmd = DOG_INFO;
   l_d->data = xpack::json::encode(di);
   LcmPublish(l_d);
