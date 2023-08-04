@@ -582,8 +582,9 @@ bool Connector::DoConnect(std::string name, std::string password, std::string pr
       return false;
     };
   auto judge_string = [&](std::string msg) -> bool {
-      std::regex pattern("^[a-zA-Z0-9_]+$");
-      return std::regex_match(msg, pattern) && msg.find_first_not_of(" \t") == std::string::npos;
+      std::regex pattern("^[a-zA-Z0-9_]+$");                // WiFi命名规则
+      // std::regex pattern("^[a-zA-Z][a-zA-Z0-9_]*$");      // 变量命名规则
+      return std::regex_match(msg, pattern);
     };
   try {
     INFO(
