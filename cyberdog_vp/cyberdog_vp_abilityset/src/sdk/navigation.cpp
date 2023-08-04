@@ -130,25 +130,25 @@ SrvGetPreset::Response Navigation::RequestPresetSrv(
           auto result_ptr = result.get();
           ret = *result_ptr;
         } else {
-          this->state_.code = StateCode::service_request_timeout;
+          this->transient_state_ptr_->code = StateCode::service_request_timeout;
           Warn(
             "[%s] Waiting for preset service to response timeout.",
             this->logger_.c_str());
         }
       } else {
-        this->state_.code = StateCode::service_appear_timeout;
+        this->transient_state_ptr_->code = StateCode::service_appear_timeout;
         Warn(
           "[%s] Waiting for preset service to appear(start) timeout.",
           this->logger_.c_str());
       }
     } else {
-      this->state_.code = StateCode::service_request_interrupted;
+      this->transient_state_ptr_->code = StateCode::service_request_interrupted;
       Warn(
         "[%s] Client interrupted while requesting for preset service to appear.",
         this->logger_.c_str());
     }
   } catch (...) {
-    this->state_.code = StateCode::fail;
+    this->transient_state_ptr_->code = StateCode::fail;
     Error("[%s] RequestPresetSrv() is failed.", this->logger_.c_str());
   }
   return ret;
@@ -175,25 +175,25 @@ SrvCancelNavigation::Response Navigation::RequestCancelSrv(
           auto result_ptr = result.get();
           ret = *result_ptr;
         } else {
-          this->state_.code = StateCode::service_request_timeout;
+          this->transient_state_ptr_->code = StateCode::service_request_timeout;
           Warn(
             "[%s] Waiting for cancel navigation service to response timeout.",
             this->logger_.c_str());
         }
       } else {
-        this->state_.code = StateCode::service_appear_timeout;
+        this->transient_state_ptr_->code = StateCode::service_appear_timeout;
         Warn(
           "[%s] Waiting for cancel navigation service to appear(start) timeout.",
           this->logger_.c_str());
       }
     } else {
-      this->state_.code = StateCode::service_request_interrupted;
+      this->transient_state_ptr_->code = StateCode::service_request_interrupted;
       Warn(
         "[%s] Client interrupted while requesting for cancel navigation service to appear.",
         this->logger_.c_str());
     }
   } catch (...) {
-    this->state_.code = StateCode::fail;
+    this->transient_state_ptr_->code = StateCode::fail;
     Error("[%s] RequestCancelSrv() is failed.", this->logger_.c_str());
   }
   return ret;
@@ -293,26 +293,26 @@ ActNavigation::Result Navigation::RequestNavigationAct(
                 break;
             }
           } else {
-            this->state_.code = StateCode::action_result_timeout;
+            this->transient_state_ptr_->code = StateCode::action_result_timeout;
             Warn(
               "[%s] Waiting for navigation action to result timeout.",
               this->logger_.c_str());
           }
         } else {
-          this->state_.code = StateCode::action_request_rejected;
+          this->transient_state_ptr_->code = StateCode::action_request_rejected;
           Warn(
             "[%s] Waiting for navigation action to request rejected.",
             this->logger_.c_str());
         }
       } else {
-        this->state_.code = StateCode::action_request_timeout;
+        this->transient_state_ptr_->code = StateCode::action_request_timeout;
         Warn(
           "[%s] Waiting for navigation action to request timeout.",
           this->logger_.c_str());
       }
     }
   } catch (...) {
-    this->state_.code = StateCode::fail;
+    this->transient_state_ptr_->code = StateCode::fail;
     Error("[%s] RequestNavigationAct() is failed.", this->logger_.c_str());
   }
   return ret;
