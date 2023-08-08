@@ -209,7 +209,7 @@ bool Base::GetState(const std::string _id, std::string & now_state)
 
 bool Base::SetList(
   const OperateMsg & _msg, const std::string & _state, const std::string & _file,
-  std::vector<std::string> & _dependent)
+  const std::vector<std::string> & _now_dependent)
 {
   try {
     INFO(
@@ -241,12 +241,13 @@ bool Base::SetList(
           (_msg.operate == OperateMsg::OPERATE_START) ||
           (_msg.operate == OperateMsg::OPERATE_STOP));
       };
-    auto add_mode_be_depended = [&](toml::value & module_toml) -> bool {
+    auto add_module_be_depended =
+      [&](toml::value & module_toml, const std::vector<std::string> & module_id_list) -> bool {
         std::string target_id = _msg.target_id.front();
         const toml::value module_table = toml::find(module_toml, OperateMsg::TYPE_MODULE);
         if (!module_table.is_table()) {return false;}
         auto now_unmap = module_table.as_table();
-        for (auto & module_id : _dependent) {
+        for (auto & module_id : module_id_list) {
           if (now_unmap.find(module_id) != now_unmap.end()) {
             const toml::value be_depended_array =
               toml::find(module_toml[OperateMsg::TYPE_MODULE][module_id], "be_depended");
@@ -256,7 +257,9 @@ bool Base::SetList(
               module_toml[OperateMsg::TYPE_MODULE][module_id],
               "be_depended");
             if (std::find(now_vector.begin(), now_vector.end(), target_id) == now_vector.end()) {
-              module_toml[OperateMsg::TYPE_MODULE][module_id]["be_depended"].push_back(target_id);
+              module_toml[OperateMsg::TYPE_MODULE][module_id]["be_depended"].push_back(
+                toml::string(
+                  target_id, toml::string_t::literal));
             }
           } else {
             WARN(
@@ -269,7 +272,7 @@ bool Base::SetList(
         }
         return true;
       };
-    auto add_be_depended = [&]() -> bool {
+    auto add_be_depended = [&](const std::vector<std::string> & module_id_list) -> bool {
         std::string id = _msg.target_id.front();
         if ((id == "id") ||
           (id == OperateMsg::OPERATE_DEBUG) ||
@@ -278,25 +281,32 @@ bool Base::SetList(
         {
           return true;
         }
+        if (module_id_list.empty()) {
+          return true;
+        }
         if (this->type_ == OperateMsg::TYPE_TASK) {
           toml::value registry_related_toml;
           if (!this->GetRegistryToml(registry_related_toml, false)) {
             return false;
           }
-          if (!add_mode_be_depended(registry_related_toml)) {
+          if (!add_module_be_depended(registry_related_toml, module_id_list)) {
             return false;
           }
           return this->SetRegistryToml(registry_related_toml, false);
         } else {
-          return add_mode_be_depended(registry_toml);
+          return add_module_be_depended(registry_toml, module_id_list);
         }
       };
-    auto delete_mode_be_depended = [&](toml::value & module_toml) -> bool {
+    auto delete_module_be_depended =
+      [&](toml::value & module_toml, const std::vector<std::string> & module_id_list) -> bool {
+        if (module_id_list.empty()) {
+          return true;
+        }
         std::string target_id = _msg.target_id.front();
         const toml::value module_table = toml::find(module_toml, OperateMsg::TYPE_MODULE);
         if (!module_table.is_table()) {return false;}
         auto now_unmap = module_table.as_table();
-        for (auto & module_id : _dependent) {
+        for (auto & module_id : module_id_list) {
           if (now_unmap.find(module_id) != now_unmap.end()) {
             const toml::value be_depended_array =
               toml::find(module_toml[OperateMsg::TYPE_MODULE][module_id], "be_depended");
@@ -329,23 +339,58 @@ bool Base::SetList(
         }
         return true;
       };
-    auto delete_be_depended = [&]() -> bool {
+    auto delete_be_depended = [&](const std::vector<std::string> & module_id_list) -> bool {
+        if (module_id_list.empty()) {
+          return true;
+        }
         if (this->type_ == OperateMsg::TYPE_TASK) {
           toml::value registry_related_toml;
           if (!this->GetRegistryToml(registry_related_toml, false)) {
             return false;
           }
-          if (!delete_mode_be_depended(registry_related_toml)) {
+          if (!delete_module_be_depended(registry_related_toml, module_id_list)) {
             return false;
           }
           return this->SetRegistryToml(registry_related_toml, false);
         } else {
-          return delete_mode_be_depended(registry_toml);
+          return delete_module_be_depended(registry_toml, module_id_list);
         }
       };
     if ((_msg.operate == OperateMsg::OPERATE_SAVE) ||
       (_msg.operate == OperateMsg::OPERATE_DEBUG))
     {
+      std::vector<std::string> old_dependent;     // 依赖项：当前任务或模块依赖的其他模块ID
+      std::vector<std::string> old_be_dependent;  // 被依赖项：依赖当前模块的其他任务或模块ID
+      const toml::value now_lists = toml::find(registry_toml, this->type_);
+      if (!now_lists.is_table()) {return false;}
+      std::string id = "", target_id = _msg.target_id.front();
+      for (const auto & meta : now_lists.as_table()) {
+        id = meta.first;
+        if (id != target_id) {
+          continue;
+        }
+        old_dependent =
+          toml::find<std::vector<std::string>>(
+          registry_toml[this->type_][id], "dependent");
+        old_be_dependent =
+          toml::find<std::vector<std::string>>(
+          registry_toml[this->type_][id], "be_dependent");
+        break;
+      }
+      if (delete_be_depended(old_dependent)) {
+        WARN(
+          "%s [%s] Delete be depended is filed.",
+          this->logger_.c_str(),
+          _msg.id.c_str());
+        return false;
+      }
+      if (add_be_depended(_now_dependent)) {
+        WARN(
+          "%s [%s] Add be depended is filed.",
+          this->logger_.c_str(),
+          _msg.id.c_str());
+        return false;
+      }
       // toml::string_t::basic    // 默认类型: 会将长字符串xxx转为"""xxx\"""
       // toml::string_t::literal  // 原文类型: 会将长字符串xxx转为'xxx'
       toml::value element;
@@ -356,27 +401,40 @@ bool Base::SetList(
       element["describe"] = toml::string(_msg.describe, toml::string_t::literal);
       element["state"] = _state;
       element["dependent"] = toml::array();
-      for (auto meta : _dependent) {
+      for (auto meta : _now_dependent) {
         element["dependent"].push_back(toml::string(meta, toml::string_t::literal));
       }
       element["be_depended"] = toml::array();
+      for (auto meta : old_be_dependent) {
+        element["be_depended"].push_back(toml::string(meta, toml::string_t::literal));
+      }
       element["operate"] = toml::array();
       element["operate"].push_back(get_operation());
       registry_toml[this->type_][_msg.target_id.front()] = element;
-      add_be_depended();
     } else if (_msg.operate == OperateMsg::OPERATE_DELETE) {
       const toml::value now_lists = toml::find(registry_toml, this->type_);
       if (!now_lists.is_table()) {return false;}
-      const toml::value be_depended_array =
-        toml::find(registry_toml[this->type_][_msg.target_id.front()], "dependent");
-      if (!be_depended_array.is_array()) {return false;}
-      _dependent =
+      std::vector<std::string> old_dependent;     // 依赖项：当前任务或模块依赖的其他模块ID
+      std::vector<std::string> old_be_dependent;  // 被依赖项：依赖当前模块的其他任务或模块ID
+      old_dependent =
         toml::find<std::vector<std::string>>(
         registry_toml[this->type_][_msg.target_id.front()], "dependent");
+      old_be_dependent =
+        toml::find<std::vector<std::string>>(
+        registry_toml[this->type_][_msg.target_id.front()], "be_dependent");
+      if (!old_be_dependent.empty()) {
+        return false;
+      }
+      if (delete_be_depended(old_dependent)) {
+        WARN(
+          "%s [%s] Delete be depended is filed.",
+          this->logger_.c_str(),
+          _msg.id.c_str());
+        return false;
+      }
       auto now_unmap = now_lists.as_table();
       now_unmap.erase(now_unmap.find(_msg.target_id.front()));
       registry_toml[this->type_] = toml::value(now_unmap);
-      delete_be_depended();
       // registry_toml[this->type_][_msg.target_id.front()]["state"] = _state;
       // registry_toml[this->type_][_msg.target_id.front()]["operate"].push_back(get_operation());
     } else if ((_msg.operate == OperateMsg::OPERATE_RUN)) {
