@@ -94,6 +94,8 @@ private:
     SrvSport::Response &,
     std::shared_ptr<SrvSport::Request>,
     const int _service_start_timeout = 10);       /*!< 请求骨骼（点）识别服务 */
+  void FeedbackInteraction();                     /*!< 反馈交互 */
+  void ResultInteraction();                       /*!< 结果交互 */
 };  // class Skeleton
 }  // namespace cyberdog_visual_programming_abilityset
 #endif  // CYBERDOG_VP_ABILITYSET__SKELETON_HPP_

@@ -87,55 +87,7 @@ void Skeleton::SubSkeletonRecognitionCB(const MsgSport::SharedPtr _msg_ptr)
     this->skeleton_update_ = true;
   }
   skeleton_recognition_state_cv_.notify_all();
-  if (this->interact_) {
-    if (this->recognition_.algo_switch == MsgSport::ALGO_OPEN) {
-      if (this->recognition_.sport_type == MsgSport::SPORT_PLANK) {
-        if ((this->recognition_.duration % 5) == 0) {
-          if (this->instantly_) {
-            this->FInstantlyPlay(
-              std::string(FORMAT("%d秒", this->recognition_.duration)),
-              this->volume_);
-          } else {
-            this->FPlay(
-              std::string(FORMAT("%d秒", this->recognition_.duration)),
-              this->volume_);
-          }
-        }
-      } else {
-        if (this->instantly_) {
-          this->FInstantlyPlay(
-            std::string(FORMAT("%d", this->recognition_.counts)),
-            this->volume_);
-        } else {
-          this->FPlay(
-            std::string(FORMAT("%d", this->recognition_.counts)),
-            this->volume_);
-        }
-      }
-    } else {
-      if (this->recognition_.sport_type == MsgSport::SPORT_PLANK) {
-        if (this->recognition_.algo_switch == MsgSport::COUNT_COMPLETE_CLOSE) {
-          this->FPlay(
-            std::string(FORMAT("运动时长%d秒, 运动已达标。", this->recognition_.duration)),
-            this->volume_);
-        } else {
-          this->FPlay(
-            std::string(FORMAT("运动时长%d秒, 运动未达标。", this->recognition_.duration)),
-            this->volume_);
-        }
-      } else {
-        if (this->recognition_.algo_switch == MsgSport::COUNT_COMPLETE_CLOSE) {
-          this->FPlay(
-            std::string(FORMAT("运动计数%d个, 运动已达标。", this->recognition_.counts)),
-            this->volume_);
-        } else {
-          this->FPlay(
-            std::string(FORMAT("运动计数%d个, 运动未达标。", this->recognition_.counts)),
-            this->volume_);
-        }
-      }
-    }
-  }
+  this->FeedbackInteraction();
 }
 
 std::shared_ptr<SrvSport::Request> Skeleton::GetSkeletonRecognitionRequest()
@@ -307,12 +259,17 @@ SkeletonRecognizedMessageResponse Skeleton::BlockingRecognized(
     {
       std::unique_lock<std::mutex> lk(skeleton_recognition_state_cvm_);
       this->skeleton_update_ = false;
+      this->recognition_.algo_switch = MsgSport::REQUEST_CLOSE;
+      this->recognition_.sport_type = 0;
+      this->recognition_.counts = 0;
+      this->recognition_.duration = 0;
       skeleton_recognition_state_cv_.wait_for(
         lk, std::chrono::seconds(timeout), [&] {
           return this->skeleton_update_;
         });
       ret.response = this->recognition_;
     }
+    this->ResultInteraction();
   } catch (const std::exception & e) {
     Warn(
       "[%s] SkeletonRecognized() is failed. %s",
@@ -398,6 +355,10 @@ SkeletonRecognizedMessageResponse Skeleton::SportsRecognition(
       {
         std::unique_lock<std::mutex> lk(skeleton_recognition_state_cvm_);
         this->skeleton_update_ = false;
+        this->recognition_.algo_switch = MsgSport::REQUEST_CLOSE;
+        this->recognition_.sport_type = _sport_type;
+        this->recognition_.counts = 0;
+        this->recognition_.duration = 0;
         skeleton_recognition_state_cv_.wait_for(
           lk, std::chrono::seconds(
             timeout), [&] {
@@ -406,6 +367,7 @@ SkeletonRecognizedMessageResponse Skeleton::SportsRecognition(
           });
         ret.response = this->recognition_;
       }
+      this->ResultInteraction();
     }
   } catch (const std::exception & e) {
     Warn(
@@ -420,5 +382,63 @@ SkeletonRecognizedMessageResponse Skeleton::SportsRecognition(
     this->transient_state_ptr_->describe = ret.state.describe;
   }
   return ret;
+}
+
+void Skeleton::FeedbackInteraction()
+{
+  if (this->interact_) {
+    if (this->recognition_.algo_switch == MsgSport::ALGO_OPEN) {
+      if (this->recognition_.sport_type == MsgSport::SPORT_PLANK) {
+        if ((this->recognition_.duration % 5) == 0) {
+          if (this->instantly_) {
+            this->FInstantlyPlay(
+              std::string(FORMAT("%d秒", this->recognition_.duration)),
+              this->volume_);
+          } else {
+            this->FPlay(
+              std::string(FORMAT("%d秒", this->recognition_.duration)),
+              this->volume_);
+          }
+        }
+      } else {
+        if (this->instantly_) {
+          this->FInstantlyPlay(
+            std::string(FORMAT("%d", this->recognition_.counts)),
+            this->volume_);
+        } else {
+          this->FPlay(
+            std::string(FORMAT("%d", this->recognition_.counts)),
+            this->volume_);
+        }
+      }
+    }
+  }
+}
+
+void Skeleton::ResultInteraction()
+{
+  if (this->instantly_) {
+    if (this->recognition_.sport_type == MsgSport::SPORT_PLANK) {
+      if (this->recognition_.algo_switch == MsgSport::COUNT_COMPLETE_CLOSE) {
+        this->FPlay(
+          std::string(FORMAT("运动时长%d秒, 运动已达标。", this->recognition_.duration)),
+          this->volume_);
+      } else {
+        this->FPlay(
+          std::string(FORMAT("运动时长%d秒, 运动未达标。", this->recognition_.duration)),
+          this->volume_);
+      }
+    } else {
+      if (this->recognition_.algo_switch == MsgSport::COUNT_COMPLETE_CLOSE) {
+        this->FPlay(
+          std::string(FORMAT("运动计数%d个, 运动已达标。", this->recognition_.counts)),
+          this->volume_);
+      } else {
+        this->FPlay(
+          std::string(FORMAT("运动计数%d个, 运动未达标。", this->recognition_.counts)),
+          this->volume_);
+      }
+    }
+  }
 }
 }   // namespace cyberdog_visual_programming_abilityset
