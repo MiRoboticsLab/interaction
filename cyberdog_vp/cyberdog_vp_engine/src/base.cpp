@@ -360,7 +360,7 @@ bool Base::SetList(
       (_msg.operate == OperateMsg::OPERATE_DEBUG))
     {
       std::vector<std::string> old_dependent;     // 依赖项：当前任务或模块依赖的其他模块ID
-      std::vector<std::string> old_be_dependent;  // 被依赖项：依赖当前模块的其他任务或模块ID
+      std::vector<std::string> old_be_depended;   // 被依赖项：依赖当前模块的其他任务或模块ID
       const toml::value now_lists = toml::find(registry_toml, this->type_);
       if (!now_lists.is_table()) {return false;}
       std::string id = "", target_id = _msg.target_id.front();
@@ -372,9 +372,9 @@ bool Base::SetList(
         old_dependent =
           toml::find<std::vector<std::string>>(
           registry_toml[this->type_][id], "dependent");
-        old_be_dependent =
+        old_be_depended =
           toml::find<std::vector<std::string>>(
-          registry_toml[this->type_][id], "be_dependent");
+          registry_toml[this->type_][id], "be_depended");
         break;
       }
       if (!delete_be_depended(old_dependent)) {
@@ -405,7 +405,7 @@ bool Base::SetList(
         element["dependent"].push_back(toml::string(meta, toml::string_t::literal));
       }
       element["be_depended"] = toml::array();
-      for (auto meta : old_be_dependent) {
+      for (auto meta : old_be_depended) {
         element["be_depended"].push_back(toml::string(meta, toml::string_t::literal));
       }
       element["operate"] = toml::array();
@@ -415,14 +415,18 @@ bool Base::SetList(
       const toml::value now_lists = toml::find(registry_toml, this->type_);
       if (!now_lists.is_table()) {return false;}
       std::vector<std::string> old_dependent;     // 依赖项：当前任务或模块依赖的其他模块ID
-      std::vector<std::string> old_be_dependent;  // 被依赖项：依赖当前模块的其他任务或模块ID
+      std::vector<std::string> old_be_depended;   // 被依赖项：依赖当前模块的其他任务或模块ID
       old_dependent =
         toml::find<std::vector<std::string>>(
         registry_toml[this->type_][_msg.target_id.front()], "dependent");
-      old_be_dependent =
+      old_be_depended =
         toml::find<std::vector<std::string>>(
-        registry_toml[this->type_][_msg.target_id.front()], "be_dependent");
-      if (!old_be_dependent.empty()) {
+        registry_toml[this->type_][_msg.target_id.front()], "be_depended");
+      if (!old_be_depended.empty()) {
+        WARN(
+          "%s [%s] Old be_depended is not empty.",
+          this->logger_.c_str(),
+          _msg.id.c_str());
         return false;
       }
       if (!delete_be_depended(old_dependent)) {
