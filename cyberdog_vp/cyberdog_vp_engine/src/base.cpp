@@ -377,14 +377,14 @@ bool Base::SetList(
           registry_toml[this->type_][id], "be_dependent");
         break;
       }
-      if (delete_be_depended(old_dependent)) {
+      if (!delete_be_depended(old_dependent)) {
         WARN(
           "%s [%s] Delete be depended is filed.",
           this->logger_.c_str(),
           _msg.id.c_str());
         return false;
       }
-      if (add_be_depended(_now_dependent)) {
+      if (!add_be_depended(_now_dependent)) {
         WARN(
           "%s [%s] Add be depended is filed.",
           this->logger_.c_str(),
@@ -425,7 +425,7 @@ bool Base::SetList(
       if (!old_be_dependent.empty()) {
         return false;
       }
-      if (delete_be_depended(old_dependent)) {
+      if (!delete_be_depended(old_dependent)) {
         WARN(
           "%s [%s] Delete be depended is filed.",
           this->logger_.c_str(),
