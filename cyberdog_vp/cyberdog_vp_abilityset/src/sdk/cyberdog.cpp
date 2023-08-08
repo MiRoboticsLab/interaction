@@ -238,7 +238,7 @@ void Cyberdog::Shutdown(bool _exit)
     this->led_.Freed(SrvLedExecute::Request::MINI_LED);
     this->skeleton_.TurnOffRecognition();
     this->gesture_.TurnOffRecognition();
-    this->navigation_.CancelNavigation();
+    this->navigation_.TurnOffNavigation();
     this->personnel_.face_.CancelRecognize();
     if (this->ros_) {
       Info(
