@@ -255,12 +255,14 @@ FrontendMessage::FrontendMessage(const std::string & msg)
           return false;
         }
         TomlList tag_list;
+        std::string now_id = this->frontend_.target_id.front();
         for (const auto & meta : now_lists.as_table()) {
           const std::string & id = meta.first;
           if ((id == "id") ||
             (id == "terminal_default") ||
             (id == "visual_default") ||
-            (id == OperateMsg::OPERATE_DEBUG))
+            (id == OperateMsg::OPERATE_DEBUG) ||
+            (id == now_id))
           {
             continue;
           }
