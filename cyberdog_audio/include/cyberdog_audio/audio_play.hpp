@@ -83,6 +83,10 @@ public:
                     ERROR("%s does not exist!", file_path.c_str());
                   }
                 }
+                // Todo:test fds down and map update
+                // for (const auto & pair : http_play_map) {
+                //   INFO("paly_id:%d, tts_name:%s", pair.first, pair.second.c_str());
+                // }
               } else {
                 WARN("Audio Play tts ids size and tts names size not equal, please check!");
               }
@@ -108,6 +112,10 @@ public:
                     ERROR("%s does not exist!", file_path.c_str());
                   }
                 }
+                // Todo:test
+                // for (const auto & pair : http_music_map) {
+                //   INFO("paly_id:%d, tts_name:%s", pair.first, pair.second.c_str());
+                // }
               } else {
                 WARN("Audio Play music ids size and music names size not equal, please check!");
               }
@@ -128,6 +136,7 @@ public:
     }
     if (!psi.is_music) {
       auto play_iter = http_play_map.find(psi.play_id);
+      // INFO("play_id:%d, %s", play_iter->first, play_iter->second.c_str());
       if (play_iter != http_play_map.end()) {
         std::string url = play_iter->second;
         return speech_handler_ptr_->HttpPlay(url);
@@ -136,6 +145,7 @@ public:
       }
     }
     auto music_iter = http_music_map.find(psi.play_id);
+    // INFO("play_id:%d, %s", play_iter->first, play_iter->second.c_str());
     if (music_iter != http_music_map.end()) {
       std::string url = music_iter->second;
       std::vector<std::string> urls;
