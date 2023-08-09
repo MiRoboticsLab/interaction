@@ -288,8 +288,7 @@ FrontendMessage::FrontendMessage(const std::string & msg)
     auto judge_task = [&]() -> bool {
         this->state_ = CommonEnum::efficient;
 
-        if (((this->frontend_.operate == OperateMsg::OPERATE_SAVE) ||
-          (this->frontend_.operate == OperateMsg::OPERATE_DEBUG)) &&
+        if ((this->frontend_.operate == OperateMsg::OPERATE_SAVE) &&
           !judge_describe_uniqueness())
         {
           this->state_ = CommonEnum::describe;
@@ -365,8 +364,7 @@ FrontendMessage::FrontendMessage(const std::string & msg)
     auto judge_module = [&]() -> bool {
         this->state_ = CommonEnum::efficient;
 
-        if (((this->frontend_.operate == OperateMsg::OPERATE_SAVE) ||
-          (this->frontend_.operate == OperateMsg::OPERATE_DEBUG)) &&
+        if ((this->frontend_.operate == OperateMsg::OPERATE_SAVE) &&
           !judge_describe_uniqueness())
         {
           this->state_ = CommonEnum::describe;
