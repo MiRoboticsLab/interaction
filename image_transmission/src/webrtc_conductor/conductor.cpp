@@ -70,6 +70,11 @@ void PCConductor::SetVideoParam(int height, int width, const std::string & align
 
 void PCConductor::OnReceiveSDP(webrtc::SessionDescriptionInterface * desc)
 {
+  std::unique_lock<std::mutex> sdp_order_lock(sdp_order_mutex_);
+  if (sdp_has_received_) {
+    WARN("sdp has already received, ignore this one");
+    return;
+  }
   peer_connection_->SetRemoteDescription(DummySetSessionDescriptionObserver::Create(this), desc);
   INFO_STREAM("set remote description");
   if (desc->GetType() == webrtc::SdpType::kOffer) {
@@ -81,13 +86,10 @@ void PCConductor::OnReceiveSDP(webrtc::SessionDescriptionInterface * desc)
   } else {
     INFO_STREAM("sdp is an answer");
   }
-  {
-    std::unique_lock<std::mutex> sdp_order_lock(sdp_order_mutex_);
-    sdp_has_received_ = true;
-    while (!candidate_buff_.empty()) {
-      peer_connection_->AddIceCandidate(candidate_buff_.front());
-      candidate_buff_.pop();
-    }
+  sdp_has_received_ = true;
+  while (!candidate_buff_.empty()) {
+    peer_connection_->AddIceCandidate(candidate_buff_.front());
+    candidate_buff_.pop();
   }
 }
 
@@ -110,7 +112,9 @@ void PCConductor::OnIceConnectionChange(
   if (new_state == webrtc::PeerConnectionInterface
     ::IceConnectionState::kIceConnectionDisconnected ||
     new_state == webrtc::PeerConnectionInterface
-    ::IceConnectionState::kIceConnectionFailed)
+    ::IceConnectionState::kIceConnectionFailed ||
+    new_state == webrtc::PeerConnectionInterface
+    ::IceConnectionState::kIceConnectionClosed)
   {
     connection_stage_disconnect_ = true;
   } else if (new_state == 2) {  // kIceConnectionConnected
