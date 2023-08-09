@@ -226,6 +226,12 @@ public:
     INFO("execute action:%s", action.c_str());
     (void) count;
     INFO("action_enable:%d", static_cast<int>(action_enable));
+
+    auto control_iter = control_dog_action_map.find(action);
+    if (control_iter == control_dog_action_map.end()) {
+      WARN("new action:%s", action.c_str());
+      return;
+    }
     if (action_enable) {
       INFO("充电中，不响应垂域指令控制");
       protocol::msg::AudioPlayExtend msg;
@@ -233,11 +239,6 @@ public:
       msg.module_name = "audio_action";
       msg.speech.play_id = 40001;
       audio_play_pub->publish(msg);
-      return;
-    }
-    auto control_iter = control_dog_action_map.find(action);
-    if (control_iter == control_dog_action_map.end()) {
-      WARN("new action:%s", action.c_str());
       return;
     }
     auto execute_iter = execute_dog_action_map.find(

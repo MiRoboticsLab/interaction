@@ -110,11 +110,6 @@ cyberdog::interaction::CyberdogAudio::CyberdogAudio()
         audio_environment_ = tv_env.as_string();
         INFO("toml get environment:%s", audio_environment_.c_str());
       }
-      // toml::value tv_ace;
-      // if (common::CyberdogToml::Get(tv_settings, "action_control", tv_ace)) {
-      //   action_control_enable_ = (tv_ace.as_string() == "on" ? true : false);
-      //   INFO("toml get action_control switch:%s", (action_control_enable_ ? "true" : "false"));
-      // }
     }
   }
   voice_control_ptr_ = std::make_shared<VoiceControl>(action_control_enable_);
@@ -149,8 +144,6 @@ cyberdog::interaction::CyberdogAudio::CyberdogAudio()
     );
   account_manager_ptr_ = std::make_unique<cyberdog::common::CyberdogAccountManager>();
   vp_database_ptr_ = std::make_unique<cyberdog::interaction::VoiceprintDatabase>();
-  // speech_handler_ptr_ = std::make_shared<SpeechHandler>(
-  //   std::bind(&CyberdogAudio::SpeechPlayGoal, this, std::placeholders::_1));
   audio_play_ptr_ = std::make_shared<AudioPlay>(
     std::bind(&CyberdogAudio::SpeechPlayGoal, this, std::placeholders::_1));
   audio_play_ptr_->callFunc(std::bind(&CyberdogAudio::GetPlayStatus, this));
@@ -161,6 +154,7 @@ cyberdog::interaction::CyberdogAudio::CyberdogAudio()
       &CyberdogAudio::SdcardPlayidQuery, this, std::placeholders::_1,
       std::placeholders::_2),
     rmw_qos_profile_services_default, speech_callback_group_);
+
   audio_fds_ptr_ = std::make_unique<cyberdog::interaction::AudioFds>();
   audio_fds_ptr_->get_audio_play_ptr(audio_play_ptr_);
   RegisterAudioCyberdogTopicHandler();
@@ -197,36 +191,11 @@ cyberdog::interaction::CyberdogAudio::CyberdogAudio()
     INFO("machine state init success.");
   }
   SetControlState(action_control_enable_);
-  // auto srv_func_ = [this]() {
-  //     server = std::make_shared<LcmServer>(
-  //       ATOC_SERVICE,
-  //       std::bind(
-  //         &CyberdogAudio::ServerCallback, this, std::placeholders::_1,
-  //         std::placeholders::_2));
-  //     server->Spin();
-  //   };
-  // server_thread = std::thread(srv_func_);
-  // auto msg_func_ = [this]() {
-  //     if (!lcm_->good()) {
-  //       ERROR("lcm is not good!");
-  //       return;
-  //     }
-  //     lcm_->subscribe(
-  //       ATOC_TOPIC, &cyberdog::interaction::CyberdogAudio::LcmHandler,
-  //       this);
-  //     while (0 == lcm_->handle()) {}
-  //   };
-  // message_thread = std::thread(msg_func_);
-  // CreateLcm();
+
 }
 
 cyberdog::interaction::CyberdogAudio::~CyberdogAudio()
 {
-  // {
-  //   std::unique_lock<std::mutex> lck(play_mtx_);
-  //   is_play_ = false;
-  //   play_cv_.notify_all();
-  // }
   audio_play_ptr_->StopPlay();
 }
 
