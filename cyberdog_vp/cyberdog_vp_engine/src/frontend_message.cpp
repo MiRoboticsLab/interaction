@@ -288,17 +288,14 @@ FrontendMessage::FrontendMessage(const std::string & msg)
     auto judge_task = [&]() -> bool {
         this->state_ = CommonEnum::efficient;
 
-        if ((this->frontend_.operate == OperateMsg::OPERATE_SAVE) &&
-          !judge_describe_uniqueness())
-        {
-          this->state_ = CommonEnum::describe;
-          this->describe_ =
-            "[Judge Task] Received message and resolved 'describe', but value is invalid, " +
-            this->frontend_.describe;
-          return false;
-        }
-
         if (this->frontend_.operate == OperateMsg::OPERATE_SAVE) {
+          if (!judge_describe_uniqueness()) {
+            this->state_ = CommonEnum::describe;
+            this->describe_ =
+              "[Judge Task] Received message and resolved 'describe', but value is invalid, " +
+              this->frontend_.describe;
+            return false;
+          }
           if (this->frontend_.mode == OperateMsg::MODE_SINGLE) {
             judge_single_condition();
           } else if (this->frontend_.mode == OperateMsg::MODE_CYCLE) {
@@ -364,17 +361,15 @@ FrontendMessage::FrontendMessage(const std::string & msg)
     auto judge_module = [&]() -> bool {
         this->state_ = CommonEnum::efficient;
 
-        if ((this->frontend_.operate == OperateMsg::OPERATE_SAVE) &&
-          !judge_describe_uniqueness())
-        {
-          this->state_ = CommonEnum::describe;
-          this->describe_ =
-            "[Judge Task] Received message and resolved 'describe', but value is invalid, " +
-            this->frontend_.describe;
-          return false;
-        }
 
         if ((this->frontend_.operate == OperateMsg::OPERATE_SAVE)) {
+          if (!judge_describe_uniqueness()) {
+            this->state_ = CommonEnum::describe;
+            this->describe_ =
+              "[Judge Task] Received message and resolved 'describe', but value is invalid, " +
+              this->frontend_.describe;
+            return false;
+          }
           if ((this->frontend_.mode == OperateMsg::MODE_COMMON) ||
             (this->frontend_.mode == OperateMsg::MODE_SEQUENCE))
           {
