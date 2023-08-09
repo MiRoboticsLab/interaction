@@ -191,7 +191,6 @@ cyberdog::interaction::CyberdogAudio::CyberdogAudio()
     INFO("machine state init success.");
   }
   SetControlState(action_control_enable_);
-
 }
 
 cyberdog::interaction::CyberdogAudio::~CyberdogAudio()
