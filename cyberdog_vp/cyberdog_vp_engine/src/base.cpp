@@ -356,9 +356,20 @@ bool Base::SetList(
           return delete_module_be_depended(registry_toml, module_id_list);
         }
       };
-    if ((_msg.operate == OperateMsg::OPERATE_SAVE) ||
-      (_msg.operate == OperateMsg::OPERATE_DEBUG))
-    {
+    if (_msg.operate == OperateMsg::OPERATE_DEBUG) {
+      toml::value element;
+      element["file"] = _file;
+      element["mode"] = _msg.mode;
+      element["condition"] = _msg.condition;
+      element["style"] = toml::string(_msg.style, toml::string_t::literal);
+      element["describe"] = toml::string(_msg.describe, toml::string_t::literal);
+      element["state"] = _state;
+      element["dependent"] = toml::array();
+      element["be_depended"] = toml::array();
+      element["operate"] = toml::array();
+      element["operate"].push_back(get_operation());
+      registry_toml[this->type_][_msg.target_id.front()] = element;
+    } else if (_msg.operate == OperateMsg::OPERATE_SAVE) {
       std::vector<std::string> old_dependent;     // 依赖项：当前任务或模块依赖的其他模块ID
       std::vector<std::string> old_be_depended;   // 被依赖项：依赖当前模块的其他任务或模块ID
       const toml::value now_lists = toml::find(registry_toml, this->type_);
