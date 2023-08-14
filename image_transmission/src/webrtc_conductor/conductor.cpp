@@ -89,6 +89,7 @@ void PCConductor::OnReceiveSDP(webrtc::SessionDescriptionInterface * desc)
   sdp_has_received_ = true;
   while (!candidate_buff_.empty()) {
     peer_connection_->AddIceCandidate(candidate_buff_.front());
+    INFO_STREAM("add ice candidate");
     candidate_buff_.pop();
   }
 }
@@ -379,6 +380,7 @@ bool WebRTCManager::addNewPC(
       pc_config_, nullptr, nullptr, pc_conductors_[uid].get());
     if (!new_pc) {
       WARN_STREAM("Failed to create PeerConnection!");
+      pc_conductors_.erase(uid);
       return false;
     }
     auto video_track = peer_connection_factory_->CreateVideoTrack("video_label", video_source_);
@@ -387,10 +389,12 @@ bool WebRTCManager::addNewPC(
       WARN_STREAM(
         "Failed to add video track to PeerConnection: " <<
           error.error().message());
+      pc_conductors_.erase(uid);
       return false;
     }
     pc_conductors_[uid]->SetPC(new_pc);
     INFO_STREAM("A new pc is created.");
+    monitor_timer_->reset();
   }
   if (height != 0 && width != 0) {
     pc_conductors_[uid]->SetVideoParam(height, width, alignment);
@@ -536,7 +540,6 @@ bool WebRTCManager::CallNotifyService(
     if (is_streaming_) {
       return true;
     }
-    monitor_timer_->reset();
   } else {
     monitor_timer_->cancel();
   }
