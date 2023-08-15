@@ -27,9 +27,6 @@ UploaderLog::UploaderLog(const std::string & name)
 : Node(name)
 {
   INFO("Creating [UploaderLog] object(node)");
-  if (!this->Init()) {
-    ERROR("Creating [UploaderLog] object(node) is failed.");
-  }
 }
 
 UploaderLog::~UploaderLog()
@@ -37,7 +34,7 @@ UploaderLog::~UploaderLog()
   INFO("Destroy [UploaderLog] object(node)");
 }
 
-bool UploaderLog::Init()
+bool UploaderLog::Init(const rclcpp::Node::SharedPtr node)
 {
   INFO("Initializing data ...");
   try {
@@ -75,7 +72,7 @@ bool UploaderLog::Init()
       std::bind(&UploaderLog::Uploader, this, std::placeholders::_1, std::placeholders::_2),
       rclcpp::ServicesQoS().get_rmw_qos_profile(), this->lcm_log_cb_group_);
 
-    this->lcm_log_ptr_ = std::make_shared<LcmLogUploader>(this->shared_from_this());
+    this->lcm_log_ptr_ = std::make_shared<LcmLogUploader>(node);
   } catch (const std::exception & e) {
     ERROR("Init data failed: <%s>", e.what());
     return false;
