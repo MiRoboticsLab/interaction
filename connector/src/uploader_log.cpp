@@ -27,6 +27,9 @@ UploaderLog::UploaderLog(const std::string & name)
 : Node(name)
 {
   INFO("Creating [UploaderLog] object(node)");
+  if (!this->Init()) {
+    ERROR("Creating [UploaderLog] object(node) is failed.");
+  }
 }
 
 UploaderLog::~UploaderLog()
