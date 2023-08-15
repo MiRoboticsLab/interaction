@@ -65,7 +65,7 @@ class UploaderLog final : public rclcpp::Node
 public:
   explicit UploaderLog(const std::string &);
   ~UploaderLog();
-  bool Init(const rclcpp::Node::SharedPtr);                                    /*!< 初始化 */
+  bool Init(const rclcpp::Node::SharedPtr);                           /*!< 初始化 */
 
 private:
   void Uploader(
