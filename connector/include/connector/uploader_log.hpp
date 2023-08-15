@@ -60,20 +60,20 @@ namespace interaction
 */
 class UploaderLog final : public rclcpp::Node
 {
-  using TriggerSrv = std_srvs::srv::Trigger;                  /*!< [service 类型]日志上传 服务 */
+  using TriggerSrv = std_srvs::srv::Trigger;      /*!< [service 类型]日志上传 服务 */
 
 public:
   explicit UploaderLog(const std::string &);
   ~UploaderLog();
-  bool Init();                                    /*!< 初始化 */
+  bool Init(const rclcpp::Node::SharedPtr);                           /*!< 初始化 */
 
 private:
   void Uploader(
     const std::shared_ptr<TriggerSrv::Request> request,
-    std::shared_ptr<TriggerSrv::Response> response);          /*!< 上传日志 */
+    std::shared_ptr<TriggerSrv::Response> response);                  /*!< 上传日志 */
 
 private:
-  std::shared_ptr<LcmLogUploader> lcm_log_ptr_ {nullptr};     /*!< lcm 日志 */
+  std::shared_ptr<LcmLogUploader> lcm_log_ptr_ {nullptr};             /*!< lcm 日志 */
   rclcpp::Service<TriggerSrv>::SharedPtr lcm_log_service_ {nullptr};  /*!< [服务端]日志 */
   rclcpp::CallbackGroup::SharedPtr lcm_log_cb_group_ {nullptr};       /*!< [回调组] service */
 };  // class Connector

@@ -48,6 +48,11 @@ int main(int argc, char ** argv)
         &cyberdog::interaction::CtrlWifi::ControlWifi,
         ctrl_wifi, std::placeholders::_1, std::placeholders::_2)
     )) {exit(-1);}
+  if (!uploader_log->Init(uploader_log)) {
+    ERROR("Init UploaderLog object(node) is failed.");
+  } else {
+    INFO("UploaderLog node is running ...");
+  }
   INFO("Connector node is running ...");
   rclcpp::executors::MultiThreadedExecutor exec_;
   exec_.add_node(connector->get_node_base_interface());
