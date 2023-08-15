@@ -39,7 +39,7 @@ bool UploaderLog::Init()
   INFO("Initializing ...");
   try {
     std::string node_config_dir = ament_index_cpp::get_package_share_directory("connector") +
-      node_config_dir;
+      "/config/connector.toml";
     INFO("Params config file dir:<%s>", node_config_dir.c_str());
 
     if (access(node_config_dir.c_str(), F_OK)) {
