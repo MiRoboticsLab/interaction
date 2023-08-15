@@ -50,16 +50,23 @@ private:
   rclcpp::CallbackGroup::SharedPtr
     training_words_sub_cb_group_ {nullptr};       /*!< [回调组]训练词响应 */
   rclcpp::CallbackGroup::SharedPtr
+    user_dialogue_sub_cb_group_ {nullptr};        /*!< [回调组]用户对话响应 */
+  rclcpp::CallbackGroup::SharedPtr
     training_words_cli_cb_group_ {nullptr};       /*!< [回调组]训练词服务 */
 
   rclcpp::Subscription<MsgTrainingWords>::SharedPtr
     training_words_recognition_sub_ptr_
   {nullptr};                                      /*!< [监听器]训练词响应 */
+  rclcpp::Subscription<MsgString>::SharedPtr
+    user_dialogue_message_sub_ptr_
+  {nullptr};                                      /*!< [监听器]用户对话响应 */
   rclcpp::Client<SrvTrainingWords>::SharedPtr
     training_words_recognition_cli_ptr_
   {nullptr};                                      /*!< [客户端]训练词服务 */
 
   MsgTrainingWords training_words_;               /*!< 训练词目标 */
+  SrvTrainingWords::Response
+    training_words_set_;                          /*!< 训练词集合 */
   bool training_words_update_ {false};            /*!< 训练词更新 */
 
 private:
@@ -67,7 +74,9 @@ private:
   bool SetMechanism(const toml::value &);         /*!< 设置机制 */
   void SubTrainingWordsRecognitionCB(
     const MsgTrainingWords::SharedPtr);           /*!< 训练词响应数据回调 */
-  bool RequestTrainingWordsRecognizedSrv(
+  void SubUserDialogueCB(
+    const MsgString::SharedPtr);                  /*!< 用户对话数据回调 */
+  State RequestTrainingWordsRecognizedSrv(
     SrvTrainingWords::Response &,
     std::shared_ptr<SrvTrainingWords::Request>,
     const int _service_start_timeout = 10);       /*!< 请求训练词服务 */

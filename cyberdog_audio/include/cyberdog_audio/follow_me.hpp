@@ -21,7 +21,8 @@
 #include "cyberdog_common/cyberdog_log.hpp"
 #include "protocol/action/navigation.hpp"
 #include "protocol/srv/stop_algo_task.hpp"
-
+#include "protocol/srv/ble_scan.hpp"
+#include "protocol/msg/algo_task_status.hpp"
 namespace cyberdog
 {
 namespace interaction
@@ -43,8 +44,42 @@ public:
       this->create_client<protocol::srv::StopAlgoTask>(
       "stop_algo_task",
       rmw_qos_profile_services_default, stop_callback_group_);
+    current_connected_bluetooth_client_ =
+      this->create_client<protocol::srv::BLEScan>(
+      "get_connected_bluetooth_info",
+      rmw_qos_profile_services_default, stop_callback_group_);
+    tracking_status_sub_ = this->create_subscription<protocol::msg::AlgoTaskStatus>(
+      "algo_task_status", 10,
+      std::bind(&Uwb_Tracking_Client::get_tracing_status, this, std::placeholders::_1));
   }
-
+  void get_tracing_status(const protocol::msg::AlgoTaskStatus::SharedPtr msg)
+  {
+    tracking_status = msg->task_status;
+  }
+  bool is_uwb_tracking()
+  {
+    INFO("algor status,task_sub_status:%d", tracking_status);
+    return (tracking_status == 11) ? true : false;
+  }
+  int get_uwb_device()
+  {
+    int number = 0;
+    if (!current_connected_bluetooth_client_->wait_for_service(std::chrono::seconds(3))) {
+      ERROR("current_connected_bluetooth_devices server not avaiable");
+      return number;
+    }
+    auto req = std::make_shared<protocol::srv::BLEScan::Request>();
+    req->scan_seconds = 0;
+    auto future_result = current_connected_bluetooth_client_->async_send_request(req);
+    std::future_status status = future_result.wait_for(std::chrono::seconds(3));
+    if (status == std::future_status::ready) {
+      auto devices = future_result.get()->device_info_list;
+      number = devices.size();
+    } else {
+      INFO("request get_connected_bluetooth_info service failed!");
+    }
+    return number;
+  }
   void send_goal()
   {
     if (!this->client_ptr_->wait_for_action_server(std::chrono::seconds(3))) {
@@ -70,7 +105,7 @@ public:
 
   void cancel_goal()
   {
-    if (is_running.load()) {
+    if (is_uwb_tracking() || is_running.load()) {
       INFO("Uwb tracking cancel goal");
       // this->client_ptr_->async_cancel_all_goals();
       if (!stop_algo_task_client_->wait_for_service(std::chrono::seconds(2))) {
@@ -129,7 +164,10 @@ private:
   rclcpp_action::Client<Navigation>::SharedPtr client_ptr_;
   rclcpp::CallbackGroup::SharedPtr stop_callback_group_;
   rclcpp::Client<protocol::srv::StopAlgoTask>::SharedPtr stop_algo_task_client_;
+  rclcpp::Client<protocol::srv::BLEScan>::SharedPtr current_connected_bluetooth_client_;
+  rclcpp::Subscription<protocol::msg::AlgoTaskStatus>::SharedPtr tracking_status_sub_{nullptr};
   std::atomic_bool is_running;
+  int tracking_status = 0;
 };
 }  // namespace interaction
 }  // namespace cyberdog

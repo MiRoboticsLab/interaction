@@ -59,6 +59,7 @@ void Touch::SubCB(const MsgTouchStatus::SharedPtr _msg_ptr)
     // std::lock_guard<std::mutex> lk(touch_data_cvm_);
     std::scoped_lock lk(touch_data_cvm_);
     this->data_ = *_msg_ptr;
+    this->state_.code = StateCode::success;
   }
   touch_data_cv_.notify_all();
   this->timens_ = GetTimeNs();

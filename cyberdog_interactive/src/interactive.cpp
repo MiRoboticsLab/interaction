@@ -301,7 +301,8 @@ void Interactive::WoofWoof(uint16_t play_id)
 void Interactive::BeingTouchedOnTheChinWhileSitting()
 {
   try {
-    if (((this->old_motion_id == 143) ||
+    if (((this->old_motion_id == 140) ||
+      (this->old_motion_id == 143) ||
       (this->old_motion_id == 148) ||
       (this->old_motion_id == 149) ||
       (this->old_motion_id == 150)) &&

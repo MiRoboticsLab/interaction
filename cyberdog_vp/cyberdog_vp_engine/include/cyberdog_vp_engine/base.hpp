@@ -77,9 +77,10 @@ protected:
   std::string base_path_ {""};                    /*!< 任务路径 */
   std::vector<std::string> header_sh_;            /*!< shell 文件头 */
   std::string registry_fil_ {""};                 /*!< 注册表文件 */
-  std::string registry_related_fil_ {""};         /*!< 注册表相关文件 */
+  std::string registry_related_fil_ {""};         /*!< 相关注册表 */
   const std::string judge_python_ {"pyflakes "};  /*!< 判断 python */
   std::string type_ {""};                         /*!< 类型 */
+  bool decorate_body_;                            /*!< 装饰身体 */
 
 public:
   std::shared_ptr<PythonInterpreter>
@@ -105,7 +106,7 @@ public:
     const OperateMsg &,
     const std::string &,
     const std::string &,
-    std::vector<std::string> &);                  /*!< 设置列表 */
+    const std::vector<std::string> &);            /*!< 设置列表 */
   bool GetList(const OperateMsg &, GRPCMsg &);    /*!< 获取列表 */
   bool GetMeta(
     const toml::value &,
@@ -115,6 +116,9 @@ public:
   bool BuildFrontendOperate(
     const std::string,
     std::string &);                               /*!< 构建前端操作 */
+  bool BuildBackendOperate(
+    const OperateMsg &,
+    std::string &);                               /*!< 构建后端消息(查询) */
 };  // class Base
 }  // namespace cyberdog_visual_programming_engine
 #endif  // CYBERDOG_VP_ENGINE__BASE_HPP_

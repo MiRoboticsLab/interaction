@@ -15,6 +15,7 @@
 #include <memory>
 #include <chrono>
 #include <map>
+#include <regex>
 
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
@@ -70,6 +71,7 @@ bool Connector::Init(
     this->state_msg_.robot_ip = "";
     this->state_msg_.strength = 0;
     this->state_msg_.code = 0;
+    this->touch_previous_time_ = this->now();
 
     this->params_pkg_dir_ = ament_index_cpp::get_package_share_directory("connector");
     this->node_config_dir_ = this->params_pkg_dir_ + this->node_config_dir_;
@@ -129,6 +131,9 @@ bool Connector::Init(
 
     this->touch_signal_timeout_s = static_cast<int>(toml::find<int>(
         this->params_toml_, "connector", "initialization", "timeout_s", "touch_signal_effective"));
+    this->touch_signal_invalid_interval_s = static_cast<int>(toml::find<int>(
+        this->params_toml_, "connector", "initialization", "timeout_s",
+        "touch_signal_invalid_interval"));
 
     float hz = toml::find<float>(
       this->params_toml_, "connector", "initialization", "hz", "update_status");
@@ -323,6 +328,13 @@ void Connector::ResetSignal()
     this->touch_efficient_ = false;
     this->Interaction(AudioMsg::PID_WIFI_EXIT_CONNECTION_MODE_0);
   }
+  if (this->judge_first_time_) {
+    if (this->UserBootsFirstTime()) {
+      TouchMsg::SharedPtr touch_ptr = std::make_shared<TouchMsg>();
+      touch_ptr->touch_state = 7;
+      this->TouchSignalCallback(touch_ptr);
+    }
+  }
 }
 
 void Connector::DisconnectAppCallback(const DisConMsg::SharedPtr msg)
@@ -389,6 +401,15 @@ void Connector::TouchSignalCallback(const TouchMsg::SharedPtr msg)
     if (msg->touch_state != 7) {  // 长按
       return;
     }
+    rclcpp::Time current_time = msg->header.stamp;
+    rclcpp::Duration data_interval = current_time - this->touch_previous_time_;
+    if (data_interval.seconds() < this->touch_signal_invalid_interval_s) {
+      WARN("Touch invalid data interval: %f seconds", data_interval.seconds());
+      return;
+    }
+    this->touch_previous_time_ = msg->header.stamp;
+    INFO("Touch data interval: %f seconds", data_interval.seconds());
+
     if (this->touch_efficient_) {  // 退出配网
       INFO("Exit network mode.");
       this->touch_efficient_ = false;
@@ -560,14 +581,32 @@ bool Connector::DoConnect(std::string name, std::string password, std::string pr
       }
       return false;
     };
+  auto judge_string = [&](std::string msg) -> bool {
+      std::regex pattern("^[a-zA-Z0-9_]+$");                // WiFi命名规则
+      // std::regex pattern("^[a-zA-Z][a-zA-Z0-9_]*$");      // 变量命名规则
+      return std::regex_match(msg, pattern);
+    };
   try {
     INFO(
       "Connect wifi:{name=<%s>, password=<%s>, provider=<%s>}", name.c_str(),
       password.c_str(), provider.c_str());
     if (name.empty()) {
+      WARN(
+        "The current WiFi(%s) name to be connected is empty, and the security is low",
+        name.c_str());
       this->Interaction(AudioMsg::PID_WIFI_CONNECTION_FAILED_0);
       this->srv_code_ = ConnectorSrv::Response::CODE_WIFI_NAME_FAIL;
       return return_false(" Wifi name is empty.");
+    } else {
+      if (!judge_string(name)) {
+        WARN(
+          "The current WiFi(%s) name to be connected is invalid, "
+          "there is a risk of security breaches.",
+          name.c_str());
+        this->Interaction(AudioMsg::PID_WIFI_CONNECTION_FAILED_0);
+        this->srv_code_ = ConnectorSrv::Response::CODE_WIFI_NAME_FAIL;
+        return return_false(" Wifi name is invalid.");
+      }
     }
     if (password.empty()) {
       WARN(
@@ -576,6 +615,16 @@ bool Connector::DoConnect(std::string name, std::string password, std::string pr
       // 变更Jira参见：https://jira.n.xiaomi.com/browse/CARPO-1031?filter=1426943
       // this->Interaction(AudioMsg::PID_WIFI_CONNECTION_FAILED_1);
       // return return_false("Wifi password is empty.");
+    } else {
+      if (!judge_string(password)) {
+        WARN(
+          "The current WiFi(%s) password(%s) to be connected is invalid, "
+          "there is a risk of security breaches.",
+          name.c_str(),
+          password.c_str());
+        this->Interaction(AudioMsg::PID_WIFI_CONNECTION_FAILED_1);
+        return return_false("Wifi password is invalid.");
+      }
     }
     if (provider.empty()) {
       // 手机端IP错误，会导致无法与设备通讯
@@ -648,6 +697,35 @@ void Connector::SaveWiFi(
   } catch (const std::exception & e) {
     ERROR("Save WiFi is error:%s", e.what());
   }
+}
+
+bool Connector::UserBootsFirstTime()
+{
+  try {
+    this->judge_first_time_ = false;
+    INFO("Judge user boots first time...");
+    toml::value wifi_toml;
+    if (cyberdog::common::CyberdogToml::ParseFile(
+        this->wifi_config_dir_.c_str(), wifi_toml))
+    {
+      bool first = toml::find_or(wifi_toml, "wifi", "user_boots_first_time", false);
+      if (first) {
+        wifi_toml["wifi"]["user_boots_first_time"] = false;
+        if (cyberdog::common::CyberdogToml::WriteFile(this->wifi_config_dir_, wifi_toml)) {
+          return true;
+        } else {
+          WARN("WiFi params config file does not have wifi key, write failed");
+        }
+      }
+    } else {
+      ERROR(
+        "Toml WiFi config file is not in toml format, config file dir:\n%s",
+        this->wifi_config_dir_.c_str());
+    }
+  } catch (const std::exception & e) {
+    ERROR("Judge user boots first time is error:%s", e.what());
+  }
+  return false;
 }
 
 std::string Connector::GetWiFiProvider(const std::string & name)

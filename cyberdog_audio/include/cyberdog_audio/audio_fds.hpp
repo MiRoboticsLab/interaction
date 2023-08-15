@@ -19,6 +19,7 @@
 #include "cyberdog_common/cyberdog_log.hpp"
 #include "cyberdog_common/cyberdog_fds.hpp"
 #include "cyberdog_common/cyberdog_model.hpp"
+#include "cyberdog_audio/audio_play.hpp"
 
 
 namespace cyberdog
@@ -50,6 +51,7 @@ public:
           }
           try {
             Init();
+            audio_play_ptr_->LoadSoundYaml();
           } catch (const std::exception & e) {
             std::cerr << e.what() << '\n';
             INFO("fds thread exception:%s", e.what());
@@ -71,7 +73,10 @@ public:
       t_fds_.join();
     }
   }
-
+  void get_audio_play_ptr(std::shared_ptr<AudioPlay> ptr)
+  {
+    audio_play_ptr_ = ptr;
+  }
   void Update()
   {
     std::unique_lock<std::mutex> lck(fds_mtx_);
@@ -178,6 +183,18 @@ private:
         return false;
       }
     }
+    file_path = SDCARD + AUDIO_CATEGORY + "/" + AUDIO_MODULE;
+    version_file = file_path + "/" + VERSION_FILE;
+    if (!File_Exist(file_path)) {
+      if (!Mk_Folder(file_path)) {
+        return false;
+      }
+    }
+    if (!File_Exist(version_file)) {
+      if (!Mk_File(version_file)) {
+        return false;
+      }
+    }
     if (!Download(BASIS_MODULE)) {
       return false;
     }
@@ -200,6 +217,9 @@ private:
       return false;
     }
     if (!Download(POWER_MODULE)) {
+      return false;
+    }
+    if (!Download(AUDIO_MODULE)) {
       return false;
     }
     return true;
@@ -329,9 +349,7 @@ private:
 
 private:
   static const unsigned int LINE_MAX_SIZE {16384};
-  // const std::string SDCARD = "/home/leen/Workspace/open/fds_download/";
   const std::string SDCARD = "/SDCARD/";
-  // const std::string AUDIO_CATEGORY = "audio";
   const std::string AUDIO_CATEGORY = "sound";
   const std::string VERSION_FILE = "version.toml";
   const std::string BASIS_MODULE = "basis";
@@ -342,13 +360,13 @@ private:
   const std::string WIFI_MODULE = "wifi";
   const std::string YAML_MODULE = "yaml";
   const std::string POWER_MODULE = "power";
-
-  // rclcpp::Node::SharedPtr audio_fds_node_{nullptr};
+  const std::string AUDIO_MODULE = "audio";
   std::thread t_fds_;
   std::mutex fds_mtx_;
   bool is_update_{false};
   bool exit_{false};
   std::condition_variable update_cv_;
+  std::shared_ptr<AudioPlay> audio_play_ptr_;
 };
 }  // namespace interaction
 }  // namespace cyberdog

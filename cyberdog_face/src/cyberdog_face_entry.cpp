@@ -638,8 +638,8 @@ void face::Face_Entry_Proccess_Fun(
               "Receive the return response of the request to update face id %d",
               static_cast<int>(ai_response.get()->result));
             // 播报引导用户更新录入语音～～～～
-            this->face_audiomsg_ptr_->play_id = AudioMsg::PID_FACE_ENTRY_UPDATE_FACE_ID;
-            this->audio_pub_->publish(*(this->face_audiomsg_ptr_));
+            // this->face_audiomsg_ptr_->play_id = AudioMsg::PID_FACE_ENTRY_UPDATE_FACE_ID;
+            // this->audio_pub_->publish(*(this->face_audiomsg_ptr_));
             break;
           }
         case FaceEntrySrv::Request::DELETE_FACE: {

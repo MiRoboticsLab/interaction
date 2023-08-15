@@ -37,6 +37,7 @@ PYBIND11_MODULE(abilityset, m)
   DefinePersonnel(m);
   DefineGesture(m);
   DefineSkeleton(m);
+  DefineSkin(m);
 
   DefineAudio(m);
   DefineLed(m);

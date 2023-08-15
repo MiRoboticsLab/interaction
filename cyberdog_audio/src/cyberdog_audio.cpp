@@ -110,11 +110,6 @@ cyberdog::interaction::CyberdogAudio::CyberdogAudio()
         audio_environment_ = tv_env.as_string();
         INFO("toml get environment:%s", audio_environment_.c_str());
       }
-      // toml::value tv_ace;
-      // if (common::CyberdogToml::Get(tv_settings, "action_control", tv_ace)) {
-      //   action_control_enable_ = (tv_ace.as_string() == "on" ? true : false);
-      //   INFO("toml get action_control switch:%s", (action_control_enable_ ? "true" : "false"));
-      // }
     }
   }
   voice_control_ptr_ = std::make_shared<VoiceControl>(action_control_enable_);
@@ -149,10 +144,9 @@ cyberdog::interaction::CyberdogAudio::CyberdogAudio()
     );
   account_manager_ptr_ = std::make_unique<cyberdog::common::CyberdogAccountManager>();
   vp_database_ptr_ = std::make_unique<cyberdog::interaction::VoiceprintDatabase>();
-  // speech_handler_ptr_ = std::make_shared<SpeechHandler>(
-  //   std::bind(&CyberdogAudio::SpeechPlayGoal, this, std::placeholders::_1));
   audio_play_ptr_ = std::make_shared<AudioPlay>(
     std::bind(&CyberdogAudio::SpeechPlayGoal, this, std::placeholders::_1));
+  audio_play_ptr_->callFunc(std::bind(&CyberdogAudio::GetPlayStatus, this));
   sdcard_playid_query_srv_ =
     this->create_service<protocol::srv::SdcardPlayIdQuery>(
     "sdcard_playid_query",
@@ -160,7 +154,9 @@ cyberdog::interaction::CyberdogAudio::CyberdogAudio()
       &CyberdogAudio::SdcardPlayidQuery, this, std::placeholders::_1,
       std::placeholders::_2),
     rmw_qos_profile_services_default, speech_callback_group_);
+
   audio_fds_ptr_ = std::make_unique<cyberdog::interaction::AudioFds>();
+  audio_fds_ptr_->get_audio_play_ptr(audio_play_ptr_);
   RegisterAudioCyberdogTopicHandler();
   RegisterCyberdogAudioServiceReturnHandler();
   audio_state.RegisterNotice(
@@ -194,36 +190,11 @@ cyberdog::interaction::CyberdogAudio::CyberdogAudio()
   } else {
     INFO("machine state init success.");
   }
-  // auto srv_func_ = [this]() {
-  //     server = std::make_shared<LcmServer>(
-  //       ATOC_SERVICE,
-  //       std::bind(
-  //         &CyberdogAudio::ServerCallback, this, std::placeholders::_1,
-  //         std::placeholders::_2));
-  //     server->Spin();
-  //   };
-  // server_thread = std::thread(srv_func_);
-  // auto msg_func_ = [this]() {
-  //     if (!lcm_->good()) {
-  //       ERROR("lcm is not good!");
-  //       return;
-  //     }
-  //     lcm_->subscribe(
-  //       ATOC_TOPIC, &cyberdog::interaction::CyberdogAudio::LcmHandler,
-  //       this);
-  //     while (0 == lcm_->handle()) {}
-  //   };
-  // message_thread = std::thread(msg_func_);
-  // CreateLcm();
+  SetControlState(action_control_enable_);
 }
 
 cyberdog::interaction::CyberdogAudio::~CyberdogAudio()
 {
-  // {
-  //   std::unique_lock<std::mutex> lck(play_mtx_);
-  //   is_play_ = false;
-  //   play_cv_.notify_all();
-  // }
   audio_play_ptr_->StopPlay();
 }
 
@@ -406,6 +377,12 @@ int32_t cyberdog::interaction::CyberdogAudio::OnActive()
       this->create_subscription<std_msgs::msg::Bool>(
       "audio_restore_settings", rclcpp::SystemDefaultsQoS(),
       std::bind(&CyberdogAudio::RestoreSettingsCallback, this, std::placeholders::_1));
+    continue_dialog_sub_ = this->create_subscription<std_msgs::msg::Bool>(
+      "continue_dialog", rclcpp::SystemDefaultsQoS(),
+      std::bind(&CyberdogAudio::ContinueDialog, this, std::placeholders::_1));
+    nlp_control_sub_ = this->create_subscription<std_msgs::msg::String>(
+      "nlp_get", rclcpp::SystemDefaultsQoS(),
+      std::bind(&CyberdogAudio::NlpControl, this, std::placeholders::_1));
     audio_set_status_srv_ =
       this->create_service<protocol::srv::AudioExecute>(
       "set_audio_state",
@@ -502,6 +479,12 @@ int32_t cyberdog::interaction::CyberdogAudio::OnActive()
       std::bind(
         &CyberdogAudio::SwitchEnvironmentService, this, std::placeholders::_1,
         std::placeholders::_2));
+    stop_play_srv_ =
+      this->create_service<std_srvs::srv::Empty>(
+      "stop_play",
+      std::bind(
+        &CyberdogAudio::StopPlayService, this, std::placeholders::_1,
+        std::placeholders::_2));
     audio_voiceprint_result_pub_ =
       this->create_publisher<protocol::msg::AudioVoiceprintResult>(
       "audio_voiceprint_result",
@@ -575,7 +558,11 @@ int32_t cyberdog::interaction::CyberdogAudio::OnDeactive()
 
 int32_t cyberdog::interaction::CyberdogAudio::OnTearDown()
 {
-  // DestroyLcm();
+  if (audio_play_ptr_->GetPlayStatus() == 1) {
+    std::shared_ptr<audio_lcm::lcm_data> l_d(new audio_lcm::lcm_data());
+    l_d->cmd = PLAY_CANCEL;
+    LcmPublish(l_d);
+  }
   return 0;
 }
 
@@ -588,6 +575,7 @@ int32_t cyberdog::interaction::CyberdogAudio::OnOta()
 {
   if (voice_control_ptr_) {
     voice_control_ptr_->SetAcitionControl(false);
+    SetControlState(false);
   }
   return 0;
 }
@@ -614,13 +602,6 @@ void cyberdog::interaction::CyberdogAudio::SpeechCallback(
   const protocol::msg::AudioPlay::SharedPtr msg)
 {
   INFO("module name:%s, speech play: %d", msg->module_name.c_str(), msg->play_id);
-  // if (msg->play_id == protocol::msg::AudioPlay::PID_BATTERY_CAPICITY_LOW) {
-  //   LcmPublish(speech_handler_ptr_->Play("电量低于10%"));
-  // } else if (msg->play_id == 9999) {
-  //   LcmPublish(speech_handler_ptr_->PlayCancel());
-  // } else {
-  //   LcmPublish(speech_handler_ptr_->Play(msg->play_id));
-  // }
   play_sound_info psi;
   psi.play_id = msg->play_id;
   LcmPublish(audio_play_ptr_->SoundPlay(psi));
@@ -633,7 +614,6 @@ void cyberdog::interaction::CyberdogAudio::SpeechExtendCallback(
     INFO(
       "topic online module name:%s, speech text: %s", msg->module_name.c_str(),
       msg->text.c_str());
-    // LcmPublish(speech_handler_ptr_->Play(msg->text));
     play_sound_info psi;
     psi.is_online = msg->is_online;
     psi.play_text = msg->text;
@@ -660,9 +640,6 @@ void cyberdog::interaction::CyberdogAudio::WifiCallback(
       }
     }
   }
-  // else {
-  //   is_wifi_connected = msg->is_connected;
-  // }
 }
 
 void cyberdog::interaction::CyberdogAudio::WakeWordCallback(
@@ -680,6 +657,7 @@ void cyberdog::interaction::CyberdogAudio::DogInfoCallback(
   ss << std::put_time(std::localtime(&t), "%Y-%m-%d %X");
   personal_info.activate_date = ss.str();
   personal_info.weight = CONST_WEIGHT;
+  INFO("CONST_WEIGHT : %f", CONST_WEIGHT);
   DogInfoNotify();
 }
 
@@ -696,7 +674,14 @@ void cyberdog::interaction::CyberdogAudio::OtaRequestCallback(
     OtaOverNotify();
   }
 }
-
+void cyberdog::interaction::CyberdogAudio::StopPlayService(
+  const std_srvs::srv::Empty::Request::SharedPtr request,
+  std_srvs::srv::Empty::Response::SharedPtr response)
+{
+  std::shared_ptr<audio_lcm::lcm_data> l_d(new audio_lcm::lcm_data());
+  l_d->cmd = PLAY_CANCEL;
+  LcmPublish(l_d);
+}
 void cyberdog::interaction::CyberdogAudio::SetAudioState(
   const protocol::srv::AudioExecute::Request::SharedPtr request,
   protocol::srv::AudioExecute::Response::SharedPtr respose)
@@ -1047,7 +1032,7 @@ void cyberdog::interaction::CyberdogAudio::AudioActionSetCallback(
     std::system(cmd.c_str());
   }
   Document json_document(kObjectType);
-  Document::AllocatorType & allocator = json_document.GetAllocator();
+  // Document::AllocatorType & allocator = json_document.GetAllocator();
   auto result = CyberdogJson::ReadJsonFromFile(path, json_document);
   rapidjson::Value action_control_val(rapidjson::kObjectType);
   if (result) {
@@ -1059,6 +1044,8 @@ void cyberdog::interaction::CyberdogAudio::AudioActionSetCallback(
   CyberdogJson::Add(json_document, "action_control", action_control_val);
   CyberdogJson::WriteJsonToFile(path, json_document);
   voice_control_ptr_->SetAcitionControl(request->data);
+  bool state_ = request->data;
+  SetControlState(state_);
   response->success = true;
   response->message = "success";
 }
@@ -1193,6 +1180,28 @@ void cyberdog::interaction::CyberdogAudio::BmsStatus(
   const protocol::msg::BmsStatus::SharedPtr msg)
 {
   battery_capicity_ = msg->batt_soc;
+}
+void cyberdog::interaction::CyberdogAudio::NlpControl(
+  const std_msgs::msg::String::SharedPtr msg)
+{
+  nlp_control cd;
+  cd.text = msg->data;
+  INFO("nlpsontrol: %s", (msg->data).c_str());
+  std::shared_ptr<audio_lcm::lcm_data> l_d(new audio_lcm::lcm_data());
+  l_d->cmd = NLP_CONTROL;
+  l_d->data = xpack::json::encode(cd);
+  LcmPublish(l_d);
+}
+
+void cyberdog::interaction::CyberdogAudio::ContinueDialog(
+  const std_msgs::msg::Bool::SharedPtr msg)
+{
+  continue_dialog cd;
+  cd.set = msg->data;
+  std::shared_ptr<audio_lcm::lcm_data> l_d(new audio_lcm::lcm_data());
+  l_d->cmd = CONTINUE_DIALOG;
+  l_d->data = xpack::json::encode(cd);
+  LcmPublish(l_d);
 }
 
 void cyberdog::interaction::CyberdogAudio::LcmHandler(
@@ -1577,7 +1586,18 @@ bool cyberdog::interaction::CyberdogAudio::ClientRequest2(
   }
   return result;
 }
-
+bool cyberdog::interaction::CyberdogAudio::SetControlState(bool on)
+{
+  audio_lcm::lcm_data req;
+  audio_lcm::lcm_data res;
+  req.cmd = SET_CONTROL_STATE;
+  set_control_state set_control_;
+  set_control_.on = on;
+  req.data = xpack::json::encode(set_control_);
+  INFO("set_control_state request:%s", req.data.c_str());
+  bool result = ClientRequest(req, res);
+  return result;
+}
 bool cyberdog::interaction::CyberdogAudio::SelfCheck()
 {
   // 开机自检
@@ -1588,11 +1608,33 @@ bool cyberdog::interaction::CyberdogAudio::SelfCheck()
   self_check sc;
   sc.counter = counter++;
   req.data = xpack::json::encode(sc);
-  DEBUG("self check request:%s", req.data.c_str());
+  INFO("self check request:%s", req.data.c_str());
   bool result = ClientRequest(req, res);
   return result;
 }
-
+int32_t cyberdog::interaction::CyberdogAudio::GetPlayStatus()
+{
+  bool result = true;
+  audio_lcm::lcm_data req;
+  audio_lcm::lcm_data res;
+  req.cmd = GET_PLAY_STATUS;
+  result = ClientRequest(req, res);
+  if (!result) {
+    ERROR("get play status request failed!");
+  }
+  return audio_play_ptr_->GetPlayStatus();
+}
+bool cyberdog::interaction::CyberdogAudio::GetPlayStatusResponse(
+  const std::string & data)
+{
+  play_status play_status_res;
+  xpack::json::decode(data, play_status_res);
+  audio_play_ptr_->SetPlayStatus(play_status_res.status);
+  INFO(
+    "get_play_status status:%d, volumn:%d, type:%d",
+    play_status_res.status, play_status_res.volumn, play_status_res.type);
+  return true;
+}
 bool cyberdog::interaction::CyberdogAudio::SetStatus(uint8_t status)
 {
   // 语音状态设置
@@ -1831,6 +1873,9 @@ void cyberdog::interaction::CyberdogAudio::DogInfoNotify()
   di.name = personal_info.name;
   di.activate_date = personal_info.activate_date;
   di.weight = personal_info.weight;
+  INFO(
+    "DOG_INFO name: %s, weight:%f",
+    personal_info.name.c_str(), personal_info.weight);
   l_d->cmd = DOG_INFO;
   l_d->data = xpack::json::encode(di);
   LcmPublish(l_d);
@@ -2032,6 +2077,10 @@ void cyberdog::interaction::CyberdogAudio::RegisterAudioCyberdogTopicHandler()
 void cyberdog::interaction::CyberdogAudio::RegisterCyberdogAudioServiceReturnHandler()
 {
   // 自检返回
+  cyberdog_audio_service_return_cmd_map.insert(
+    std::make_pair(
+      GET_PLAY_STATUS,
+      std::bind(&CyberdogAudio::GetPlayStatusResponse, this, std::placeholders::_1)));
   cyberdog_audio_service_return_cmd_map.insert(
     std::make_pair(
       SELF_CHECK,

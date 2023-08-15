@@ -40,6 +40,7 @@ public:
   Task()
   : Base(std::string(__FUNCTION__)) {}
   ~Task() {}
+  bool JudgeFSM();                                /*!< 判断状态机 */
   bool GetProcessor(Processor);                   /*!< 获取处理器 */
   State Start();                                  /*!< 开始任务 */
   State Stop();                                   /*!< 结束任务 */
@@ -93,7 +94,6 @@ private:
   void FsmCB(
     const MsgVisualProgrammingOperate::SharedPtr
   );                                              /*!< 状态机消息回调 */
-  bool JudgeFSM();                                /*!< 判断状态机 */
   void FSMReciprocalCompensation(StateCode &);    /*!< 状态机异常时候交互补偿 + 终止任务 */
   void GetBlockJson(
     rapidjson::Document &, std::string,

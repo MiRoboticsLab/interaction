@@ -37,7 +37,10 @@ void DefineCyberdog(py::object m)
   .def(
     "shutdown", &VPA::Cyberdog::Shutdown, R"pbdoc( 终止 )pbdoc",
     py::arg("exit") = true)
-
+  .def(
+    "ready", &VPA::Cyberdog::Ready, R"pbdoc( 准备就绪 )pbdoc",
+    py::arg("timeout") = 30
+  )
   .def_readwrite("network", &VPA::Cyberdog::network_, R"pbdoc( 网络模块句柄 )pbdoc")
   .def_readwrite("follow", &VPA::Cyberdog::follow_, R"pbdoc( 跟随模块句柄 )pbdoc")
   .def_readwrite("motion", &VPA::Cyberdog::motion_, R"pbdoc( 运动模块句柄 )pbdoc")
@@ -47,6 +50,7 @@ void DefineCyberdog(py::object m)
   .def_readwrite("personnel", &VPA::Cyberdog::personnel_, R"pbdoc( 人员模块句柄 )pbdoc")
   .def_readwrite("gesture", &VPA::Cyberdog::gesture_, R"pbdoc( 手势识别模块句柄 )pbdoc")
   .def_readwrite("skeleton", &VPA::Cyberdog::skeleton_, R"pbdoc( 骨骼（点）识别模块句柄 )pbdoc")
+  .def_readwrite("skin", &VPA::Cyberdog::skin_, R"pbdoc( 皮肤模块句柄 )pbdoc")
 
   .def_readwrite("audio", &VPA::Cyberdog::audio_, R"pbdoc( 语音模块 )pbdoc")
   .def_readwrite("led", &VPA::Cyberdog::led_, R"pbdoc( LED灯 )pbdoc")

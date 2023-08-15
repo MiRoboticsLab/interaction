@@ -15,6 +15,7 @@ endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_ros REQUIRED)
+find_package(ament_cmake_python REQUIRED)
 
 find_package(rclcpp REQUIRED)
 find_package(builtin_interfaces REQUIRED)
@@ -28,11 +29,14 @@ find_package(std_srvs REQUIRED)
 find_package(protocol REQUIRED)
 find_package(params REQUIRED)
 find_package(cyberdog_common REQUIRED)
+find_package(cyberdog_embed_protocol REQUIRED)
 find_package(rapidjson REQUIRED)
 
+# set(PYBIND11_PYTHON_VERSION 3.6)
 find_package(python_cmake_module REQUIRED)
 find_package(PythonExtra REQUIRED)
 find_package(Python 3.6 COMPONENTS Interpreter Development REQUIRED)
+find_package(pybind11_vendor REQUIRED)
 find_package(pybind11 CONFIG REQUIRED)
 
 include(compile_and_install.cmake)

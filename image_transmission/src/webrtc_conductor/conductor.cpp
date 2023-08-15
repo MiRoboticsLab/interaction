@@ -61,8 +61,20 @@ PCConductor::~PCConductor()
   INFO_STREAM("pc_conductor has been destructed");
 }
 
+void PCConductor::SetVideoParam(int height, int width, const std::string & alignment)
+{
+  height_ = height;
+  width_ = width;
+  alignment_ = alignment;
+}
+
 void PCConductor::OnReceiveSDP(webrtc::SessionDescriptionInterface * desc)
 {
+  std::unique_lock<std::mutex> sdp_order_lock(sdp_order_mutex_);
+  if (sdp_has_received_) {
+    WARN("sdp has already received, ignore this one");
+    return;
+  }
   peer_connection_->SetRemoteDescription(DummySetSessionDescriptionObserver::Create(this), desc);
   INFO_STREAM("set remote description");
   if (desc->GetType() == webrtc::SdpType::kOffer) {
@@ -74,13 +86,11 @@ void PCConductor::OnReceiveSDP(webrtc::SessionDescriptionInterface * desc)
   } else {
     INFO_STREAM("sdp is an answer");
   }
-  {
-    std::unique_lock<std::mutex> sdp_order_lock(sdp_order_mutex_);
-    sdp_has_received_ = true;
-    while (!candidate_buff_.empty()) {
-      peer_connection_->AddIceCandidate(candidate_buff_.front());
-      candidate_buff_.pop();
-    }
+  sdp_has_received_ = true;
+  while (!candidate_buff_.empty()) {
+    peer_connection_->AddIceCandidate(candidate_buff_.front());
+    INFO_STREAM("add ice candidate");
+    candidate_buff_.pop();
   }
 }
 
@@ -103,11 +113,23 @@ void PCConductor::OnIceConnectionChange(
   if (new_state == webrtc::PeerConnectionInterface
     ::IceConnectionState::kIceConnectionDisconnected ||
     new_state == webrtc::PeerConnectionInterface
-    ::IceConnectionState::kIceConnectionFailed)
+    ::IceConnectionState::kIceConnectionFailed ||
+    new_state == webrtc::PeerConnectionInterface
+    ::IceConnectionState::kIceConnectionClosed)
   {
     connection_stage_disconnect_ = true;
-  } else if (new_state == 2) {
+  } else if (new_state == 2) {  // kIceConnectionConnected
     is_connected_ = true;
+    if (height_ != 0 && width_ != 0) {
+      if (!manager_->CallNotifyService(true, height_, width_, alignment_)) {
+        manager_->PublishError(1001, "Fail to connect to camera service", uid_);
+      }
+    } else {
+      WARN("Not recieve video param, use default height width and alignment");
+      if (!manager_->CallNotifyService(true, 720, 1280, "middle")) {
+        manager_->PublishError(1001, "Fail to connect to camera service", uid_);
+      }
+    }
   }
 }
 
@@ -164,14 +186,20 @@ WebRTCManager::WebRTCManager(
 : ros_node_(ros_node), video_source_(video_source)
 {
   // ros initialization
+  callback_group_ = ros_node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+  rclcpp::SubscriptionOptions sub_option;
+  rclcpp::PublisherOptions pub_option;
+  sub_option.callback_group = callback_group_;
+  pub_option.callback_group = callback_group_;
   signal_publisher_ = ros_node_->create_publisher<std_msgs::msg::String>(
-    "img_trans_signal_out", 200);
+    "img_trans_signal_out", 200, pub_option);
   signal_subscription_ = ros_node_->create_subscription<std_msgs::msg::String>(
     "img_trans_signal_in", 200, std::bind(
       &WebRTCManager::msgCallback,
-      this, std::placeholders::_1));
+      this, std::placeholders::_1), sub_option);
   monitor_timer_ = ros_node_->create_wall_timer(
-    std::chrono::duration<int, std::milli>(100), std::bind(&WebRTCManager::timerCallback, this));
+    std::chrono::duration<int, std::milli>(100), std::bind(&WebRTCManager::timerCallback, this),
+    callback_group_);
   monitor_timer_->cancel();
   status_notify_client_ = ros_node_->create_client<protocol::srv::CameraService>("camera_service");
   // webrtc initialization
@@ -237,7 +265,7 @@ void WebRTCManager::parseMsg(const std_msgs::msg::String::SharedPtr msg, const s
       !rtc::GetIntFromJsonObject(core_msg, "sdpMLineIndex", &sdp_mlineindex) ||
       !rtc::GetStringFromJsonObject(core_msg, "candidate", &sdp))
     {
-      WARN_STREAM("Can't parse received message.");
+      WARN_STREAM("Not able to parse ice candicate message.");
       return;
     }
     std::unique_ptr<webrtc::IceCandidateInterface> candidate(
@@ -276,13 +304,6 @@ void WebRTCManager::parseMsg(const std_msgs::msg::String::SharedPtr msg, const s
     }
   } else if (root.isMember("error")) {
     DEBUG_STREAM("error msg");
-  } else {
-    INFO_STREAM("It's stop signal");
-    if (killPC(uid)) {
-      PublishStop(uid);
-    } else {
-      WARN("uid: %s is not connected.", uid.c_str());
-    }
   }
 }
 
@@ -310,7 +331,7 @@ void WebRTCManager::msgCallback(const std_msgs::msg::String::SharedPtr msg)
         !rtc::GetIntFromJsonObject(root, "width", &w) ||
         !rtc::GetStringFromJsonObject(root, "alignment", &alg))
       {
-        WARN_STREAM("Can't parse received message.");
+        WARN_STREAM("Not able to parse param information.");
         return;
       }
     }
@@ -349,7 +370,7 @@ bool WebRTCManager::addNewPC(
   const std::string & uid, int height, int width, const std::string & alignment)
 {
   if (pc_conductors_.find(uid) != pc_conductors_.end()) {
-    INFO_STREAM("Got existed pc");
+    INFO_STREAM("Got an existed pc.");
   } else {
     bool no_conductors = pc_conductors_.empty();
     pc_conductors_[uid] = new rtc::RefCountedObject<PCConductor>(
@@ -359,6 +380,7 @@ bool WebRTCManager::addNewPC(
       pc_config_, nullptr, nullptr, pc_conductors_[uid].get());
     if (!new_pc) {
       WARN_STREAM("Failed to create PeerConnection!");
+      pc_conductors_.erase(uid);
       return false;
     }
     auto video_track = peer_connection_factory_->CreateVideoTrack("video_label", video_source_);
@@ -367,15 +389,15 @@ bool WebRTCManager::addNewPC(
       WARN_STREAM(
         "Failed to add video track to PeerConnection: " <<
           error.error().message());
+      pc_conductors_.erase(uid);
       return false;
     }
     pc_conductors_[uid]->SetPC(new_pc);
-    INFO_STREAM("Got a new pc");
+    INFO_STREAM("A new pc is created.");
+    monitor_timer_->reset();
   }
   if (height != 0 && width != 0) {
-    if (!CallNotifyService(true, height, width, alignment)) {
-      PublishError(1001, "Fail to connect to camera service", uid);
-    }
+    pc_conductors_[uid]->SetVideoParam(height, width, alignment);
   }
   return true;
 }
@@ -518,7 +540,6 @@ bool WebRTCManager::CallNotifyService(
     if (is_streaming_) {
       return true;
     }
-    monitor_timer_->reset();
   } else {
     monitor_timer_->cancel();
   }

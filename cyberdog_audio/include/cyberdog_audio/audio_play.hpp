@@ -43,6 +43,19 @@ public:
   AudioPlay(
     std::function<void(const std::shared_ptr<SpeechActionServer::GoalHandleSpeech>)> goal_func)
   {
+    LoadSoundYaml();
+    speech_handler_ptr_ = std::make_shared<SpeechHandler>(goal_func);
+    audio_notify_pub_ =
+      get_nodify_node_->create_publisher<std_msgs::msg::Bool>(
+      "audio_notification_report", rclcpp::SystemDefaultsQoS());
+    timer_pub_ptr_ =
+      get_nodify_node_->create_wall_timer(
+      std::chrono::milliseconds(500),
+      std::bind(&AudioPlay::get_play_status_callback, this));
+    std::thread([this]() {rclcpp::spin(get_nodify_node_);}).detach();
+  }
+  void LoadSoundYaml()
+  {
     if (access(SOUND_DIRECTORY.c_str(), F_OK) == 0) {
       std::string config_toml_file = SOUND_DIRECTORY + "/yaml/sound.toml";
       if (access(config_toml_file.c_str(), F_OK) == 0) {
@@ -70,6 +83,10 @@ public:
                     ERROR("%s does not exist!", file_path.c_str());
                   }
                 }
+                // Todo:test fds down and map update
+                // for (const auto & pair : http_play_map) {
+                //   INFO("paly_id:%d, tts_name:%s", pair.first, pair.second.c_str());
+                // }
               } else {
                 WARN("Audio Play tts ids size and tts names size not equal, please check!");
               }
@@ -95,6 +112,10 @@ public:
                     ERROR("%s does not exist!", file_path.c_str());
                   }
                 }
+                // Todo:test
+                // for (const auto & pair : http_music_map) {
+                //   INFO("paly_id:%d, tts_name:%s", pair.first, pair.second.c_str());
+                // }
               } else {
                 WARN("Audio Play music ids size and music names size not equal, please check!");
               }
@@ -103,7 +124,6 @@ public:
         }
       }
     }
-    speech_handler_ptr_ = std::make_shared<SpeechHandler>(goal_func);
   }
   ~AudioPlay() = default;
   std::shared_ptr<audio_lcm::lcm_data> SoundPlay(play_sound_info & psi)
@@ -116,6 +136,7 @@ public:
     }
     if (!psi.is_music) {
       auto play_iter = http_play_map.find(psi.play_id);
+      // INFO("play_id:%d, %s", play_iter->first, play_iter->second.c_str());
       if (play_iter != http_play_map.end()) {
         std::string url = play_iter->second;
         return speech_handler_ptr_->HttpPlay(url);
@@ -124,6 +145,7 @@ public:
       }
     }
     auto music_iter = http_music_map.find(psi.play_id);
+    // INFO("play_id:%d, %s", play_iter->first, play_iter->second.c_str());
     if (music_iter != http_music_map.end()) {
       std::string url = music_iter->second;
       std::vector<std::string> urls;
@@ -172,6 +194,7 @@ public:
     play_notify_info pni;
     xpack::json::decode(data, pni);
     INFO("play notify name:%s, status:%d", pni.name.c_str(), pni.status);
+    UploadPlayNotify(pni.status);
     Notify(pni.status);
   }
   void HttpPlayNotify(const std::string & data)
@@ -179,7 +202,21 @@ public:
     http_play_notify_info hpni;
     xpack::json::decode(data, hpni);
     INFO("http play notify name:%s, status:%d", hpni.name.c_str(), hpni.status);
+    UploadPlayNotify(hpni.status);
     Notify(hpni.status);
+  }
+  void SetPlayStatus(int32_t val)
+  {
+    play_status_val = val;
+  }
+  int32_t GetPlayStatus()
+  {
+    return play_status_val;
+  }
+  void callFunc(std::function<int32_t()> callback)
+  {
+    // 用于传递CyberdogAudio类中GetPlayStatus()的函数指针
+    funcPtr = callback;
   }
 
 private:
@@ -211,9 +248,36 @@ private:
       WARN("unimplement play notify state:%d", status);
     }
   }
+  void UploadPlayNotify(uint8_t status)
+  {
+    if (status == 1) {
+      INFO("open the get_play_status timer");
+      timer_pub_ptr_->reset();
+    }
+  }
+
+  void get_play_status_callback()
+  {
+    std_msgs::msg::Bool msg;
+    if (funcPtr() == 1) {
+      msg.data = true;
+      audio_notify_pub_->publish(msg);
+    } else {
+      msg.data = false;
+      audio_notify_pub_->publish(msg);
+      INFO("close the get_play_status timer");
+      timer_pub_ptr_->cancel();
+    }
+  }
 
 private:
+  rclcpp::Node::SharedPtr get_nodify_node_ =
+    std::make_shared<rclcpp::Node>("get_notify_node");
+  rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr audio_notify_pub_;
   std::shared_ptr<SpeechHandler> speech_handler_ptr_;
+  rclcpp::TimerBase::SharedPtr timer_pub_ptr_;
+  std::function<int32_t()> funcPtr;
+  int play_status_val;
   std::mutex play_mtx_;
   bool is_play_{false};
   std::condition_variable play_cv_;

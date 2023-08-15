@@ -155,9 +155,11 @@ bool Task::Build(
         "%s [%s] [Build] Get task header failed.",
         this->logger_.c_str(),
         _msg.id.c_str());
+      this->state_ = StateEnum::abnormally_request;
+      this->describe_ = "abnormally request";
       return false;
     }
-    std::ostringstream body_py, body_sh;
+    std::ostringstream body_py;
     if (_msg.operate == OperateMsg::OPERATE_DEBUG) {
       body_py << "cyberdog.set_log(True)" << std::endl;
     }
@@ -166,17 +168,30 @@ bool Task::Build(
       _msg.body << std::endl <<
       "cyberdog.task.stop()" << std::endl <<
       "cyberdog.shutdown()" << std::endl;
+    std::string body_str = body_py.str();
+    if (this->decorate_body_) {
+      if (!this->py_interpreter_ptr_->DecorateBody(body_str)) {
+        this->state_ = StateEnum::abnormally_decorate_body;
+        this->describe_ = "decorate body";
+        ERROR(
+          "%s [%s] [Build] Decorate body failed.",
+          this->logger_.c_str(),
+          _msg.id.c_str());
+        return false;
+      }
+    }
     std::string now_file_py = _file + ".py";
     std::string now_file_log;
     if (!this->GetLogFile(_file, now_file_log)) {
       return false;
     }
+    std::ostringstream body_sh;
     now_file_log += ".log 2>&1";
     body_sh << "python3 " << now_file_py << " cyberdog_vp_task:=" << _msg.target_id.front() <<
       " > " <<
       now_file_log <<
       std::endl;
-    if (!build(".py", header_py, body_py.str()) ||
+    if (!build(".py", header_py, body_str) ||
       !build(".sh", this->header_sh_, body_sh.str()))
     {
       return false;

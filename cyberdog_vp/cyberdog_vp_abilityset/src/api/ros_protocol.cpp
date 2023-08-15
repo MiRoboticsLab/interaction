@@ -64,50 +64,50 @@ void DefineMsgBmsStatus(py::object m)
 {
   py::class_<protocol::msg::BmsStatus>(m, "BmsStatus", py::dynamic_attr())
   .def(py::init<>(), R"pbdoc( create MsgBmsStatus object )pbdoc")
-  .def_readonly("header", &protocol::msg::BmsStatus::header, R"pbdoc( 消息头 )pbdoc")
-  .def_readonly("batt_volt", &protocol::msg::BmsStatus::batt_volt, R"pbdoc( 电压 - mV )pbdoc")
-  .def_readonly("batt_curr", &protocol::msg::BmsStatus::batt_curr, R"pbdoc( 电流 - mA )pbdoc")
-  .def_readonly("batt_soc", &protocol::msg::BmsStatus::batt_soc, R"pbdoc( 剩余电量 )pbdoc")
-  .def_readonly("batt_temp", &protocol::msg::BmsStatus::batt_temp, R"pbdoc( 温度 - °C )pbdoc")
-  .def_readonly(
+  .def_readwrite("header", &protocol::msg::BmsStatus::header, R"pbdoc( 消息头 )pbdoc")
+  .def_readwrite("batt_volt", &protocol::msg::BmsStatus::batt_volt, R"pbdoc( 电压 - mV )pbdoc")
+  .def_readwrite("batt_curr", &protocol::msg::BmsStatus::batt_curr, R"pbdoc( 电流 - mA )pbdoc")
+  .def_readwrite("batt_soc", &protocol::msg::BmsStatus::batt_soc, R"pbdoc( 剩余电量 )pbdoc")
+  .def_readwrite("batt_temp", &protocol::msg::BmsStatus::batt_temp, R"pbdoc( 温度 - °C )pbdoc")
+  .def_readwrite(
     "power_adapter_temp", &protocol::msg::BmsStatus::power_adapter_temp,
     R"pbdoc( 电源适配器温度 - °C )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "wireless_charging_temp", &protocol::msg::BmsStatus::wireless_charging_temp,
     R"pbdoc( 无线充电线圈温度 - °C )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "batt_st", &protocol::msg::BmsStatus::batt_st,
     R"pbdoc( 保留字 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "bms_state_one", &protocol::msg::BmsStatus::bms_state_one,
     R"pbdoc( 开机时电池状态 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "bms_state_two", &protocol::msg::BmsStatus::bms_state_two,
     R"pbdoc( 关机时电池状态 )pbdoc")
-  .def_readonly("batt_health", &protocol::msg::BmsStatus::batt_health, R"pbdoc( 电池健康 )pbdoc")
-  .def_readonly(
+  .def_readwrite("batt_health", &protocol::msg::BmsStatus::batt_health, R"pbdoc( 电池健康 )pbdoc")
+  .def_readwrite(
     "batt_loop_number", &protocol::msg::BmsStatus::batt_loop_number,
     R"pbdoc( 电池循环数 )pbdoc")
-  .def_readonly("power_normal", &protocol::msg::BmsStatus::power_normal, R"pbdoc( 正常模式 )pbdoc")
-  .def_readonly(
+  .def_readwrite("power_normal", &protocol::msg::BmsStatus::power_normal, R"pbdoc( 正常模式 )pbdoc")
+  .def_readwrite(
     "power_wired_charging", &protocol::msg::BmsStatus::power_wired_charging,
     R"pbdoc( 有线充电中 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "power_finished_charging", &protocol::msg::BmsStatus::power_finished_charging,
     R"pbdoc( 充电完成 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "power_motor_shutdown", &protocol::msg::BmsStatus::power_motor_shutdown,
     R"pbdoc( 电机掉电 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "power_soft_shutdown", &protocol::msg::BmsStatus::power_soft_shutdown,
     R"pbdoc( 软关机 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "power_wp_place", &protocol::msg::BmsStatus::power_wp_place,
     R"pbdoc( 无线充电在位 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "power_wp_charging", &protocol::msg::BmsStatus::power_wp_charging,
     R"pbdoc( 无线充电中 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "power_expower_supply", &protocol::msg::BmsStatus::power_expower_supply,
     R"pbdoc( 外部供电 )pbdoc")
   .def(
@@ -173,8 +173,8 @@ void DefineMsgTouchStatus(py::object m)
 {
   py::class_<protocol::msg::TouchStatus>(m, "TouchStatus", py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("header", &protocol::msg::TouchStatus::header, R"pbdoc( 消息头 )pbdoc")
-  .def_readonly("touch_state", &protocol::msg::TouchStatus::touch_state, R"pbdoc( 触摸板状态 )pbdoc")
+  .def_readwrite("header", &protocol::msg::TouchStatus::header, R"pbdoc( 消息头 )pbdoc")
+  .def_readwrite("touch_state", &protocol::msg::TouchStatus::touch_state, R"pbdoc( 触摸板状态 )pbdoc")
   .def(
     "__repr__", [](const protocol::msg::TouchStatus & _touch) {
       return std::string(
@@ -200,20 +200,20 @@ void DefineMsgConnectorStatus(py::object m)
 {
   py::class_<protocol::msg::ConnectorStatus>(m, "ConnectorStatus", py::dynamic_attr())
   .def(py::init<>())
-  // .def_readonly("header", &protocol::msg::ConnectorStatus::header, R"pbdoc( 消息头 )pbdoc")
-  .def_readonly(
+  // .def_readwrite("header", &protocol::msg::ConnectorStatus::header, R"pbdoc( 消息头 )pbdoc")
+  .def_readwrite(
     "is_connected", &protocol::msg::ConnectorStatus::is_connected,
     R"pbdoc( 是否连接wifi )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "is_internet", &protocol::msg::ConnectorStatus::is_internet,
     R"pbdoc( 是否可以访问外网 )pbdoc")
-  .def_readonly("ssid", &protocol::msg::ConnectorStatus::ssid, R"pbdoc( wifi名称 )pbdoc")
-  .def_readonly("robot_ip", &protocol::msg::ConnectorStatus::robot_ip, R"pbdoc( 机器人IP )pbdoc")
-  .def_readonly(
+  .def_readwrite("ssid", &protocol::msg::ConnectorStatus::ssid, R"pbdoc( wifi名称 )pbdoc")
+  .def_readwrite("robot_ip", &protocol::msg::ConnectorStatus::robot_ip, R"pbdoc( 机器人IP )pbdoc")
+  .def_readwrite(
     "provider_ip", &protocol::msg::ConnectorStatus::provider_ip,
     R"pbdoc( wifi提供方/移动端 IP )pbdoc")
-  .def_readonly("strength", &protocol::msg::ConnectorStatus::strength, R"pbdoc( wifi信号强度 )pbdoc")
-  .def_readonly("code", &protocol::msg::ConnectorStatus::code, R"pbdoc( 标准错误码 )pbdoc")
+  .def_readwrite("strength", &protocol::msg::ConnectorStatus::strength, R"pbdoc( wifi信号强度 )pbdoc")
+  .def_readwrite("code", &protocol::msg::ConnectorStatus::code, R"pbdoc( 标准错误码 )pbdoc")
 
   .def(
     "__repr__", [](const protocol::msg::ConnectorStatus & _connector) {
@@ -434,13 +434,13 @@ void DefineMsgGpsPayload(py::object m)
 {
   py::class_<protocol::msg::GpsPayload>(m, "GpsPayload", py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("sec", &protocol::msg::GpsPayload::sec, R"pbdoc( 秒 )pbdoc")
-  .def_readonly("nanosec", &protocol::msg::GpsPayload::nanosec, R"pbdoc( 纳秒 )pbdoc")
-  .def_readonly("itow", &protocol::msg::GpsPayload::itow, R"pbdoc( 时间戳 )pbdoc")
-  .def_readonly("fix_type", &protocol::msg::GpsPayload::fix_type, R"pbdoc( 优化类型 )pbdoc")
-  .def_readonly("num_sv", &protocol::msg::GpsPayload::num_sv, R"pbdoc( 搜星个数 )pbdoc")
-  .def_readonly("lon", &protocol::msg::GpsPayload::lon, R"pbdoc( 经度 )pbdoc")
-  .def_readonly("lat", &protocol::msg::GpsPayload::lat, R"pbdoc( 纬度 )pbdoc")
+  .def_readwrite("sec", &protocol::msg::GpsPayload::sec, R"pbdoc( 秒 )pbdoc")
+  .def_readwrite("nanosec", &protocol::msg::GpsPayload::nanosec, R"pbdoc( 纳秒 )pbdoc")
+  .def_readwrite("itow", &protocol::msg::GpsPayload::itow, R"pbdoc( 时间戳 )pbdoc")
+  .def_readwrite("fix_type", &protocol::msg::GpsPayload::fix_type, R"pbdoc( 优化类型 )pbdoc")
+  .def_readwrite("num_sv", &protocol::msg::GpsPayload::num_sv, R"pbdoc( 搜星个数 )pbdoc")
+  .def_readwrite("lon", &protocol::msg::GpsPayload::lon, R"pbdoc( 经度 )pbdoc")
+  .def_readwrite("lat", &protocol::msg::GpsPayload::lat, R"pbdoc( 纬度 )pbdoc")
   .def(
     "__repr__", [](const protocol::msg::GpsPayload & _gps) {
       return std::string(
@@ -472,14 +472,14 @@ void DefineMsgSingleTofPayload(py::object m)
 {
   py::class_<protocol::msg::SingleTofPayload>(m, "SingleTofPayload", py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("header", &protocol::msg::SingleTofPayload::header, R"pbdoc( 消息头 )pbdoc")
-  .def_readonly(
+  .def_readwrite("header", &protocol::msg::SingleTofPayload::header, R"pbdoc( 消息头 )pbdoc")
+  .def_readwrite(
     "data_available", &protocol::msg::SingleTofPayload::data_available,
     R"pbdoc( 数据是否可用 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "tof_position", &protocol::msg::SingleTofPayload::tof_position,
     R"pbdoc( 传感器的位置(左前:0,右前:1,左后:2,右后:3) )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "data", &protocol::msg::SingleTofPayload::data,
     py::return_value_policy::reference_internal, R"pbdoc( 传感器数据[m] )pbdoc")
   .def(
@@ -513,8 +513,8 @@ void DefineMsgHeadTofPayload(py::object m)
 {
   py::class_<protocol::msg::HeadTofPayload>(m, "HeadTofPayload", py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("left_head", &protocol::msg::HeadTofPayload::left_head, R"pbdoc( 左前 )pbdoc")
-  .def_readonly("right_head", &protocol::msg::HeadTofPayload::right_head, R"pbdoc( 右前 )pbdoc")
+  .def_readwrite("left_head", &protocol::msg::HeadTofPayload::left_head, R"pbdoc( 左前 )pbdoc")
+  .def_readwrite("right_head", &protocol::msg::HeadTofPayload::right_head, R"pbdoc( 右前 )pbdoc")
   .def(
     "__repr__", [](const protocol::msg::HeadTofPayload & _tof) {
       return std::string(
@@ -562,8 +562,8 @@ void DefineMsgRearTofPayload(py::object m)
 {
   py::class_<protocol::msg::RearTofPayload>(m, "RearTofPayload", py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("left_rear", &protocol::msg::RearTofPayload::left_rear, R"pbdoc( 左后 )pbdoc")
-  .def_readonly("right_rear", &protocol::msg::RearTofPayload::right_rear, R"pbdoc( 右后 )pbdoc")
+  .def_readwrite("left_rear", &protocol::msg::RearTofPayload::left_rear, R"pbdoc( 左后 )pbdoc")
+  .def_readwrite("right_rear", &protocol::msg::RearTofPayload::right_rear, R"pbdoc( 右后 )pbdoc")
   .def(
     "__repr__", [](const protocol::msg::RearTofPayload & _tof) {
       return std::string(
@@ -643,13 +643,13 @@ void DefineMsgPreset(py::object m)
     m, "MsgPreset",
     py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly(
+  .def_readwrite(
     "label_name", &protocol::msg::Label::label_name,
     R"pbdoc( 预置点名称 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "physic_x", &protocol::msg::Label::physic_x,
     R"pbdoc( 预置点 X 坐标 )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "physic_y", &protocol::msg::Label::physic_y,
     R"pbdoc( 预置点 y 坐标 )pbdoc")
   .def(
@@ -687,7 +687,7 @@ void DefineMsgSport(py::object m)
       return std::string(
         FORMAT(
           "┌───────────────────────────────────────────────────---"
-          "\n│- type: MsgTrainingWords"
+          "\n│- type: MsgSport"
           "\n├───────────────────────────────────────────────────---"
           "\n│- data:"
           "\n│  - algo_switch: = %ds"
@@ -736,7 +736,7 @@ void DefineSrvFaceRecResponse(py::object m)
     m, "FaceRec_Response",
     py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("result", &protocol::srv::FaceRec::Response::result, R"pbdoc( 结果 )pbdoc")
+  .def_readwrite("result", &protocol::srv::FaceRec::Response::result, R"pbdoc( 结果 )pbdoc")
   .def(
     "__repr__", [](const protocol::srv::FaceRec::Response & _res) {
       return std::string(
@@ -758,7 +758,7 @@ void DefineSrvSportResponse(py::object m)
     m, "SportManager_Response",
     py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("result", &protocol::srv::SportManager::Response::result, R"pbdoc( 结果 )pbdoc")
+  .def_readwrite("result", &protocol::srv::SportManager::Response::result, R"pbdoc( 结果 )pbdoc")
   .def(
     "__repr__", [](const protocol::srv::SportManager::Response & _res) {
       return std::string(
@@ -805,7 +805,7 @@ void DefineSrvAudioTextPlayResponse(py::object m)
     m, "AudioTextPlay_Response",
     py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("status", &protocol::srv::AudioTextPlay::Response::status, R"pbdoc( 状态码 )pbdoc")
+  .def_readwrite("status", &protocol::srv::AudioTextPlay::Response::status, R"pbdoc( 状态码 )pbdoc")
   .def(
     "__repr__", [](const protocol::srv::AudioTextPlay::Response & _res) {
       return std::string(
@@ -825,7 +825,7 @@ void DefineSrvLedExecuteResponse(py::object m)
 {
   py::class_<protocol::srv::LedExecute::Response>(m, "LedExecute_Response", py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly("code", &protocol::srv::LedExecute::Response::code, R"pbdoc( 返回码 )pbdoc")
+  .def_readwrite("code", &protocol::srv::LedExecute::Response::code, R"pbdoc( 返回码 )pbdoc")
   .def(
     "__repr__", [](const protocol::srv::LedExecute::Response & _res) {
       return std::string(
@@ -847,11 +847,11 @@ void DefineSrvMotionResultCmdResponse(py::object m)
     m, "MotionResultCmd_Response",
     py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly(
+  .def_readwrite(
     "motion_id", &protocol::srv::MotionResultCmd::Response::motion_id,
     R"pbdoc( 机器人运控姿态ID )pbdoc")
-  .def_readonly("result", &protocol::srv::MotionResultCmd::Response::result, R"pbdoc( 执行结果 )pbdoc")
-  .def_readonly("code", &protocol::srv::MotionResultCmd::Response::code, R"pbdoc( 通用状态码 )pbdoc")
+  .def_readwrite("result", &protocol::srv::MotionResultCmd::Response::result, R"pbdoc( 执行结果 )pbdoc")
+  .def_readwrite("code", &protocol::srv::MotionResultCmd::Response::code, R"pbdoc( 通用状态码 )pbdoc")
   .def(
     "__repr__", [](const protocol::srv::MotionResultCmd::Response & _res) {
       return std::string(
@@ -875,14 +875,14 @@ void DefineSrvMotionSequenceShowResponse(py::object m)
     m, "MotionSequenceShow_Response",
     py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly(
+  .def_readwrite(
     "motion_id", &protocol::srv::MotionSequenceShow::Response::motion_id,
     R"pbdoc( 运动id )pbdoc")
-  .def_readonly(
+  .def_readwrite(
     "result", &protocol::srv::MotionSequenceShow::Response::result,
     R"pbdoc( 执行结果 )pbdoc")
-  .def_readonly("code", &protocol::srv::MotionSequenceShow::Response::code, R"pbdoc( 通用状态码 )pbdoc")
-  .def_readonly(
+  .def_readwrite("code", &protocol::srv::MotionSequenceShow::Response::code, R"pbdoc( 通用状态码 )pbdoc")
+  .def_readwrite(
     "describe", &protocol::srv::MotionSequenceShow::Response::describe,
     R"pbdoc( 通用状态码描述 )pbdoc")
   .def(
@@ -910,7 +910,7 @@ void DefineActNavigationResult(py::object m)
     m, "ActNavigation_Result",
     py::dynamic_attr())
   .def(py::init<>())
-  .def_readonly(
+  .def_readwrite(
     "result", &protocol::action::Navigation::Result::result,
     R"pbdoc( 结果 )pbdoc")
   .def(

@@ -47,6 +47,7 @@ public:
     const std::string &, const std::string &,
     std::vector<std::string> &,
     std::vector<std::string> &);                  /*!< 获取任务头 */
+  bool DecorateBody(std::string &);               /*!< 装饰身体 */
   bool GenerateDerivativeFile(
     const std::string &);                         /*!< 生成衍生文件 */
 

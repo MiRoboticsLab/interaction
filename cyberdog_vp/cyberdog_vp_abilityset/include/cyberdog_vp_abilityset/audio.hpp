@@ -17,6 +17,7 @@
 
 #include <string>
 #include <memory>
+#include <vector>
 
 #include "cyberdog_vp_abilityset/common.hpp"
 #include "cyberdog_vp_abilityset/base.hpp"
@@ -54,10 +55,21 @@ public:
   AudioGetVolumeSeviceResponse GetVolume();       /*!< 获取音量 */
   AudioSetVolumeSeviceResponse SetVolume(
     const uint8_t volume);                        /*!< 设置音量(0-100) */
+  State SetDialogue(const bool turn_on = true);   /*!< 设置对话 */
+  State ResetUserDialogue();                      /*!< 重置用户对话 */
+  AudioGetUserDialogueResponse GetUserDialogue(
+    const uint16_t timeout = 3);                  /*!< 获取用户对话 */
 
 private:
+  std::vector<DialogueResponse> user_dialogues_;  /*!< 用户对话 */
+  State user_dialogue_state_;                     /*!< 用户对话状态 */
+
   rclcpp::CallbackGroup::SharedPtr
     play_pub_cb_group_ {nullptr};                 /*!< [回调组]请求播放 */
+  rclcpp::CallbackGroup::SharedPtr
+    control_dialogue_cb_group_ {nullptr};         /*!< [回调组]控制对话 */
+  rclcpp::CallbackGroup::SharedPtr
+    user_dialogue_cb_group_ {nullptr};            /*!< [回调组]用户对话 */
   rclcpp::CallbackGroup::SharedPtr
     play_cli_cb_group_ {nullptr};                 /*!< [回调组]请求播放 */
   rclcpp::CallbackGroup::SharedPtr
@@ -66,7 +78,12 @@ private:
     set_volume_cli_cb_group_ {nullptr};           /*!< [回调组]音量设置 */
 
   rclcpp::Publisher<MsgAudioPlayExtend>::SharedPtr
-    topic_pub_ {nullptr};                         /*!< [发布器]语音请求 */
+    play_message_pub_ {nullptr};                  /*!< [发布器]语音请求 */
+  rclcpp::Publisher<MsgBool>::SharedPtr
+    control_dialogue_message_pub_ {nullptr};      /*!< [发布器]控制对话 */
+
+  rclcpp::Subscription<MsgString>::SharedPtr
+    user_dialogue_message_sub_ {nullptr};         /*!< [发布器]用户对话 */
 
   rclcpp::Client<SrvAudioTextPlay>::SharedPtr
     play_cli_ptr_ {nullptr};                      /*!< [客户端]数据 */
@@ -96,6 +113,8 @@ private:
     std::string _interface_name,
     std::shared_ptr<SrvAudioSetVolume::Request> _request_ptr,
     int _service_start_timeout = 3);              /*!< 请求设置音量服务 */
+  void UserDialogueCB(
+    const MsgString::SharedPtr);                  /*!< 用户对话数据回调 */
 };  // class Audio
 }  // namespace cyberdog_visual_programming_abilityset
 #endif  // CYBERDOG_VP_ABILITYSET__AUDIO_HPP_

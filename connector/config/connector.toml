@@ -13,6 +13,7 @@ wait_for_service = 3                        # 等待 service 出现
 wait_for_wifi_service_response = 40         # 等待 wifi service 响应
 wait_for_camera_service_response = 10       # 等待 camera service 响应
 touch_signal_effective = 60                 # 触摸板有效期
+touch_signal_invalid_interval = 1           # 触摸板无效间隔（当前帧和前一帧时间间隔小于该值，则无效）
 
 [connector.initialization.topic] # string
 connector = "connector_state"
@@ -30,11 +31,12 @@ led = "led_execute"
 wifi = "connect_wifi"
 ip = "ip_state"
 camera = "camera_service"
+lcm_log = "lcm_log_upload"
 
 [connector.initialization.action] # string
 audio = "speech_text_action"
 
-[connector.initialization.image] # string
+[connector.initialization.image] # int
 width = 2560
 height = 1920
 fps = 10
