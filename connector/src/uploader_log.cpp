@@ -34,12 +34,12 @@ UploaderLog::~UploaderLog()
   INFO("Destroy [UploaderLog] object(node)");
 }
 
-bool UploaderLog::Init()
+bool UploaderLog::Init(const rclcpp::Node::SharedPtr node)
 {
-  INFO("Initializing ...");
+  INFO("Initializing data ...");
   try {
     std::string node_config_dir = ament_index_cpp::get_package_share_directory("connector") +
-      node_config_dir;
+      "/config/connector.toml";
     INFO("Params config file dir:<%s>", node_config_dir.c_str());
 
     if (access(node_config_dir.c_str(), F_OK)) {
@@ -72,7 +72,7 @@ bool UploaderLog::Init()
       std::bind(&UploaderLog::Uploader, this, std::placeholders::_1, std::placeholders::_2),
       rclcpp::ServicesQoS().get_rmw_qos_profile(), this->lcm_log_cb_group_);
 
-    this->lcm_log_ptr_ = std::make_shared<LcmLogUploader>(this->shared_from_this());
+    this->lcm_log_ptr_ = std::make_shared<LcmLogUploader>(node);
   } catch (const std::exception & e) {
     ERROR("Init data failed: <%s>", e.what());
     return false;
