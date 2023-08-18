@@ -501,7 +501,7 @@ void WebRTCManager::timerCallback()
     for (auto & conductor : pc_conductors_) {
       if (conductor.second->IsDisconnected()) {
         peer_uid_list.push_back(conductor.first);
-      } else if (conductor.second->IsConnected() == 50) {
+      } else if (conductor.second->IsConnected() == 99) {
         PublishError(1002, "ICE connection timeout", conductor.first);
       } else if (conductor.second->IsConnected() > 100) {
         ERROR_STREAM(
