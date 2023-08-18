@@ -326,7 +326,7 @@ private:
   uint8_t battery_capicity_;
   std::shared_ptr<cyberdog::system::CyberdogCode<AudioErrorCode>> code_ptr_ {nullptr};
 
-  const float CONST_WEIGHT = 7.6;
+  const float CONST_WEIGHT = 8.9;
 
   rclcpp::CallbackGroup::SharedPtr speech_callback_group_;
   rclcpp::CallbackGroup::SharedPtr volumn_callback_group_;
