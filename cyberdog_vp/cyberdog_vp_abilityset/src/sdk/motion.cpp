@@ -424,7 +424,11 @@ bool Motion::RequestResultSrv(
       static_cast<int>(result_ptr->result),
       static_cast<int>(result_ptr->code));
     if (!result_ptr->result) {
-      this->FOnlinePlay(FORMAT("运动失败运动服务反馈错误码为%d", result_ptr->code), -1);
+      if (MotionManagerCodeDescribe_.find(result_ptr->code) != MotionManagerCodeDescribe_.end()) {
+        this->FOnlinePlay(MotionManagerCodeDescribe_[result_ptr->code], -1);
+      } else {
+        this->FOnlinePlay(FORMAT("运动失败，运动服务反馈错误码为%d", result_ptr->code), -1);
+      }
       _response.state.code = StateCode::motion_error;
       _response.state.describe = "[Action] Now motion error code is " + std::to_string(
         result_ptr->code) + ". ";
