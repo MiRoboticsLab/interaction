@@ -317,9 +317,9 @@ static struct MotionParams
   DefaultAndMaximum z_velocity =
   {-2.5, 1.0 * rad2ang, 2.5 * rad2ang, "deg/s"};  /*!< [类型]z角速度 */
   DefaultAndMaximum front_leg_lift =
-  {0.01, 0.03, 0.1, "m"};                         /*!< [类型]前腿抬腿高度 */
+  {0.01, 0.06, 0.1, "m"};                         /*!< [类型]前腿抬腿高度 */
   DefaultAndMaximum back_leg_lift =
-  {0.01, 0.03, 0.1, "m"};                         /*!< [类型]后腿抬腿高度 */
+  {0.01, 0.06, 0.1, "m"};                         /*!< [类型]后腿抬腿高度 */
   DefaultAndMaximum duration =
   {0.0, 0.0, 3600, "s"};                          /*!< [类型]期望时间 */
   DefaultAndMaximum distance =

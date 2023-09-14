@@ -392,6 +392,8 @@ bool Task::ExecuteRequest(const OperateMsg & _msg, GRPCMsg & msg_)
   } else if (_msg.operate == OperateMsg::OPERATE_SHUTDOWN) {
     return execute(
       [&]() -> bool {
+        this->task_option_pub_->publish(_msg);
+        sleep(3);
         if (!(((mode == OperateMsg::MODE_SINGLE) &&
         this->at_.Cancellation(_msg.target_id.front())) ||
         ((mode == OperateMsg::MODE_CYCLE) &&
