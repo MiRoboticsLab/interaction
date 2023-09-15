@@ -317,9 +317,9 @@ static struct MotionParams
   DefaultAndMaximum z_velocity =
   {-2.5, 1.0 * rad2ang, 2.5 * rad2ang, "deg/s"};  /*!< [类型]z角速度 */
   DefaultAndMaximum front_leg_lift =
-  {0.01, 0.03, 0.1, "m"};                         /*!< [类型]前腿抬腿高度 */
+  {0.01, 0.06, 0.1, "m"};                         /*!< [类型]前腿抬腿高度 */
   DefaultAndMaximum back_leg_lift =
-  {0.01, 0.03, 0.1, "m"};                         /*!< [类型]后腿抬腿高度 */
+  {0.01, 0.06, 0.1, "m"};                         /*!< [类型]后腿抬腿高度 */
   DefaultAndMaximum duration =
   {0.0, 0.0, 3600, "s"};                          /*!< [类型]期望时间 */
   DefaultAndMaximum distance =
@@ -501,6 +501,31 @@ static std::unordered_map<StateCode, std::string> StateDescribe_ = {
 
   {StateCode::motion_error, "motion error"},
 };                                                /*! 通用状态描述 */
+
+static std::unordered_map<int, std::string> MotionManagerCodeDescribe_ = {
+  {3003, "无法执行当前状态"},
+  {3008, "不支持该指令"},
+  {3009, "自检失败"},
+  {3010, "超出参数设定范围，请重新设定"},
+  {3011, "忙碌中，请稍后再试"},
+  {3013, "电池电量低"},
+  {3021, "步态切换错误21"},
+  {3022, "无法切换步态22"},
+  {3023, "步态切换错误23"},
+  {3024, "提起保护状态"},
+  {3025, "设备高温，无法执行该动作"},
+  {3026, "该电量下无法执行，请充电后尝试"},
+  {3027, "切换步态超时，请重新操作"},
+  {3028, "动作执行超时"},
+  {3029, "动作执行失败"},
+  {3031, "动作自定义失败"},
+  {3032, "电机异常，请尝试重启，若无效请联系售后"},
+  {3033, "电机过温，请等待10min后重试"},
+  {3034, "电机过流，请稍后重试"},
+  {3035, "系统异常35"},
+  {3040, "急停"},
+  {3041, "周边有障碍物无法站立"},
+};                                                /*! 运控服务错误码描述 */
 
 /*! 欧拉角约束调用 角度类型 合法值 */
 enum RPYType

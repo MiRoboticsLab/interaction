@@ -582,9 +582,24 @@ bool Connector::DoConnect(std::string name, std::string password, std::string pr
       return false;
     };
   auto judge_string = [&](std::string msg) -> bool {
-      std::regex pattern("^[a-zA-Z0-9_]+$");                // WiFi命名规则
+      if (msg.length() > 32) {
+        WARN(
+          "The current string(%s) is larger than 32 bytes, which is illegal.",
+          msg.c_str());
+        return false;
+      }
+
+      // std::regex pattern("^[a-zA-Z0-9_]+$");              // WiFi命名规则
       // std::regex pattern("^[a-zA-Z][a-zA-Z0-9_]*$");      // 变量命名规则
-      return std::regex_match(msg, pattern);
+      // return std::regex_match(msg, pattern);
+
+      // std::regex quote("['\"]");               // 包含单引号和双引号
+      // if (std::regex_search(input, quoteRegex)) {
+      //   WARN("The current string(%s) is contains single or double quotes, which is illegal.",
+      //     msg.c_str());
+      //   return false;
+      // }
+      return true;
     };
   try {
     INFO(

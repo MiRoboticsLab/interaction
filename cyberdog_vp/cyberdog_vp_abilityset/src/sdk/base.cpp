@@ -107,7 +107,7 @@ State Base::GetState(const std::string _funs, const StateCode _code)
   if (_code != StateCode::success) {
     Warn(
       "The module status(%d) is abnormal, the request failed.\n%s",
-      static_cast<int>(this->state_.code),
+      static_cast<int>(_code),
       ret.describe.c_str());
   }
   return ret;
