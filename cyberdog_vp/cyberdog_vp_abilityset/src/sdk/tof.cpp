@@ -83,6 +83,7 @@ void Tof::SubHeadCB(const MsgHeadTofPayload::SharedPtr _msg_ptr)
     // std::lock_guard<std::mutex> lk(tof_data_cvm_);
     std::scoped_lock lk(tof_data_cvm_);
     this->data_.head = *_msg_ptr;
+    this->state_.code = StateCode::success;
   }
   tof_data_cv_.notify_all();
   this->timens_ = GetTimeNs();
@@ -95,6 +96,7 @@ void Tof::SubRearCB(const MsgRearTofPayload::SharedPtr _msg_ptr)
     // std::lock_guard<std::mutex> lk(tof_data_cvm_);
     std::scoped_lock lk(tof_data_cvm_);
     this->data_.rear = *_msg_ptr;
+    this->state_.code = StateCode::success;
   }
   tof_data_cv_.notify_all();
   this->timens_ = GetTimeNs();

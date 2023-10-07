@@ -44,6 +44,7 @@
 #include "protocol/srv/train_plan.hpp"
 #include "std_srvs/srv/trigger.hpp"
 #include "std_srvs/srv/set_bool.hpp"
+#include "std_srvs/srv/empty.hpp"
 #include "std_msgs/msg/string.hpp"
 #include "std_msgs/msg/bool.hpp"
 #include "std_msgs/msg/u_int8.hpp"
@@ -119,6 +120,8 @@ private:
   void VolumeGetCallback(const std_msgs::msg::UInt8::SharedPtr msg);
   void RestoreSettingsCallback(const std_msgs::msg::Bool::SharedPtr msg);
   void BmsStatus(const protocol::msg::BmsStatus::SharedPtr msg);
+  void ContinueDialog(const std_msgs::msg::Bool::SharedPtr msg);
+  void NlpControl(const std_msgs::msg::String::SharedPtr msg);
   void SetAudioState(
     const protocol::srv::AudioExecute::Request::SharedPtr request,
     protocol::srv::AudioExecute::Response::SharedPtr respose);
@@ -170,6 +173,9 @@ private:
   void SwitchEnvironmentService(
     const protocol::srv::Trigger::Request::SharedPtr request,
     protocol::srv::Trigger::Response::SharedPtr response);
+  void StopPlayService(
+    const std_srvs::srv::Empty::Request::SharedPtr request,
+    std_srvs::srv::Empty::Response::SharedPtr response);
   void PowerTimerCallback();
   void RebootTimerCallback();
   void LcmHandler(
@@ -181,6 +187,7 @@ private:
   void ServerCallback(const audio_lcm::lcm_data & req, audio_lcm::lcm_data & res);
   bool ClientRequest(const audio_lcm::lcm_data & req, audio_lcm::lcm_data & res);
   bool ClientRequest2(const audio_lcm::lcm_data & req, audio_lcm::lcm_data & res);
+  bool SetControlState(bool on);
   bool SelfCheck();
   bool SetStatus(uint8_t status);
   bool SetStatusResponse(const std::string & data);
@@ -194,7 +201,8 @@ private:
   bool SetVolumeResponse(const std::string & data);
   int8_t GetVolume();
   bool GetVolumeResponse(const std::string & data);
-  // bool GetMiotDid();
+  int32_t GetPlayStatus();
+  bool GetPlayStatusResponse(const std::string & data);
   void AccountTokenNotify();
   bool SetToken();
   bool SetTokenResponse(const std::string & data);
@@ -221,10 +229,6 @@ private:
   void RegisterNotify(SelfCheckState & code);
 
 private:
-  // std::shared_ptr<lcm::LCM> lcm_;
-  // std::shared_ptr<LcmServer> server;
-  // std::thread server_thread;
-  // std::thread message_thread;
   std::unique_ptr<ReadySnNode> ready_sn_ptr {nullptr};
   std::unique_ptr<LcmCtoaTopic> lcm_ctoa_topic_ {nullptr};
   std::unique_ptr<LcmAtocTopic> lcm_atoc_topic_ {nullptr};
@@ -237,10 +241,12 @@ private:
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr wake_word_sub_;
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr dog_info_sub_;
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr ota_request_sub_;
+  rclcpp::Subscription<std_msgs::msg::String>::SharedPtr nlp_control_sub_;
   rclcpp::Subscription<std_msgs::msg::UInt8>::SharedPtr volume_set_sub_;
   rclcpp::Subscription<std_msgs::msg::UInt8>::SharedPtr volume_get_sub_;
   rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr restore_settings_sub_;
   rclcpp::Subscription<protocol::msg::BmsStatus>::SharedPtr bms_status_sub_;
+  rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr continue_dialog_sub_;
   rclcpp::Service<protocol::srv::AudioExecute>::SharedPtr audio_set_status_srv_;
   rclcpp::Service<protocol::srv::AudioExecute>::SharedPtr audio_get_status_srv_;
   rclcpp::Service<protocol::srv::AudioAuthId>::SharedPtr audio_auth_did_srv_;
@@ -258,6 +264,7 @@ private:
   rclcpp::Service<protocol::srv::SdcardPlayIdQuery>::SharedPtr sdcard_playid_query_srv_;
   rclcpp::Service<protocol::srv::AudioVoiceprintEntry>::SharedPtr audio_voiceprint_entry_srv_;
   rclcpp::Service<protocol::srv::Trigger>::SharedPtr switch_environment_srv_;
+  rclcpp::Service<std_srvs::srv::Empty>::SharedPtr stop_play_srv_;
   rclcpp::Publisher<protocol::msg::AudioVoiceprintResult>::SharedPtr audio_voiceprint_result_pub_;
   rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr audio_voiceprints_data_get_pub_;
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr ota_response_pub_;
@@ -274,17 +281,14 @@ private:
   rclcpp::Client<std_srvs::srv::Trigger>::SharedPtr reboot_client_;
   rclcpp::Client<protocol::srv::TrainPlan>::SharedPtr train_plan_client_;
   rclcpp::TimerBase::SharedPtr power_timer_;
-  // std::shared_ptr<SpeechHandler> speech_handler_ptr_;
   std::shared_ptr<AudioPlay> audio_play_ptr_;
   std::shared_ptr<VoiceControl> voice_control_ptr_;
   uint32_t recv_msg_cnt;
   AudioState audio_state;
-  // bool is_audio_normal;
   SelfCheckState check_state;
   std::atomic_bool is_wifi_connected;
   bool first_notified_net;
   uint32_t failed_times;
-  // std::string audio_miot_did;
   std::string cyberdog_sn;
   std::string triple_mac;
   std::string triple_did;
@@ -301,6 +305,7 @@ private:
   std::unique_ptr<cyberdog::interaction::VoiceprintDatabase> vp_database_ptr_;
   std::unique_ptr<cyberdog::interaction::MachineState> machine_state_ptr_;
   std::unique_ptr<cyberdog::interaction::AudioFds> audio_fds_ptr_;
+  // std::unique_ptr<cyberdog::interaction::CyberdogAction> cybedog_action_ptr_;
   // std::mutex play_mtx_;
   // bool is_play_;
   // std::condition_variable play_cv_;
@@ -317,7 +322,7 @@ private:
   uint8_t battery_capicity_;
   std::shared_ptr<cyberdog::system::CyberdogCode<AudioErrorCode>> code_ptr_ {nullptr};
 
-  const float CONST_WEIGHT = 7.6;
+  const float CONST_WEIGHT = 8.9;
 
   rclcpp::CallbackGroup::SharedPtr speech_callback_group_;
   rclcpp::CallbackGroup::SharedPtr volumn_callback_group_;

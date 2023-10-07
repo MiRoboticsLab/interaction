@@ -46,7 +46,7 @@ public:
     const bool _and_operation = false,
     const int _duration = -1);                    /*!< 识别到目标人员人脸 */
   FaceSeviceResponse CancelRecognize(
-    const int _timeout = -1);                     /*!< 识别到目标人员人脸 */
+    const int _timeout = -1);                     /*!< 取消识别目标人员人脸 */
 
 private:
   std::map<std::string /*name*/, std::string /*id*/>

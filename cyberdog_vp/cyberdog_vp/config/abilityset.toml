@@ -12,7 +12,9 @@ odometer = "odom_out"                             # 里程计模块消息名称
 ultrasonic = "ultrasonic_payload"                 # 超声波模块消息名称
 touch = "touch_status"                            # 触摸板模块消息名称
 bms = "bms_status"                                # BMS模块消息名称
-audio = "speech_play_extend"                      # 语音消息
+audio = "speech_play_extend"                      # 播放语音消息
+dialogue = "continue_dialog"                      # 设置连续对话
+user_dialogue = "asr_text"                        # 用户对话消息
 lidar = "scan"                                    # 雷达消息
 gps = "gps_payload"                               # gps数据
 tof_head = "head_tof_payload"                     # 头部tof
@@ -45,6 +47,8 @@ ai_skeleton = "sport_manager"                     # [AI]骨骼点识别服务
 training_words = "query_all_train_plan"           # [AI]训练词集合查询服务
 slam_preset = "get_label"                         # [SLAM]预置点
 slam_navigation = "stop_algo_task"                # [SLAM]取消导航
+skin_enable = "enable_elec_skin"                  # [皮肤]使能变色
+skin_set = "set_elec_skin"                        # [皮肤]设置变色
 
 [vp.init.action]                                  # 动作：string
 slam_navigation = "start_algo_task"               # [SLAM]开启导航
@@ -68,4 +72,5 @@ sensitivity_s = 1.0                               # 检测:Tof:林敏度(秒):(�
 publish_log=false                                 # 调试是否启用？
 backend=true                                      # 后端是否启用？
 voice_operation=true                              # 语音操作是否启用？
+decorate_body=false                               # 装饰身体是否启用？
 workspace="/home/mi/.cyberdog/cyberdog_vp"        # 工作空间/安装空间（绝对路径）

@@ -42,6 +42,8 @@ bool Base::Init(
     this->node_ptr_ = _node_ptr;
     this->py_interpreter_ptr_ = _py_interpreter_ptr;
     this->params_toml_ = _params_toml;
+    this->decorate_body_ = toml::find_or(
+      this->params_toml_, "vp", "init", "environment", "decorate_body", false);
     if (!GetWorkspace(this->base_path_)) {
       ERROR("%s Get workspace failed.", this->logger_.c_str());
       return false;
@@ -136,24 +138,31 @@ bool Base::GetRegistryToml(toml::value & _registry_toml, bool _is_registry_file)
 {
   try {
     if (_is_registry_file) {
-      if (cyberdog::common::CyberdogToml::ParseFile(
+      if (!cyberdog::common::CyberdogToml::ParseFile(
           this->registry_fil_.c_str(), _registry_toml))
       {
-        return true;
+        ERROR(
+          "%s Toml config file is not in toml format, config file dir:\n%s",
+          this->logger_.c_str(),
+          this->registry_fil_.c_str());
+        return false;
       }
     } else {
-      if (cyberdog::common::CyberdogToml::ParseFile(
+      if (!cyberdog::common::CyberdogToml::ParseFile(
           this->registry_related_fil_.c_str(), _registry_toml))
       {
-        return true;
+        ERROR(
+          "%s Toml config file is not in toml format, config file dir:\n%s",
+          this->logger_.c_str(),
+          this->registry_related_fil_.c_str());
+        return false;
       }
     }
-    ERROR(
-      "%s Toml config file is not in toml format, config file dir:\n%s",
-      this->logger_.c_str(),
-      _is_registry_file ?
-      this->registry_fil_.c_str() :
-      this->registry_related_fil_.c_str());
+    if (_registry_toml.is_uninitialized()) {
+      ERROR("Set registry toml config file is empty.");
+      return false;
+    }
+    return true;
   } catch (const std::exception & e) {
     ERROR("%s [GetRegistryToml] error:%s", this->logger_.c_str(), e.what());
   }
@@ -163,6 +172,10 @@ bool Base::GetRegistryToml(toml::value & _registry_toml, bool _is_registry_file)
 bool Base::SetRegistryToml(const toml::value & _registry_toml, bool _is_registry_file)
 {
   try {
+    if (_registry_toml.is_uninitialized()) {
+      ERROR("Set registry toml config file is empty.");
+      return false;
+    }
     if (_registry_toml.is_table()) {
       if (_is_registry_file) {
         std::ofstream ofs(this->registry_fil_, std::ofstream::out);
@@ -196,7 +209,7 @@ bool Base::GetState(const std::string _id, std::string & now_state)
 
 bool Base::SetList(
   const OperateMsg & _msg, const std::string & _state, const std::string & _file,
-  std::vector<std::string> & _dependent)
+  const std::vector<std::string> & _now_dependent)
 {
   try {
     INFO(
@@ -228,12 +241,13 @@ bool Base::SetList(
           (_msg.operate == OperateMsg::OPERATE_START) ||
           (_msg.operate == OperateMsg::OPERATE_STOP));
       };
-    auto add_mode_be_depended = [&](toml::value & module_toml) -> bool {
+    auto add_module_be_depended =
+      [&](toml::value & module_toml, const std::vector<std::string> & module_id_list) -> bool {
         std::string target_id = _msg.target_id.front();
         const toml::value module_table = toml::find(module_toml, OperateMsg::TYPE_MODULE);
         if (!module_table.is_table()) {return false;}
         auto now_unmap = module_table.as_table();
-        for (auto & module_id : _dependent) {
+        for (auto & module_id : module_id_list) {
           if (now_unmap.find(module_id) != now_unmap.end()) {
             const toml::value be_depended_array =
               toml::find(module_toml[OperateMsg::TYPE_MODULE][module_id], "be_depended");
@@ -243,7 +257,9 @@ bool Base::SetList(
               module_toml[OperateMsg::TYPE_MODULE][module_id],
               "be_depended");
             if (std::find(now_vector.begin(), now_vector.end(), target_id) == now_vector.end()) {
-              module_toml[OperateMsg::TYPE_MODULE][module_id]["be_depended"].push_back(target_id);
+              module_toml[OperateMsg::TYPE_MODULE][module_id]["be_depended"].push_back(
+                toml::string(
+                  target_id, toml::string_t::literal));
             }
           } else {
             WARN(
@@ -256,7 +272,7 @@ bool Base::SetList(
         }
         return true;
       };
-    auto add_be_depended = [&]() -> bool {
+    auto add_be_depended = [&](const std::vector<std::string> & module_id_list) -> bool {
         std::string id = _msg.target_id.front();
         if ((id == "id") ||
           (id == OperateMsg::OPERATE_DEBUG) ||
@@ -265,25 +281,32 @@ bool Base::SetList(
         {
           return true;
         }
+        if (module_id_list.empty()) {
+          return true;
+        }
         if (this->type_ == OperateMsg::TYPE_TASK) {
           toml::value registry_related_toml;
           if (!this->GetRegistryToml(registry_related_toml, false)) {
             return false;
           }
-          if (!add_mode_be_depended(registry_related_toml)) {
+          if (!add_module_be_depended(registry_related_toml, module_id_list)) {
             return false;
           }
           return this->SetRegistryToml(registry_related_toml, false);
         } else {
-          return add_mode_be_depended(registry_toml);
+          return add_module_be_depended(registry_toml, module_id_list);
         }
       };
-    auto delete_mode_be_depended = [&](toml::value & module_toml) -> bool {
+    auto delete_module_be_depended =
+      [&](toml::value & module_toml, const std::vector<std::string> & module_id_list) -> bool {
+        if (module_id_list.empty()) {
+          return true;
+        }
         std::string target_id = _msg.target_id.front();
         const toml::value module_table = toml::find(module_toml, OperateMsg::TYPE_MODULE);
         if (!module_table.is_table()) {return false;}
         auto now_unmap = module_table.as_table();
-        for (auto & module_id : _dependent) {
+        for (auto & module_id : module_id_list) {
           if (now_unmap.find(module_id) != now_unmap.end()) {
             const toml::value be_depended_array =
               toml::find(module_toml[OperateMsg::TYPE_MODULE][module_id], "be_depended");
@@ -316,23 +339,69 @@ bool Base::SetList(
         }
         return true;
       };
-    auto delete_be_depended = [&]() -> bool {
+    auto delete_be_depended = [&](const std::vector<std::string> & module_id_list) -> bool {
+        if (module_id_list.empty()) {
+          return true;
+        }
         if (this->type_ == OperateMsg::TYPE_TASK) {
           toml::value registry_related_toml;
           if (!this->GetRegistryToml(registry_related_toml, false)) {
             return false;
           }
-          if (!delete_mode_be_depended(registry_related_toml)) {
+          if (!delete_module_be_depended(registry_related_toml, module_id_list)) {
             return false;
           }
           return this->SetRegistryToml(registry_related_toml, false);
         } else {
-          return delete_mode_be_depended(registry_toml);
+          return delete_module_be_depended(registry_toml, module_id_list);
         }
       };
-    if ((_msg.operate == OperateMsg::OPERATE_SAVE) ||
-      (_msg.operate == OperateMsg::OPERATE_DEBUG))
-    {
+    if (_msg.operate == OperateMsg::OPERATE_DEBUG) {
+      toml::value element;
+      element["file"] = _file;
+      element["mode"] = _msg.mode;
+      element["condition"] = _msg.condition;
+      element["style"] = toml::string(_msg.style, toml::string_t::literal);
+      element["describe"] = toml::string(_msg.describe, toml::string_t::literal);
+      element["state"] = _state;
+      element["dependent"] = toml::array();
+      element["be_depended"] = toml::array();
+      element["operate"] = toml::array();
+      element["operate"].push_back(get_operation());
+      registry_toml[this->type_][_msg.target_id.front()] = element;
+    } else if (_msg.operate == OperateMsg::OPERATE_SAVE) {
+      std::vector<std::string> old_dependent;     // 依赖项：当前任务或模块依赖的其他模块ID
+      std::vector<std::string> old_be_depended;   // 被依赖项：依赖当前模块的其他任务或模块ID
+      const toml::value now_lists = toml::find(registry_toml, this->type_);
+      if (!now_lists.is_table()) {return false;}
+      std::string id = "", target_id = _msg.target_id.front();
+      for (const auto & meta : now_lists.as_table()) {
+        id = meta.first;
+        if (id != target_id) {
+          continue;
+        }
+        old_dependent =
+          toml::find<std::vector<std::string>>(
+          registry_toml[this->type_][id], "dependent");
+        old_be_depended =
+          toml::find<std::vector<std::string>>(
+          registry_toml[this->type_][id], "be_depended");
+        break;
+      }
+      if (!delete_be_depended(old_dependent)) {
+        WARN(
+          "%s [%s] Delete be depended is filed.",
+          this->logger_.c_str(),
+          _msg.id.c_str());
+        return false;
+      }
+      if (!add_be_depended(_now_dependent)) {
+        WARN(
+          "%s [%s] Add be depended is filed.",
+          this->logger_.c_str(),
+          _msg.id.c_str());
+        return false;
+      }
       // toml::string_t::basic    // 默认类型: 会将长字符串xxx转为"""xxx\"""
       // toml::string_t::literal  // 原文类型: 会将长字符串xxx转为'xxx'
       toml::value element;
@@ -343,27 +412,44 @@ bool Base::SetList(
       element["describe"] = toml::string(_msg.describe, toml::string_t::literal);
       element["state"] = _state;
       element["dependent"] = toml::array();
-      for (auto meta : _dependent) {
+      for (auto meta : _now_dependent) {
         element["dependent"].push_back(toml::string(meta, toml::string_t::literal));
       }
       element["be_depended"] = toml::array();
+      for (auto meta : old_be_depended) {
+        element["be_depended"].push_back(toml::string(meta, toml::string_t::literal));
+      }
       element["operate"] = toml::array();
       element["operate"].push_back(get_operation());
       registry_toml[this->type_][_msg.target_id.front()] = element;
-      add_be_depended();
     } else if (_msg.operate == OperateMsg::OPERATE_DELETE) {
       const toml::value now_lists = toml::find(registry_toml, this->type_);
       if (!now_lists.is_table()) {return false;}
-      const toml::value be_depended_array =
-        toml::find(registry_toml[this->type_][_msg.target_id.front()], "dependent");
-      if (!be_depended_array.is_array()) {return false;}
-      _dependent =
+      std::vector<std::string> old_dependent;     // 依赖项：当前任务或模块依赖的其他模块ID
+      std::vector<std::string> old_be_depended;   // 被依赖项：依赖当前模块的其他任务或模块ID
+      old_dependent =
         toml::find<std::vector<std::string>>(
         registry_toml[this->type_][_msg.target_id.front()], "dependent");
+      old_be_depended =
+        toml::find<std::vector<std::string>>(
+        registry_toml[this->type_][_msg.target_id.front()], "be_depended");
+      if (!old_be_depended.empty()) {
+        WARN(
+          "%s [%s] Old be_depended is not empty.",
+          this->logger_.c_str(),
+          _msg.id.c_str());
+        return false;
+      }
+      if (!delete_be_depended(old_dependent)) {
+        WARN(
+          "%s [%s] Delete be depended is filed.",
+          this->logger_.c_str(),
+          _msg.id.c_str());
+        return false;
+      }
       auto now_unmap = now_lists.as_table();
       now_unmap.erase(now_unmap.find(_msg.target_id.front()));
       registry_toml[this->type_] = toml::value(now_unmap);
-      delete_be_depended();
       // registry_toml[this->type_][_msg.target_id.front()]["state"] = _state;
       // registry_toml[this->type_][_msg.target_id.front()]["operate"].push_back(get_operation());
     } else if ((_msg.operate == OperateMsg::OPERATE_RUN)) {
@@ -608,6 +694,71 @@ bool Base::BuildFrontendOperate(const std::string _operate, std::string & _front
       "%s [%s] Get list data failed: %s",
       this->logger_.c_str(),
       _operate.c_str(),
+      e.what());
+  }
+  return false;
+}
+
+bool Base::BuildBackendOperate(const OperateMsg & _operate, std::string & _backend_msg)
+{
+  try {
+    INFO(
+      "%s [%s] BuildBackendOperate.",
+      this->logger_.c_str(),
+      _operate.id.c_str());
+    if (_operate.operate != OperateMsg::OPERATE_INQUIRY) {
+      INFO(
+        "%s [%s] BuildBackendOperate is error(not inquiry operate).",
+        this->logger_.c_str(),
+        _operate.id.c_str());
+      return false;
+    }
+    std::vector<std::string> target_list;
+    toml::value registry_toml;
+    if (!this->GetRegistryToml(registry_toml)) {
+      return false;
+    }
+    const toml::value now_lists = toml::find(registry_toml, this->type_);
+    if (!now_lists.is_table()) {return false;}
+    std::string now_id = "";
+    for (const auto & meta : now_lists.as_table()) {
+      now_id = meta.first;
+      if ((now_id == "id") ||
+        (now_id == "terminal_default") ||
+        (now_id == "visual_default"))
+      {
+        continue;
+      }
+      target_list.push_back(now_id);
+    }
+    std::sort(
+      target_list.begin(), target_list.end(),
+      [](const std::string a, const std::string b) {
+        return a < b;
+      });
+    rapidjson::Document backend_json;
+    backend_json.SetObject();
+    rapidjson::Document::AllocatorType & allocator = backend_json.GetAllocator();
+    backend_json.AddMember("type", rapidjson::StringRef(this->type_.c_str()), allocator);
+    backend_json.AddMember("id", rapidjson::StringRef(_operate.id.c_str()), allocator);
+    rapidjson::Value target_id_json(rapidjson::kArrayType);
+    for (const auto & tar_id : target_list) {
+      target_id_json.PushBack(rapidjson::StringRef(tar_id.c_str()), allocator);
+    }
+    backend_json.AddMember("target_id", target_id_json, allocator);
+    backend_json.AddMember("operate", rapidjson::StringRef(_operate.operate.c_str()), allocator);
+    backend_json.AddMember("describe", rapidjson::StringRef(""), allocator);
+    backend_json.AddMember("style", rapidjson::StringRef(""), allocator);
+    backend_json.AddMember("mode", rapidjson::StringRef(""), allocator);
+    backend_json.AddMember("condition", rapidjson::StringRef(""), allocator);
+    backend_json.AddMember("body", rapidjson::StringRef(""), allocator);
+    CyberdogJson::Document2String(backend_json, _backend_msg);
+    return true;
+  } catch (const std::exception & e) {
+    ERROR(
+      "%s [%s] Get list data failed: %s",
+      this->logger_.c_str(),
+      _operate.id.c_str(),
       e.what());
   }
   return false;

@@ -90,17 +90,18 @@ BackendMessage::BackendMessage(const std::string & msg)
       get_str(json_doc, CommonEnum::message, this->backend_.message) &&
       get_str(json_doc, CommonEnum::request_id, this->backend_.request_id))
     {
-      if (json_doc.HasMember(this->keys.at(CommonEnum::data).c_str()) &&
-        json_doc[this->keys.at(CommonEnum::data).c_str()].IsArray())
-      {
-        rapidjson::Value & data_list = json_doc[this->keys.at(CommonEnum::data).c_str()];
-        if (data_list.IsArray()) {
-          rapidjson::StringBuffer buffer;
-          rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-          writer.SetMaxDecimalPlaces(4);
+      if (json_doc.HasMember(this->keys.at(CommonEnum::data).c_str())) {
+        if (json_doc[this->keys.at(CommonEnum::data).c_str()].IsArray()) {
+          rapidjson::Value & data_list = json_doc[this->keys.at(CommonEnum::data).c_str()];
           for (size_t i = 0; i < data_list.Size(); ++i) {
-            data_list[i].Accept(writer);
-            this->backend_.data.push_back(buffer.GetString());
+            if (data_list[i].IsObject()) {
+              rapidjson::Value & objectValue = data_list[i];
+              rapidjson::StringBuffer buffer;
+              rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+              writer.SetMaxDecimalPlaces(4);
+              objectValue.Accept(writer);
+              this->backend_.data.push_back(std::string(buffer.GetString()));
+            }
           }
         } else {
           this->state_ = CommonEnum::invalid;
@@ -137,6 +138,7 @@ BackendMessage::BackendMessage(const std::string & msg)
     //       "mode": "mode",
     //       "condition": "condition",
     //       "body": "body"
+    //       "target_id": ["target_id", ...]
     //     },
     //     ...
     //   ]

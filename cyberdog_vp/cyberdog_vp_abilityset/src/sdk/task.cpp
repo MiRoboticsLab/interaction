@@ -339,13 +339,19 @@ void Task::GetBlockJson(
     _type.c_str(),
     this->block_id_.c_str(),
     this->task_id_.c_str());
+  int state = _state;
+  std::string describe = _describe;
+  if (state == 0) {
+    state = this->transient_state_ptr_->code;
+    describe = this->transient_state_ptr_->describe;
+  }
   rapidjson::Document feedback_json(rapidjson::kObjectType);
   CyberdogJson::Add(feedback_json, "type", MsgVisualProgrammingOperate::TYPE_TASK);
   CyberdogJson::Add(feedback_json, "id", std::string("task_" + GetTime()));
   CyberdogJson::Add(feedback_json, "target_id", this->task_id_);
   CyberdogJson::Add(feedback_json, "operate", MsgVisualProgrammingOperate::OPERATE_RUN);
-  CyberdogJson::Add(feedback_json, "state", static_cast<int>(_state));
-  CyberdogJson::Add(feedback_json, "describe", this->task_state_ + " task. " + _describe);
+  CyberdogJson::Add(feedback_json, "state", static_cast<int>(state));
+  CyberdogJson::Add(feedback_json, "describe", this->task_state_ + " task. " + describe);
   rapidjson::Document block_json(rapidjson::kObjectType);
   CyberdogJson::Add(block_json, "type", _type);
   CyberdogJson::Add(block_json, "id", this->block_id_);

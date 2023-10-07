@@ -13,38 +13,6 @@
 # limitations under the License.
 
 #
-# 功能说明: 获取 lib 名称（通过读取 api 文件，与其保持统一）
-#
-function(get_api_name lib_name_ is_ok_)
-  set(api_file ${PROJECT_SOURCE_DIR}/src/api/main.cpp)
-  set(${_lib_name} "" PARENT_SCOPE)
-  set(${is_ok_} False PARENT_SCOPE)
-  if(EXISTS "${api_file}")
-    file(STRINGS ${api_file} data_list)
-    list(LENGTH data_list data_list_size)
-    if(data_list_size)
-      foreach(data_var IN LISTS data_list)
-        if(${data_var} MATCHES "^(.)?(PYBIND11_MODULE\\()+(.)+(\\))+(.)*$")
-          string(REGEX REPLACE "^.*PYBIND11_MODULE\\((.*), m\\)" "\\1" _lib_name "${data_var}")
-          break()
-        endif()
-      endforeach()
-      if("${_lib_name}" STREQUAL "")
-        message("API file is invalid(file line size ${data_list_size})。")
-      else()
-        set(${is_ok_} True PARENT_SCOPE)
-        set(${lib_name_} "${_lib_name}" PARENT_SCOPE)
-      endif()
-    else()
-      message("API file is null.")
-    endif()
-  else()
-    message("API file is not exists.")
-    message("API file required: ${api_file}.")
-  endif()
-endfunction()
-
-#
 # 功能说明: 修改目标依赖项私有(ament_target_dependencies 会将依赖项声明为私有，但这是 pybind11 所需的，所以复制粘贴)
 #
 function(ament_target_dependencies_private target)
@@ -76,6 +44,38 @@ function(ament_target_dependencies_private target)
     foreach(link_flag IN LISTS link_flags)
       set_property(TARGET ${target} APPEND_STRING PROPERTY LINK_FLAGS " ${link_flag} ")
     endforeach()
+  endif()
+endfunction()
+
+#
+# 功能说明: 获取 lib 名称（通过读取 api 文件，与其保持统一）
+#
+function(get_api_name lib_name_ is_ok_)
+  set(api_file ${PROJECT_SOURCE_DIR}/src/api/main.cpp)
+  set(${_lib_name} "" PARENT_SCOPE)
+  set(${is_ok_} False PARENT_SCOPE)
+  if(EXISTS "${api_file}")
+    file(STRINGS ${api_file} data_list)
+    list(LENGTH data_list data_list_size)
+    if(data_list_size)
+      foreach(data_var IN LISTS data_list)
+        if(${data_var} MATCHES "^(.)?(PYBIND11_MODULE\\()+(.)+(\\))+(.)*$")
+          string(REGEX REPLACE "^.*PYBIND11_MODULE\\((.*), m\\)" "\\1" _lib_name "${data_var}")
+          break()
+        endif()
+      endforeach()
+      if("${_lib_name}" STREQUAL "")
+        message("API file is invalid(file line size ${data_list_size})。")
+      else()
+        set(${is_ok_} True PARENT_SCOPE)
+        set(${lib_name_} "${_lib_name}" PARENT_SCOPE)
+      endif()
+    else()
+      message("API file is null.")
+    endif()
+  else()
+    message("API file is not exists.")
+    message("API file required: ${api_file}.")
   endif()
 endfunction()
 
@@ -161,13 +161,13 @@ function(compile_and_install_api)
     ${_api_file_list}
   )
   target_link_libraries("${_api_name}" PRIVATE
-    ${CMAKE_INSTALL_PREFIX}/lib/libcyberdog_log.so
-    ${CMAKE_INSTALL_PREFIX}/lib/libcyberdog_vp_abilityset.so
     pybind11::module
     pybind11::embed
     panel
     menu
     ncurses
+    ${CMAKE_INSTALL_PREFIX}/lib/libcyberdog_log.so
+    ${CMAKE_INSTALL_PREFIX}/lib/libcyberdog_vp_abilityset.so
   )
   target_compile_features("${_api_name}" PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
   target_include_directories("${_api_name}" PUBLIC
@@ -183,12 +183,6 @@ function(compile_and_install_api)
     geometry_msgs
     cyberdog_common
     cyberdog_log
-    libcyberdog_vp_abilityset
-    pybind11::module
-    pybind11::embed
-    panel
-    menu
-    ncurses
   )
   install(
     TARGETS "${_api_name}"

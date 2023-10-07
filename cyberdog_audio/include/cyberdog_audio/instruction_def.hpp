@@ -72,6 +72,30 @@
 #define  POWER_INSTRUCTION      "power_instruction"
 #define  GET_DEVICE_STATUS      "get_device_status"
 #define  PERSONALIZE_INSTRUCTION "personalize_instruction"
+#define  CONTINUE_DIALOG        "continue_dialog"
+#define  GET_PLAY_STATUS        "get_play_status"
+#define  SET_CONTROL_STATE      "set_control_state"
+#define  NLP_CONTROL            "nlp_control"
+
+struct nlp_control
+{
+  std::string text;
+  XPACK(O(text))
+};
+
+struct set_control_state
+{
+  bool on;
+  XPACK(O(on))
+};
+
+struct play_status
+{
+  int32_t status;
+  int64_t volumn;
+  int32_t type;
+  XPACK(O(status, volumn, type))
+};
 
 struct self_check
 {
@@ -321,6 +345,11 @@ struct personalize_instruction
 {
   std::vector<std::string> cmds;
   XPACK(O(cmds))
+};
+struct continue_dialog
+{
+  bool set;
+  XPACK(O(set))
 };
 struct TokenInfo
 {

@@ -36,6 +36,7 @@
 
 #include <cyberdog_common/cyberdog_log.hpp>
 #include <cyberdog_common/cyberdog_toml.hpp>
+#include <file_uploading/lcm_log_uploader.hpp>
 
 #include <sensor_msgs/msg/image.hpp>
 #include <std_msgs/msg/string.hpp>
@@ -142,6 +143,7 @@ private:
     const std::string &, int &,
     std::string &);                                           /*!< 执行shell */
   bool Interaction(const uint16_t & _id);                     /*!< 执行交互 */
+  bool UserBootsFirstTime();                                  /*!< 用户首次开机 */
 
 private:
   std::string name_ {""};                                     /*!< node 名称 */
@@ -156,8 +158,12 @@ private:
   bool touch_efficient_;                                      /*!< 触摸板是否有效 */
   bool camer_efficient_;                                      /*!< 相机是否有效 */
   int touch_signal_timeout_s {0};                             /*!< 触摸板信号有效时长 */
+  int touch_signal_invalid_interval_s {1};                    /*!< 触摸板信号无效间隔 */
   TimeType touch_signal_timeout_;                             /*!< 触摸板信号超时 */
   int srv_code_ {0};                                          /*!< 服务返回码 */
+  rclcpp::Time touch_previous_time_;                          /*!< Touch 时间戳 */
+  bool judge_first_time_ {true};                              /*!< 第一次判断 */
+
   rclcpp::TimerBase::SharedPtr update_status_timer_ {nullptr};        /*!< [定时器]更新数据 */
   rclcpp::TimerBase::SharedPtr reset_signal_timer_ {nullptr};         /*!< [定时器]重置触摸板 */
   rclcpp::Publisher<ConnectorStatusMsg>::SharedPtr status_pub_ {nullptr};   /*!< [发布器]连接状态 */

@@ -1,0 +1,30 @@
+# Pushup
+[info]
+head = 5
+body = 0
+tail = 0
+
+# head
+[[section]]
+contact  = [1, 1, 1, 1]
+duration = 10
+
+[[section]]
+contact  = [1, 1, 0, 1]
+duration = 5
+
+[[section]]
+contact  = [1, 1, 0, 0]
+duration = 5
+
+[[section]]
+contact  = [1, 1, 1, 0]
+duration = 5
+
+[[section]]
+contact  = [1, 1, 1, 1]
+duration = 5
+
+# body
+
+# tail

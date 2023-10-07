@@ -139,6 +139,10 @@ bool JudgeConfileFile(std::string _file)
     ERROR("Toml config file is not in toml format, config file dir:\n%s", _file.c_str());
     return false;
   }
+  if (now_toml.is_uninitialized()) {
+    ERROR("Toml config file is empty, config file dir:\n%s", _file.c_str());
+    return false;
+  }
   return true;
 }
 
