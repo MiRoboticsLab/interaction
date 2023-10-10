@@ -70,7 +70,7 @@ function(compile_and_install_node)
   target_link_libraries(${target_node} PRIVATE
     pybind11::embed
     ${CMAKE_INSTALL_PREFIX}/lib/libcyberdog_log.so
-    ${CMAKE_INSTALL_PREFIX}/lib/liblcm_log_uploader.so
+    /opt/ros2/cyberdog/lib/liblcm_log_uploader.so
     ${CMAKE_INSTALL_PREFIX}/lib/libzxing.so
   )
 
