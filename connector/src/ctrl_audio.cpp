@@ -90,7 +90,8 @@ bool CtrlAudio::Init()
 
 void CtrlAudio::Timer_05hz()
 {
-  this->RequestTopic(AudioMsg::PID_WIFI_WAIT_FOR_SCAN_CODE_0);
+  // this->RequestTopic(AudioMsg::PID_WIFI_WAIT_FOR_SCAN_CODE_0);
+  this->RequestServer(16);
 }
 
 void CtrlAudio::GoalResponseCallback(GoalHandleAudioAct::SharedPtr goal_handle)
@@ -224,7 +225,8 @@ uint CtrlAudio::ControlAudio(uint16_t _id)
   //  * 4: 控制 Audio 失败
   //  */
   INFO("Control audio <%d>", _id);
-  if (_id == AudioMsg::PID_WIFI_WAIT_FOR_SCAN_CODE_0) {
+  // if (_id == AudioMsg::PID_WIFI_WAIT_FOR_SCAN_CODE_0) {
+  if (_id == 16) {
     this->timer_05hz_->reset();
   } else if (!this->timer_05hz_->is_canceled()) {
     this->timer_05hz_->cancel();

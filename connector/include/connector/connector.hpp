@@ -42,6 +42,10 @@
 #include <std_msgs/msg/string.hpp>
 #include <std_msgs/msg/bool.hpp>
 
+#include <protocol/msg/wifi_info.hpp>
+#include <protocol/msg/notify_to_app.hpp>
+#include <protocol/msg/bluetooth_status.hpp>
+
 #include <protocol/msg/audio_play.hpp>
 #include <protocol/msg/connector_status.hpp>
 #include <protocol/msg/touch_status.hpp>
@@ -68,7 +72,7 @@ namespace cyberdog
 namespace interaction
 {
 namespace py = pybind11;
-static const unsigned int LINE_MAX_SIZE {16384};                      /*!< 行最大值:2kb */
+static const unsigned int LINE_MAX_SIZE {16384};  /*!< 行最大值:2kb */
 
 /*! \file       connector.hpp
     \brief      连接模块。
@@ -94,7 +98,11 @@ class Connector final : public rclcpp::Node
   using LedSrv = protocol::srv::LedExecute;                   /*!< [service 类型]LED 驱动服务 */
   using CameraSrv = protocol::srv::CameraService;             /*!< [service 类型]相机 驱动服务 */
 
-  using TimeType = std::chrono::time_point<std::chrono::system_clock>;      /*!< 超时 */
+  using NotifyToAppMsg = protocol::msg::NotifyToApp;  /*!< [topic 类型]通知APP连接状态消息 */
+  using WIFIINFOMSG = protocol::msg::WifiInfo;
+  using BLUETOOTHSTATUSMSG = protocol::msg::BluetoothStatus;
+
+  using TimeType = std::chrono::time_point<std::chrono::system_clock>;    /*!< 超时 */
   enum ShellEnum
   {
     shell = 1993,     /*!< 异常结束, 执行shell命令错误 */
@@ -110,9 +118,8 @@ public:
     const std::function<uint(uint16_t)>,
     const std::function<uint(uint8_t)>,
     const std::function<uint(uint16_t)>,
-    const std::function<uint(
-      const std::string,
-      const std::string)>);                                   /*!< 初始化 */
+    const std::function<uint(const std::string, const std::string)>,
+    const std::function<bool(bool)>);                                   /*!< 初始化 */
 
 public:
   std::function<uint(uint16_t)> CtrlAudio;                    /*!< [客户端]控制语音 */
@@ -120,6 +127,7 @@ public:
   std::function<uint(uint16_t)> CtrlLed;                      /*!< [客户端]控制led */
   std::function<uint(const std::string, const std::string)>
   CtrlWifi;                                                   /*!< [客户端]控制wifi */
+  std::function<bool(bool)> CtrlAdvertising;                    /*!< [客户端]控制蓝牙 */
 
 private:
   bool InitPythonInterpreter();                               /*!< 初始化 python 解释器 */
@@ -183,6 +191,23 @@ private:
   rclcpp::CallbackGroup::SharedPtr touch_cb_group_ {nullptr};         /*!< [回调组] touch */
   rclcpp::CallbackGroup::SharedPtr img_cb_group_ {nullptr};           /*!< [回调组] img */
   rclcpp::CallbackGroup::SharedPtr pub_cb_group_ {nullptr};           /*!< [回调组] pub */
+
+  void APPSendWiFiCallback(const protocol::msg::WifiInfo::SharedPtr msg);
+  void AppConnectState(const std_msgs::msg::Bool msg);
+  void BtStatusCallback(const protocol::msg::BluetoothStatus::SharedPtr msg);
+  bool WriteToFile(
+    const std::string ssid,
+    const std::string ip,
+    const std::string type);
+
+  NotifyToAppMsg notify_to_app_msg_;
+  rclcpp::Subscription<WIFIINFOMSG>::SharedPtr wifi_info_sub_ {nullptr};
+  rclcpp::Publisher<NotifyToAppMsg>::SharedPtr notify_to_app_pub_ {nullptr};
+  rclcpp::Subscription<BLUETOOTHSTATUSMSG>::SharedPtr bluetooth_status_sub_ {nullptr};
+
+  std::string wifi_record_dir_ {""};   /*!< wifi 类型记录文件路径 */
+  bool connect_network_status = true;
+  int connect_code = -1;
 };  // class Connector
 }  // namespace interaction
 }  // namespace cyberdog
