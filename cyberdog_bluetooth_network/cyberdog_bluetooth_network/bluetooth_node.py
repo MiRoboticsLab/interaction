@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import subprocess
 import threading
 import time
 from time import sleep
@@ -38,6 +38,7 @@ class BluetoothNode(Node):
         Node.__init__(self, node_name)
         self.__logger = self.get_logger()  # ROS2 logger
         self.__logger.info('[BluetoothCore]: BluetoothNode init')
+        self.check_system_service()
         self.dog_ssif = ''
         self.dog_ip = ''
         self.__multithread_callback_group = ReentrantCallbackGroup()
@@ -136,6 +137,23 @@ class BluetoothNode(Node):
         msg.advtiseable = adv_status
         self.__bluetoothStatePublisher.publish(msg)
         pass
+
+    def check_system_service(self):
+        self.__logger.info('check system bluetooth and dbus service')
+        command_bluetooth = (
+            'sudo systemctl status bluetooth.service '
+            '| grep running > /dev/null 2>&1')
+        command_dbus = 'sudo systemctl status dbus.service | grep running > /dev/null 2>&1'
+        while True:
+            result_bluetooth = subprocess.call(command_bluetooth, shell=True)
+            result_dbus = subprocess.call(command_dbus, shell=True)
+            if result_bluetooth == 0 and result_dbus == 0:
+                self.__logger.info('Both services are running. Continuing with further actions.')
+                time.sleep(3)
+                break
+            else:
+                self.__logger.error('Services are not both running. Waiting for 100ms...')
+                time.sleep(0.1)
 
 
 class PublisherPhoneIP(Node):
