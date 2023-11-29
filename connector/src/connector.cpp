@@ -412,7 +412,7 @@ void Connector::WiFiSignalCallback(const WiFiMsg::SharedPtr msg)
         this->notify_to_app_msg_.code = 2003;
         if (this->connect_network_status) {
           this->CtrlAudio(17);
-          this->CtrlLed(AudioMsg::PID_WIFI_ENTER_CONNECTION_MODE_0);
+          this->CtrlLed(AudioMsg::PID_WIFI_FAILED_PLEASE_RETRY);
           this->connect_network_status = true;
         }
       }
@@ -630,7 +630,8 @@ bool Connector::DoConnect(std::string name, std::string password, std::string pr
         this->CtrlAudio(16);
         this->CtrlLed(AudioMsg::PID_WIFI_WAIT_FOR_SCAN_CODE_0);
       }
-      // this->connect_code = 2004;
+      // 释放灯效
+      this->CtrlLed(AudioMsg::PID_WIFI_EXIT_CONNECTION_MODE_0);
       return false;
     };
   auto judge_string = [&](std::string msg) -> bool {
