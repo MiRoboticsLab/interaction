@@ -382,10 +382,8 @@ void Connector::WiFiSignalCallback(const WiFiMsg::SharedPtr msg)
     std::lock_guard<std::mutex> guard(this->state_msg_mutex_);
 
     if (msg->is_connected) {
-      this->notify_to_app_msg_.ssid = msg->ssid;
-      this->notify_to_app_msg_.ip = msg->ip;
-
-
+      // this->notify_to_app_msg_.ssid = msg->ssid;
+      // this->notify_to_app_msg_.ip = msg->ip;
       if ((!this->state_msg_.is_connected) &&
         (std::chrono::system_clock::now() > this->touch_signal_timeout_))
       {
@@ -396,7 +394,7 @@ void Connector::WiFiSignalCallback(const WiFiMsg::SharedPtr msg)
         this->state_msg_.is_internet = this->CheckInternet();
         if (this->state_msg_.is_internet) {
           // 当前网络能访问互联网
-          this->notify_to_app_msg_.code = 2001;
+          // this->notify_to_app_msg_.code = 2001;
         } else {
           // 当前网络不能访问互联网
           this->notify_to_app_msg_.code = 2002;
@@ -412,11 +410,9 @@ void Connector::WiFiSignalCallback(const WiFiMsg::SharedPtr msg)
       if (this->state_msg_.is_connected) {
         // 网络连接已断开
         this->notify_to_app_msg_.code = 2003;
-
         if (this->connect_network_status) {
-          // this->Interaction(9);
           this->CtrlAudio(17);
-          this->CtrlLed(9);
+          this->CtrlLed(AudioMsg::PID_WIFI_ENTER_CONNECTION_MODE_0);
           this->connect_network_status = true;
         }
       }
@@ -607,7 +603,7 @@ void Connector::CameraSignalCallback(const CameraMsg::SharedPtr msg)
 bool Connector::DoConnect(std::string name, std::string password, std::string provider)
 {
   this->CtrlAudio(15);
-  this->CtrlLed(AudioMsg::PID_WIFI_SCAN_CODE_SUCCEEDED_0);
+  this->CtrlLed(AudioMsg::PID_WIFI_ENTER_CONNECTION_MODE_0);
   auto return_true = [&](std::string msg, bool same_wifi) -> bool {
       this->provider_ip_ = provider;
       this->SaveWiFi(provider, name, password);
@@ -622,7 +618,7 @@ bool Connector::DoConnect(std::string name, std::string password, std::string pr
       // this->Interaction(AudioMsg::PID_WIFI_EXIT_CONNECTION_MODE_0);
       this->touch_efficient_ = false;
       this->srv_code_ = ConnectorSrv::Response::CODE_SUCCESS;
-      this->connect_code = 2000;
+      // this->connect_code = 2000;
       return true;
     };
   auto return_false = [&](std::string msg) -> bool {
@@ -634,7 +630,7 @@ bool Connector::DoConnect(std::string name, std::string password, std::string pr
         this->CtrlAudio(16);
         this->CtrlLed(AudioMsg::PID_WIFI_WAIT_FOR_SCAN_CODE_0);
       }
-      this->connect_code = 2004;
+      // this->connect_code = 2004;
       return false;
     };
   auto judge_string = [&](std::string msg) -> bool {
@@ -656,6 +652,7 @@ bool Connector::DoConnect(std::string name, std::string password, std::string pr
         name.c_str());
       this->Interaction(AudioMsg::PID_WIFI_CONNECTION_FAILED_0);
       this->srv_code_ = ConnectorSrv::Response::CODE_WIFI_NAME_FAIL;
+      this->connect_code = 2004;
       return return_false(" Wifi name is empty.");
     } else {
       if (!judge_string(name)) {
@@ -665,6 +662,7 @@ bool Connector::DoConnect(std::string name, std::string password, std::string pr
           name.c_str());
         this->Interaction(AudioMsg::PID_WIFI_CONNECTION_FAILED_0);
         this->srv_code_ = ConnectorSrv::Response::CODE_WIFI_NAME_FAIL;
+        this->connect_code = 2004;
         return return_false(" Wifi name is invalid.");
       }
     }
@@ -683,6 +681,7 @@ bool Connector::DoConnect(std::string name, std::string password, std::string pr
           name.c_str(),
           password.c_str());
         this->Interaction(AudioMsg::PID_WIFI_CONNECTION_FAILED_1);
+        this->connect_code = 2005;
         return return_false("Wifi password is invalid.");
       }
     }

@@ -1,5 +1,4 @@
 [wifi]
-user_boots_first_time = false
 [wifi.ssid]
 type = "type"
 provider = "ip"
