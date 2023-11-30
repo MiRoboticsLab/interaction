@@ -404,7 +404,7 @@ void Connector::WiFiSignalCallback(const WiFiMsg::SharedPtr msg)
         this->provider_ip_ = this->GetWiFiProvider(msg->ssid);
       }
       this->state_msg_.provider_ip = this->provider_ip_;
-      this->connect_network_status = false;
+      this->connect_network_status = true;
 
     } else {
       if (this->state_msg_.is_connected) {
@@ -413,7 +413,7 @@ void Connector::WiFiSignalCallback(const WiFiMsg::SharedPtr msg)
         if (this->connect_network_status) {
           this->CtrlAudio(17);
           this->CtrlLed(AudioMsg::PID_WIFI_FAILED_PLEASE_RETRY);
-          this->connect_network_status = true;
+          this->connect_network_status = false;
         }
       }
     }
