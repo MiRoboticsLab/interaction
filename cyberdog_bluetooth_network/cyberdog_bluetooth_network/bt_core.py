@@ -639,10 +639,17 @@ class BluetoothCore:
         self.remote_om = dbus.Interface(self.bus.get_object(
                          BLUEZ_SERVICE_NAME, '/'), DBUS_OM_IFACE)
         self.adapter = self.find_adapter(self.bus)
+        self.counter = 0
+        self.__logger.info('start find Gattmanager1 interface')
+        while not self.adapter and self.counter < 120:
+            self.__logger.info('GattManager1 interface not found')
+            self.__logger.info('sleep 500ms, find adapter again')
+            time.sleep(0.5)
+            self.adapter = self.find_adapter(self.bus)
+            self.counter = self.counter + 1
         if not self.adapter:
             self.__logger.info('GattManager1 interface not found')
             return
-
         self.service_manager = dbus.Interface(
             self.bus.get_object(BLUEZ_SERVICE_NAME, self.adapter),
             GATT_MANAGER_IFACE)

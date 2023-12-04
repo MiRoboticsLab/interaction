@@ -908,10 +908,12 @@ void Connector::APPSendWiFiCallback(
   if (this->DoConnect(msg->ssid, msg->pwd, msg->ip)) {
     // 连网成功, 写文件
     this->WriteToFile(msg->ssid, msg->ip, msg->type);
-    this->notify_to_app_msg_.code = 2000;
+    // this->notify_to_app_msg_.code = 2000;
+    this->connect_code = 2000;
   } else {
     INFO("receive wifi info from app, connect wifi failed");
-    this->notify_to_app_msg_.code = 2001;  // 连网失败
+    // this->notify_to_app_msg_.code = 2001;  // 连网失败
+    this->connect_code = 2001;
   }
   this->notify_to_app_msg_.code = this->connect_code;
   this->notify_to_app_pub_->publish(this->notify_to_app_msg_);
