@@ -13,7 +13,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import subprocess
 import threading
 import time
 from time import sleep
@@ -26,7 +25,7 @@ from protocol.srv import BmsCmd
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallbackGroup
 from rclpy.node import Node
 # from sensor_msgs.msg import BatteryState, Joy
-# from std_msgs.msg import Bool, Int8, String
+from std_msgs.msg import String
 from std_srvs.srv import Trigger
 
 from . import bt_core
@@ -40,26 +39,30 @@ class BluetoothNode(Node):
         self.__logger.info('[BluetoothCore]: BluetoothNode init')
         self.dog_ssif = ''
         self.dog_ip = ''
+        # self.connect_init_status = False
         self.__multithread_callback_group = ReentrantCallbackGroup()
         self.__singlethread_callback_group = MutuallyExclusiveCallbackGroup()
         # 创建ROS服务用于打开和关闭蓝牙广播
         self.__openAdvertisingService = self.create_service(
-                                BmsCmd, 'ctrl_advertising',
-                                self.openAdvertisingCallback,
-                                callback_group=self.__singlethread_callback_group)
+            BmsCmd, 'ctrl_advertising',
+            self.openAdvertisingCallback,
+            callback_group=self.__singlethread_callback_group)
         self.__openGattService = self.create_service(
-                                BmsCmd, 'ctrl_gatt',
-                                self.openGattCallback,
-                                callback_group=self.__singlethread_callback_group)
+            BmsCmd, 'ctrl_gatt',
+            self.openGattCallback,
+            callback_group=self.__singlethread_callback_group)
         self.__disconnect_app_bt_service = self.create_service(
-                                Trigger, 'disconnect_app_bt', self.__disconnect_app_bt_callback,
-                                callback_group=self.__singlethread_callback_group)
+            Trigger, 'disconnect_app_bt', self.__disconnect_app_bt_callback,
+            callback_group=self.__singlethread_callback_group)
         # 创建ROS话题用于发布蓝牙广播状态
         self.__bluetoothStatePublisher = self.create_publisher(
-                                BluetoothStatus, 'bluetooth_status', 10)
+            BluetoothStatus, 'bluetooth_status', 10)
         self.__notify_subscriber = self.create_subscription(
-                                NotifyToApp, 'notify_to_app', self.__notify_to_app_callback, 1,
-                                callback_group=self.__multithread_callback_group)
+            NotifyToApp, 'notify_to_app', self.__notify_to_app_callback, 1,
+            callback_group=self.__multithread_callback_group)
+        self.__connect_status_subscriber = self.create_subscription(
+            String, 'connector_init', self.__connect_status_callback, 1,
+            callback_group=self.__multithread_callback_group)
         self.__bt_core_lock = threading.Lock()
         self.blue_core = bt_core.BluetoothCore(self.__logger)
         # 开启线程,启动蓝牙mainloop的循环
@@ -73,8 +76,8 @@ class BluetoothNode(Node):
 
         # 创建一个定时器，定时发布状态（广播、连接、wifi信息）
         self.__bluetooth_status_timer = self.create_timer(
-                                2, self.__bluetooth_status_timer_callback,
-                                callback_group=self.__singlethread_callback_group)
+            2, self.__bluetooth_status_timer_callback,
+            callback_group=self.__singlethread_callback_group)
 
     def __disconnect_app_bt_callback(self, request, response):
         self.__logger.info('disconnect_app_bt_callback')
@@ -82,6 +85,11 @@ class BluetoothNode(Node):
         response.message = 'disconnect app bt'
         self.blue_core.disconnect_device(self.blue_core.mac_address_get)
         return response
+
+    def __connect_status_callback(self, msg):
+        # self.connect_init_status = True
+        self.__logger.info('connect_status_callback')
+        self.blue_core.GetConnectStatus(True)
 
     def __notify_to_app_callback(self, msg):
         self.__logger.info('notify_to_app_callback')

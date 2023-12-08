@@ -88,7 +88,6 @@ bool CtrlBluetooth::CtrlAdvertising(bool enable)
 {
   std::shared_ptr<protocol::srv::BmsCmd::Request> request =
     std::make_shared<protocol::srv::BmsCmd::Request>();
-  INFO("enter CtrlAdvertising");
   if (enable) {
     if (this->bluetooth_connect_status_ == 1) {
       INFO("disconnect app bluetooth");
