@@ -101,6 +101,7 @@ class Connector final : public rclcpp::Node
   using NotifyToAppMsg = protocol::msg::NotifyToApp;  /*!< [topic 类型]通知APP连接状态消息 */
   using WIFIINFOMSG = protocol::msg::WifiInfo;
   using BLUETOOTHSTATUSMSG = protocol::msg::BluetoothStatus;
+  using ConnectorStatus = std_msgs::msg::String;
 
   using TimeType = std::chrono::time_point<std::chrono::system_clock>;    /*!< 超时 */
   enum ShellEnum
@@ -201,10 +202,11 @@ private:
     const std::string type);
 
   NotifyToAppMsg notify_to_app_msg_;
+  ConnectorStatus connector_status_msg_;
   rclcpp::Subscription<WIFIINFOMSG>::SharedPtr wifi_info_sub_ {nullptr};
   rclcpp::Publisher<NotifyToAppMsg>::SharedPtr notify_to_app_pub_ {nullptr};
   rclcpp::Subscription<BLUETOOTHSTATUSMSG>::SharedPtr bluetooth_status_sub_ {nullptr};
-
+  rclcpp::Publisher<std_msgs::msg::String>::SharedPtr connector_init_pub_ {nullptr};
   std::string wifi_record_dir_ {""};   /*!< wifi 类型记录文件路径 */
   bool connect_network_status = true;
   int connect_code = -1;

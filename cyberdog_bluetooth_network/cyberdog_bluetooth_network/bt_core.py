@@ -494,9 +494,14 @@ class writeWifiParameterFromPhone(Characteristic):
             self.logger.info('WriteValue ip is none!!!')
             app_send_type = ''
             code = 1005
-
+        # 如果接收的数据都不为空，且type为wifi或者hotspot，就发送给app
         if(code == WIFI_INFO_GET_SUCCESS):
             if(app_send_type == 'wifi' or app_send_type == 'hotspot'):
+                # 如果快连模块没有初始化，通过蓝牙返回6000错误码
+                if self.bluetooth_core.get_connect_init_status is False:
+                    self.logger.info('connector is not init')
+                    self.doNotifyOnce('', '', 6000, self.sn)
+                    return
                 msg = WifiInfo()
                 msg.ssid = app_send_ssid
                 msg.ip = app_send_ip
@@ -523,7 +528,7 @@ class writeWifiParameterFromPhone(Characteristic):
                 'ip': ip,
                 'code': code,
                 'sn': sn}
-        self.logger.info(' doNotifyOnce %s' % repr(gnotifystr))
+        self.logger.info('doNotifyOnce %s' % repr(gnotifystr))
         arraySend = convert_to_dbus_array(json.dumps(gnotifystr))
         # 发送Dbus通知
         notifyChar.PropertiesChanged(GATT_CHRC_IFACE, {'Value': arraySend}, [])
@@ -625,6 +630,7 @@ class BluetoothCore:
         self.connected = 0
         self.masters = []
         self.slavers = []
+        self.get_connect_init_status = False
         command = 'factory-tool -f /usr/share/factory_cmd_config/system.xml -i SN'
         self.g_bt_local_name = self.runCommand(command)
         self.dog_sn = self.g_bt_local_name.rstrip('\n')
@@ -717,7 +723,7 @@ class BluetoothCore:
         if self.receive_mac == mac_address:
             self.__logger.info('app connect success ')
             self.connected = 1
-            self.__logger.info('device is connected, close advertise ')
+            self.__logger.info('App is connected, close advertise ')
         else:
             self.disconnect_device(self.mac_address_get)
             self.__logger.info(' disconnect :%s' % self.mac_address_get)
@@ -741,7 +747,7 @@ class BluetoothCore:
             if len(self.slavers) == 0:
                 self.connected = 0
                 self.receive_mac = ''
-                self.__logger.info('device is disconnected, open advertise ')
+                self.__logger.info('App is disconnected, open advertise ')
                 pass
 
     def properties_changed(self, interface, changed, invalidated, path):
@@ -749,7 +755,7 @@ class BluetoothCore:
             if ('Connected' in changed):
                 self.mac_address_get = self.extract_mac_address_from_path(path)
                 self.mac_address_get = self.splite_mac_address_get(self.mac_address_get)
-                self.__logger.info('connect_change,mac:%s' % self.mac_address_get)
+                self.__logger.info('connect_change')
                 self.set_connected_status(changed['Connected'])
 
     def interfaces_added(self, path, interfaces):
@@ -758,7 +764,7 @@ class BluetoothCore:
             if ('Connected' in properties):
                 self.mac_address_get = self.extract_mac_address_from_path(path)
                 self.mac_address_get = self.splite_mac_address_get(self.mac_address_get)
-                self.__logger.info('interface add,mac_addess: %s' % self.mac_address_get)
+                self.__logger.info('interface add')
                 self.set_connected_status(properties['Connected'])
 
     def register_app_cb(self):
@@ -853,3 +859,7 @@ class BluetoothCore:
         self.receive_type = type_receive
         self.__logger.info('GetAppData: %s %s %s %s %s' %
                            (ssid, pwd, ip, mac, type_receive))
+
+    def GetConnectStatus(self, status):
+        self.get_connect_init_status = status
+        self.__logger.info('GetConnectStatus: %s' % status)
