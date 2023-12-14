@@ -901,7 +901,7 @@ void Connector::APPSendWiFiCallback(
     this->connect_code = 2000;
   } else {
     INFO("receive wifi info from app, connect wifi failed");
-    this->connect_code = 2001;
+    // this->connect_code = 2001;
   }
   this->notify_to_app_msg_.code = this->connect_code;
   this->notify_to_app_pub_->publish(this->notify_to_app_msg_);
