@@ -456,7 +456,7 @@ class writeWifiParameterFromPhone(Characteristic):
 
         code = WIFI_INFO_GET_SUCCESS
         if ssid is not None:
-            self.logger.info('WriteValue ssid %s' % repr(text['ssid']))
+            # self.logger.info('WriteValue ssid %s' % repr(text['ssid']))
             app_send_ssid = ssid
         else:
             self.logger.info('WriteValue ssid is none!!!')
@@ -464,7 +464,7 @@ class writeWifiParameterFromPhone(Characteristic):
             code = WIFI_INFO_SSID_ERROR
 
         if pwd is not None:
-            self.logger.info('WriteValue pwd %s' % repr(text['pwd']))
+            # self.logger.info('WriteValue pwd %s' % repr(text['pwd']))
             app_send_pwd = pwd
         else:
             self.logger.info('WriteValue pwd is none!!!')
@@ -472,7 +472,7 @@ class writeWifiParameterFromPhone(Characteristic):
             # code = WIFI_INFO_PWD_ERROR
 
         if ip is not None:
-            self.logger.info('WriteValue ip %s' % repr(text['ip']))
+            # self.logger.info('WriteValue ip %s' % repr(text['ip']))
             app_send_ip = ip
         else:
             self.logger.info('WriteValue ip is none!!!')
@@ -480,7 +480,7 @@ class writeWifiParameterFromPhone(Characteristic):
             code = WIFI_INFO_IP_ERROR
 
         if mac is not None:
-            self.logger.info('WriteValue mac %s' % repr(text['mac']))
+            # self.logger.info('WriteValue mac %s' % repr(text['mac']))
             app_send_mac = mac
         else:
             self.logger.info('WriteValue ip is none!!!')
@@ -515,7 +515,7 @@ class writeWifiParameterFromPhone(Characteristic):
             self.doNotifyOnce(app_send_ssid, app_send_ip, code, self.sn)
         # 蓝牙心跳
         if(app_send_type == 'heartBeat'):
-            self.logger.info('send heartBeat')
+            # self.logger.info('send heartBeat')
             code = 5000
             self.doNotifyOnce(app_send_ssid, app_send_ip, code, self.sn)
         self.bluetooth_core.GetAppData(
@@ -857,9 +857,9 @@ class BluetoothCore:
         self.receive_ip = ip
         self.receive_mac = mac
         self.receive_type = type_receive
-        self.__logger.info('GetAppData: %s %s %s %s %s' %
-                           (ssid, pwd, ip, mac, type_receive))
+        # self.__logger.info('GetAppData: %s %s %s %s %s' %
+        #                    (ssid, pwd, ip, mac, type_receive))
 
     def GetConnectStatus(self, status):
         self.get_connect_init_status = status
-        self.__logger.info('GetConnectStatus: %s' % status)
+        # self.__logger.info('GetConnectStatus: %s' % status)

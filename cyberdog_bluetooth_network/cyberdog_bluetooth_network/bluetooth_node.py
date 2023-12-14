@@ -87,8 +87,7 @@ class BluetoothNode(Node):
         return response
 
     def __connect_status_callback(self, msg):
-        # self.connect_init_status = True
-        self.__logger.info('connect_status_callback')
+        # self.__logger.info('connect_status_callback')
         self.blue_core.GetConnectStatus(True)
 
     def __notify_to_app_callback(self, msg):
