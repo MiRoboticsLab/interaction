@@ -45,6 +45,7 @@
 #include <protocol/msg/wifi_info.hpp>
 #include <protocol/msg/notify_to_app.hpp>
 #include <protocol/msg/bluetooth_status.hpp>
+#include <protocol/msg/bledfu_progress.hpp>
 
 #include <protocol/msg/audio_play.hpp>
 #include <protocol/msg/connector_status.hpp>
@@ -102,6 +103,7 @@ class Connector final : public rclcpp::Node
   using WIFIINFOMSG = protocol::msg::WifiInfo;
   using BLUETOOTHSTATUSMSG = protocol::msg::BluetoothStatus;
   using ConnectorStatus = std_msgs::msg::String;
+  using BLEDfuProgressMsg = protocol::msg::BLEDFUProgress;
 
   using TimeType = std::chrono::time_point<std::chrono::system_clock>;    /*!< 超时 */
   enum ShellEnum
@@ -196,6 +198,7 @@ private:
   void APPSendWiFiCallback(const protocol::msg::WifiInfo::SharedPtr msg);
   void AppConnectState(const std_msgs::msg::Bool msg);
   void BtStatusCallback(const protocol::msg::BluetoothStatus::SharedPtr msg);
+  void BledfuProgressCallback(const BLEDfuProgressMsg::SharedPtr msg);
   bool WriteToFile(
     const std::string ssid,
     const std::string ip,
@@ -206,10 +209,12 @@ private:
   rclcpp::Subscription<WIFIINFOMSG>::SharedPtr wifi_info_sub_ {nullptr};
   rclcpp::Publisher<NotifyToAppMsg>::SharedPtr notify_to_app_pub_ {nullptr};
   rclcpp::Subscription<BLUETOOTHSTATUSMSG>::SharedPtr bluetooth_status_sub_ {nullptr};
+  rclcpp::Subscription<BLEDfuProgressMsg>::SharedPtr bledfu_progress_sub_ {nullptr};
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr connector_init_pub_ {nullptr};
   std::string wifi_record_dir_ {""};   /*!< wifi 类型记录文件路径 */
   bool connect_network_status = true;
   int connect_code = -1;
+  bool bledfu_progress_status = true;
 };  // class Connector
 }  // namespace interaction
 }  // namespace cyberdog

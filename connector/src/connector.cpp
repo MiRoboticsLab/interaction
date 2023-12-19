@@ -227,6 +227,10 @@ bool Connector::Init(
       sub_option);
     this->notify_to_app_pub_ = this->create_publisher<protocol::msg::NotifyToApp>(
       "notify_to_app", 1, pub_option);
+    this->bledfu_progress_sub_ = this->create_subscription<protocol::msg::BLEDFUProgress>(
+      "ble_dfu_progress", rclcpp::SystemDefaultsQoS(),
+      std::bind(&Connector::BledfuProgressCallback, this, std::placeholders::_1),
+      sub_option);
   } catch (const std::exception & e) {
     ERROR("Init data failed: <%s>", e.what());
     return false;
@@ -333,7 +337,7 @@ void Connector::UpdateStatus()
 {
   try {
     std::lock_guard<std::mutex> guard(this->state_msg_mutex_);
-    INFO("UpdateStatus");
+    // INFO("UpdateStatus");
     this->status_pub_->publish(this->state_msg_);
   } catch (const std::exception & e) {
     WARN("Update status failed: <%s>", e.what());
@@ -596,8 +600,6 @@ void Connector::CameraSignalCallback(const CameraMsg::SharedPtr msg)
 
 bool Connector::DoConnect(std::string name, std::string password, std::string provider)
 {
-  this->CtrlAudio(15);
-  this->CtrlLed(AudioMsg::PID_WIFI_ENTER_CONNECTION_MODE_0);
   auto return_true = [&](std::string msg, bool same_wifi) -> bool {
       this->provider_ip_ = provider;
       this->SaveWiFi(provider, name, password);
@@ -605,7 +607,8 @@ bool Connector::DoConnect(std::string name, std::string password, std::string pr
       if (password.empty()) {
         this->Interaction(AudioMsg::PID_WIFI_CONNECTED_UNKNOWN_NET);
       } else {
-        this->Interaction(AudioMsg::PID_WIFI_CONNECTION_SUCCEEDED_0);
+        INFO("connect wifi success");
+        // this->Interaction(AudioMsg::PID_WIFI_CONNECTION_SUCCEEDED_0);
       }
       this->camer_efficient_ = false;
       this->CtrlCamera(CameraSrv::Request::STOP_IMAGE_PUBLISH);
@@ -688,9 +691,12 @@ bool Connector::DoConnect(std::string name, std::string password, std::string pr
         "The target wifi and the currently connected wifi are the same wifi.",
         true);
     }
+    this->CtrlAudio(15);
+    this->CtrlLed(AudioMsg::PID_WIFI_ENTER_CONNECTION_MODE_0);
     switch (this->CtrlWifi(name, password)) {
       case WiFiSrv::Response::RESULT_SUCCESS:
         this->connect_code = 2000;
+        this->Interaction(AudioMsg::PID_WIFI_CONNECTION_SUCCEEDED_0);
         return return_true("WiFi connection succeeded.", false);
       case WiFiSrv::Response::RESULT_NO_SSID:
         this->Interaction(AudioMsg::PID_WIFI_CONNECTION_FAILED_0);
@@ -952,7 +958,7 @@ void Connector::BtStatusCallback(
   const protocol::msg::BluetoothStatus::SharedPtr msg)
 {
   if (msg->connectable == 1) {
-    INFO_MILLSECONDS(3000, " bluetooth connect(app and cyberdog)");
+    INFO_MILLSECONDS(4000, " bluetooth connect(app and cyberdog)");
     if (this->touch_efficient_ == false) {
       // touch没有长按，关闭广播
       int count = 0;
@@ -961,10 +967,28 @@ void Connector::BtStatusCallback(
         count++;
       }
     }
-  } else if (msg->connectable == 0) {
+  } else if (msg->connectable == 0 && this->bledfu_progress_status) {
     // 未连接状态，开起广播
-    INFO_MILLSECONDS(3000, " bluetooth is not connect(app and cyberdog)");
+    INFO_MILLSECONDS(4000, " bluetooth is not connect(app and cyberdog)");
     this->CtrlAdvertising(true);
+  }
+}
+void Connector::BledfuProgressCallback(
+  const BLEDfuProgressMsg::SharedPtr msg)
+{
+  if (msg->status == 0 || msg->status == 3 ||
+    msg->status == 5 || msg->status == 7 ||
+    msg->status == 9)
+  {
+    this->bledfu_progress_status = false;
+    INFO("DFU processing");
+  }
+  if (msg->status == 1 || msg->status == 2 ||
+    msg->status == 4 || msg->status == 6 ||
+    msg->status == 8 || msg->status == 10)
+  {
+    this->bledfu_progress_status = true;
+    INFO("DFU peocessing end");
   }
 }
 }   // namespace interaction
