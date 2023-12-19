@@ -19,6 +19,7 @@
 #include "connector/ctrl_wifi.hpp"
 #include "connector/ctrl_camera.hpp"
 #include "connector/uploader_log.hpp"
+#include "connector/ctrl_bluetooth.hpp"
 
 int main(int argc, char ** argv)
 {
@@ -31,6 +32,8 @@ int main(int argc, char ** argv)
   auto ctrl_camera = std::make_shared<cyberdog::interaction::CtrlCamera>("connector_ctrl_camera");
   auto ctrl_led = std::make_shared<cyberdog::interaction::CtrlLed>("connector_ctrl_led");
   auto ctrl_wifi = std::make_shared<cyberdog::interaction::CtrlWifi>("connector_ctrl_wifi");
+  auto ctrl_bluetooth = std::make_shared<cyberdog::interaction::CtrlBluetooth>(
+    "connector_ctrl_bluetooth");
   auto uploader_log =
     std::make_shared<cyberdog::interaction::UploaderLog>("connector_uploader_log");
 
@@ -46,7 +49,10 @@ int main(int argc, char ** argv)
         ctrl_led, std::placeholders::_1),
       std::bind(
         &cyberdog::interaction::CtrlWifi::ControlWifi,
-        ctrl_wifi, std::placeholders::_1, std::placeholders::_2)
+        ctrl_wifi, std::placeholders::_1, std::placeholders::_2),
+      std::bind(
+        &cyberdog::interaction::CtrlBluetooth::CtrlAdvertising,
+        ctrl_bluetooth, std::placeholders::_1)
     )) {exit(-1);}
   if (!uploader_log->Init(uploader_log)) {
     ERROR("Init UploaderLog object(node) is failed.");
@@ -60,6 +66,7 @@ int main(int argc, char ** argv)
   exec_.add_node(ctrl_camera->get_node_base_interface());
   exec_.add_node(ctrl_led->get_node_base_interface());
   exec_.add_node(ctrl_wifi->get_node_base_interface());
+  exec_.add_node(ctrl_bluetooth->get_node_base_interface());
   exec_.add_node(uploader_log->get_node_base_interface());
   exec_.spin();
   rclcpp::shutdown();

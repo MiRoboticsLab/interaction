@@ -36,7 +36,8 @@ Connector::Connector(const std::string & name)
   KEY("b1950ca92ccc9ffe"),
   wifi_name("n"),
   wifi_password("p"),
-  ip("i")
+  ip("i"),
+  wifi_record_dir_("/wifirecord.toml")
 {
   INFO("Creating [Connector] object(node)");
 }
@@ -51,7 +52,8 @@ bool Connector::Init(
   const std::function<uint(uint16_t)> _control_audio,
   const std::function<uint(uint8_t)> _control_camera,
   const std::function<uint(uint16_t)> _control_led,
-  const std::function<uint(const std::string, const std::string)> _control_wifi)
+  const std::function<uint(const std::string, const std::string)> _control_wifi,
+  const std::function<bool(bool)> _control_bluetooth)
 {
   INFO("Initializing ...");
   try {
@@ -59,6 +61,7 @@ bool Connector::Init(
     this->CtrlCamera = _control_camera;
     this->CtrlLed = _control_led;
     this->CtrlWifi = _control_wifi;
+    this->CtrlAdvertising = _control_bluetooth;
 
     this->touch_efficient_ = false;
     this->camer_efficient_ = false;
@@ -100,9 +103,12 @@ bool Connector::Init(
     }
 
     std::string original_file = this->params_pkg_dir_ + "/config" + this->wifi_config_dir_;
+    std::string original_wifi_record_file = this->params_pkg_dir_ + "/config" +
+      this->wifi_record_dir_;
     std::string workspace = toml::find<std::string>(
       this->params_toml_, "connector", "initialization", "cmd", "workspace");
     this->wifi_config_dir_ = workspace + this->wifi_config_dir_;
+    this->wifi_record_dir_ = workspace + this->wifi_record_dir_;
     auto make_dir = [&]() -> bool {
         if (access(workspace.c_str(), F_OK) != 0) {
           if (mkdir(workspace.c_str(), S_IRWXU | S_IRWXG | S_IRWXO) != 0) {
@@ -123,6 +129,12 @@ bool Connector::Init(
       }
       if (!this->Shell(
           std::string("cp " + original_file + " " + this->wifi_config_dir_), code,
+          message))
+      {
+        return false;
+      }
+      if (!this->Shell(
+          std::string("cp " + original_wifi_record_file + " " + this->wifi_record_dir_), code,
           message))
       {
         return false;
@@ -173,7 +185,8 @@ bool Connector::Init(
       toml::find<std::string>(
         this->params_toml_, "connector", "initialization", "topic", "connector"),
       1, pub_option);
-
+    this->connector_init_pub_ = this->create_publisher<std_msgs::msg::String>(
+      "connector_init", 1, pub_option);
     rclcpp::SubscriptionOptions sub_option;
     sub_option.callback_group = this->wifi_cb_group_;
     this->wifi_sub_ = this->create_subscription<WiFiMsg>(
@@ -199,12 +212,25 @@ bool Connector::Init(
         this->params_toml_, "connector", "initialization", "topic", "camera"),
       1,
       std::bind(&Connector::CameraSignalCallback, this, std::placeholders::_1), sub_option);
-
     this->connect_service_ = this->create_service<ConnectorSrv>(
       toml::find<std::string>(
         this->params_toml_, "connector", "initialization", "service", "connection"),
       std::bind(&Connector::Connect, this, std::placeholders::_1, std::placeholders::_2),
       rclcpp::ServicesQoS().get_rmw_qos_profile(), this->service_cb_group_);
+    this->bluetooth_status_sub_ = this->create_subscription<protocol::msg::BluetoothStatus>(
+      "bluetooth_status", rclcpp::SystemDefaultsQoS(),
+      std::bind(&Connector::BtStatusCallback, this, std::placeholders::_1),
+      sub_option);
+    this->wifi_info_sub_ = this->create_subscription<protocol::msg::WifiInfo>(
+      "app_send_network_data", rclcpp::SystemDefaultsQoS(),
+      std::bind(&Connector::APPSendWiFiCallback, this, std::placeholders::_1),
+      sub_option);
+    this->notify_to_app_pub_ = this->create_publisher<protocol::msg::NotifyToApp>(
+      "notify_to_app", 1, pub_option);
+    this->bledfu_progress_sub_ = this->create_subscription<protocol::msg::BLEDFUProgress>(
+      "ble_dfu_progress", rclcpp::SystemDefaultsQoS(),
+      std::bind(&Connector::BledfuProgressCallback, this, std::placeholders::_1),
+      sub_option);
   } catch (const std::exception & e) {
     ERROR("Init data failed: <%s>", e.what());
     return false;
@@ -311,6 +337,7 @@ void Connector::UpdateStatus()
 {
   try {
     std::lock_guard<std::mutex> guard(this->state_msg_mutex_);
+    // INFO("UpdateStatus");
     this->status_pub_->publish(this->state_msg_);
   } catch (const std::exception & e) {
     WARN("Update status failed: <%s>", e.what());
@@ -325,6 +352,11 @@ void Connector::ResetSignal()
     INFO("ResetSignal(Exit network mode).");
     this->camer_efficient_ = false;
     this->CtrlCamera(CameraSrv::Request::STOP_IMAGE_PUBLISH);
+    int count = 0;
+    while (!this->CtrlAdvertising(false) && count < 3) {
+      sleep(2);
+      count++;
+    }
     this->touch_efficient_ = false;
     this->Interaction(AudioMsg::PID_WIFI_EXIT_CONNECTION_MODE_0);
   }
@@ -335,6 +367,8 @@ void Connector::ResetSignal()
       this->TouchSignalCallback(touch_ptr);
     }
   }
+  this->connector_status_msg_.data = "connector_init";
+  this->connector_init_pub_->publish(connector_status_msg_);
 }
 
 void Connector::DisconnectAppCallback(const DisConMsg::SharedPtr msg)
@@ -354,17 +388,13 @@ void Connector::WiFiSignalCallback(const WiFiMsg::SharedPtr msg)
 {
   try {
     std::lock_guard<std::mutex> guard(this->state_msg_mutex_);
-    // INFO(
-    //   "WiFi signal callback:{is_connected=<%s>, ssid=<%s>, ip=<%s>, strength=%d}",
-    //   std::string(msg->is_connected ? "True" : "False").c_str(),
-    //   msg->ssid.c_str(),
-    //   msg->ip.c_str(),
-    //   static_cast<int>(msg->strength));
+
     if (msg->is_connected) {
       if ((!this->state_msg_.is_connected) &&
         (std::chrono::system_clock::now() > this->touch_signal_timeout_))
       {
         // 网络连接已建立: 开机自动连接网络，自动断网后自动连接网络
+        this->notify_to_app_msg_.code = 2000;
       }
       if (msg->ssid != this->state_msg_.ssid) {
         this->state_msg_.is_internet = this->CheckInternet();
@@ -372,15 +402,23 @@ void Connector::WiFiSignalCallback(const WiFiMsg::SharedPtr msg)
           // 当前网络能访问互联网
         } else {
           // 当前网络不能访问互联网
+          this->notify_to_app_msg_.code = 2002;
         }
       }
       if (this->provider_ip_ == this->initial_ip_) {
         this->provider_ip_ = this->GetWiFiProvider(msg->ssid);
       }
       this->state_msg_.provider_ip = this->provider_ip_;
+      this->connect_network_status = true;
     } else {
       if (this->state_msg_.is_connected) {
         // 网络连接已断开
+        this->notify_to_app_msg_.code = 2003;
+        if (this->connect_network_status) {
+          this->CtrlAudio(17);
+          this->CtrlLed(AudioMsg::PID_WIFI_FAILED_PLEASE_RETRY);
+          this->connect_network_status = false;
+        }
       }
     }
     this->state_msg_.is_connected = msg->is_connected;
@@ -426,10 +464,16 @@ void Connector::TouchSignalCallback(const TouchMsg::SharedPtr msg)
       this->Interaction(AudioMsg::PID_WIFI_FAILED_PLEASE_RETRY);
       return;
     }
-    this->Interaction(AudioMsg::PID_WIFI_WAIT_FOR_SCAN_CODE_0);
+    this->CtrlAudio(16);
+    this->CtrlLed(AudioMsg::PID_WIFI_WAIT_FOR_SCAN_CODE_0);
     this->touch_signal_timeout_ = std::chrono::system_clock::now() +
       std::chrono::seconds(this->touch_signal_timeout_s);
     this->touch_efficient_ = true;
+    int count = 0;
+    while (!this->CtrlAdvertising(true) && count < 3) {
+      sleep(3);
+      count++;
+    }
     this->camer_efficient_ = true;
     INFO(
       "A touch signal is detected at %s, the signal is valid for %d seconds and expires at %s.",
@@ -448,11 +492,12 @@ void Connector::CameraSignalCallback(const CameraMsg::SharedPtr msg)
       INFO("Identifying current QR code...");
       auto return_error = [&](const std::string & msg, const std::string & data) {
           WARN("%s:\n<%s>.", msg.c_str(), data.c_str());
-          this->Interaction(AudioMsg::PID_WIFI_SCAN_CODE_IP_ERROR);
+          this->CtrlLed(AudioMsg::PID_WIFI_SCAN_CODE_IP_ERROR);
           if (this->touch_efficient_ &&
             (std::chrono::system_clock::now() < this->touch_signal_timeout_))
           {
-            this->Interaction(AudioMsg::PID_WIFI_WAIT_FOR_SCAN_CODE_0);
+            this->CtrlAudio(16);
+            this->CtrlLed(AudioMsg::PID_WIFI_WAIT_FOR_SCAN_CODE_0);
           }
         };
       int num_pixels = msg->data.size();
@@ -518,7 +563,6 @@ void Connector::CameraSignalCallback(const CameraMsg::SharedPtr msg)
                 connect_document.HasMember(ip.c_str()) &&
                 connect_document[ip.c_str()].IsString())
               {
-                this->Interaction(AudioMsg::PID_WIFI_SCAN_CODE_SUCCEEDED_0);
                 if (this->DoConnect(
                     connect_document[wifi_name.c_str()].GetString(),
                     connect_document[wifi_password.c_str()].GetString(),
@@ -563,11 +607,11 @@ bool Connector::DoConnect(std::string name, std::string password, std::string pr
       if (password.empty()) {
         this->Interaction(AudioMsg::PID_WIFI_CONNECTED_UNKNOWN_NET);
       } else {
-        this->Interaction(AudioMsg::PID_WIFI_CONNECTION_SUCCEEDED_0);
+        INFO("connect wifi success");
+        // this->Interaction(AudioMsg::PID_WIFI_CONNECTION_SUCCEEDED_0);
       }
       this->camer_efficient_ = false;
       this->CtrlCamera(CameraSrv::Request::STOP_IMAGE_PUBLISH);
-      // this->Interaction(AudioMsg::PID_WIFI_EXIT_CONNECTION_MODE_0);
       this->touch_efficient_ = false;
       this->srv_code_ = ConnectorSrv::Response::CODE_SUCCESS;
       return true;
@@ -577,8 +621,11 @@ bool Connector::DoConnect(std::string name, std::string password, std::string pr
       if (this->touch_efficient_ &&
         (std::chrono::system_clock::now() < this->touch_signal_timeout_))
       {
-        this->Interaction(AudioMsg::PID_WIFI_WAIT_FOR_SCAN_CODE_0);
+        this->CtrlAudio(16);
+        this->CtrlLed(AudioMsg::PID_WIFI_WAIT_FOR_SCAN_CODE_0);
       }
+      // 释放灯效
+      this->CtrlLed(AudioMsg::PID_WIFI_EXIT_CONNECTION_MODE_0);
       return false;
     };
   auto judge_string = [&](std::string msg) -> bool {
@@ -588,17 +635,6 @@ bool Connector::DoConnect(std::string name, std::string password, std::string pr
           msg.c_str());
         return false;
       }
-
-      // std::regex pattern("^[a-zA-Z0-9_]+$");              // WiFi命名规则
-      // std::regex pattern("^[a-zA-Z][a-zA-Z0-9_]*$");      // 变量命名规则
-      // return std::regex_match(msg, pattern);
-
-      // std::regex quote("['\"]");               // 包含单引号和双引号
-      // if (std::regex_search(input, quoteRegex)) {
-      //   WARN("The current string(%s) is contains single or double quotes, which is illegal.",
-      //     msg.c_str());
-      //   return false;
-      // }
       return true;
     };
   try {
@@ -611,6 +647,7 @@ bool Connector::DoConnect(std::string name, std::string password, std::string pr
         name.c_str());
       this->Interaction(AudioMsg::PID_WIFI_CONNECTION_FAILED_0);
       this->srv_code_ = ConnectorSrv::Response::CODE_WIFI_NAME_FAIL;
+      this->connect_code = 2004;
       return return_false(" Wifi name is empty.");
     } else {
       if (!judge_string(name)) {
@@ -620,6 +657,7 @@ bool Connector::DoConnect(std::string name, std::string password, std::string pr
           name.c_str());
         this->Interaction(AudioMsg::PID_WIFI_CONNECTION_FAILED_0);
         this->srv_code_ = ConnectorSrv::Response::CODE_WIFI_NAME_FAIL;
+        this->connect_code = 2004;
         return return_false(" Wifi name is invalid.");
       }
     }
@@ -638,12 +676,13 @@ bool Connector::DoConnect(std::string name, std::string password, std::string pr
           name.c_str(),
           password.c_str());
         this->Interaction(AudioMsg::PID_WIFI_CONNECTION_FAILED_1);
+        this->connect_code = 2005;
         return return_false("Wifi password is invalid.");
       }
     }
     if (provider.empty()) {
       // 手机端IP错误，会导致无法与设备通讯
-      this->Interaction(AudioMsg::PID_WIFI_SCAN_CODE_INFO_ERROR);
+      this->CtrlLed(AudioMsg::PID_WIFI_SCAN_CODE_INFO_ERROR);
       this->srv_code_ = ConnectorSrv::Response::CODE_WIFI_PROVIDER_IP_FAIL;
       return return_false("Wifi provider is empty.");
     }
@@ -652,20 +691,27 @@ bool Connector::DoConnect(std::string name, std::string password, std::string pr
         "The target wifi and the currently connected wifi are the same wifi.",
         true);
     }
+    this->CtrlAudio(15);
+    this->CtrlLed(AudioMsg::PID_WIFI_ENTER_CONNECTION_MODE_0);
     switch (this->CtrlWifi(name, password)) {
       case WiFiSrv::Response::RESULT_SUCCESS:
+        this->connect_code = 2000;
+        this->Interaction(AudioMsg::PID_WIFI_CONNECTION_SUCCEEDED_0);
         return return_true("WiFi connection succeeded.", false);
       case WiFiSrv::Response::RESULT_NO_SSID:
         this->Interaction(AudioMsg::PID_WIFI_CONNECTION_FAILED_0);
         this->srv_code_ = ConnectorSrv::Response::CODE_WIFI_NAME_FAIL;
+        this->connect_code = 2004;
         break;
       case WiFiSrv::Response::RESULT_ERR_PWD:
         this->Interaction(AudioMsg::PID_WIFI_CONNECTION_FAILED_1);
         this->srv_code_ = ConnectorSrv::Response::CODE_WIFI_PASSWORD_FAIL;
+        this->connect_code = 2005;
         break;
       default:
         this->Interaction(AudioMsg::PID_WIFI_CONNECTION_FAILED_2);
         this->srv_code_ = ConnectorSrv::Response::CODE_CONNECTION_TIMEOUT_FAIL;
+        this->connect_code = 2001;
         break;
     }
   } catch (const std::exception & e) {
@@ -716,8 +762,8 @@ void Connector::SaveWiFi(
 
 bool Connector::UserBootsFirstTime()
 {
+  this->judge_first_time_ = false;
   try {
-    this->judge_first_time_ = false;
     INFO("Judge user boots first time...");
     toml::value wifi_toml;
     if (cyberdog::common::CyberdogToml::ParseFile(
@@ -739,6 +785,32 @@ bool Connector::UserBootsFirstTime()
     }
   } catch (const std::exception & e) {
     ERROR("Judge user boots first time is error:%s", e.what());
+  }
+
+  try {
+    toml::value wifi_toml1;
+    INFO(
+      "(wifi_record)Judge user boots first time : %s",
+      this->wifi_record_dir_.c_str());
+    if (cyberdog::common::CyberdogToml::ParseFile(
+        this->wifi_record_dir_.c_str(), wifi_toml1))
+    {
+      bool first1 = toml::find_or(wifi_toml1, "wifi", "user_boots_first_time", false);
+      if (first1) {
+        wifi_toml1["wifi"]["user_boots_first_time"] = false;
+        if (cyberdog::common::CyberdogToml::WriteFile(this->wifi_record_dir_, wifi_toml1)) {
+          return true;
+        } else {
+          WARN("(wifi_record)WiFi params config file does not have wifi key, write failed");
+        }
+      }
+    } else {
+      ERROR(
+        "(wifi_record)Toml WiFi config file is not in toml format, config file dir:\n%s",
+        this->wifi_record_dir_.c_str());
+    }
+  } catch (const std::exception & e) {
+    ERROR("(wifi_record)Judge user boots first time is error:%s", e.what());
   }
   return false;
 }
@@ -816,6 +888,108 @@ bool Connector::Interaction(const uint16_t & _id)
   this->CtrlAudio(_id);
   this->CtrlLed(_id);
   return true;
+}
+
+void Connector::APPSendWiFiCallback(
+  const protocol::msg::WifiInfo::SharedPtr msg)
+{
+  INFO("receive wifi info from app, connect wifi");
+  this->notify_to_app_msg_.ssid = msg->ssid;
+  this->notify_to_app_msg_.ip = msg->ip;
+  if (msg->ssid.empty() || msg->ip.empty()) {
+    INFO("receive wifi info from app, ssid or ip is empty");
+    this->notify_to_app_msg_.code = 2001;
+    this->notify_to_app_pub_->publish(this->notify_to_app_msg_);
+    return;
+  }
+  if (this->DoConnect(msg->ssid, msg->pwd, msg->ip)) {
+    this->WriteToFile(msg->ssid, msg->ip, msg->type);
+    this->connect_code = 2000;
+  } else {
+    INFO("receive wifi info from app, connect wifi failed");
+    // this->connect_code = 2001;
+  }
+  this->notify_to_app_msg_.code = this->connect_code;
+  this->notify_to_app_pub_->publish(this->notify_to_app_msg_);
+}
+
+bool Connector::WriteToFile(
+  const std::string ssid,
+  const std::string ip,
+  const std::string type)
+{
+  // 将ssid，ip，type写入到文件中
+  try {
+    INFO(
+      "Save WiFi :\n\tprovider = %s\n\tname = %s\n\ttype = %s",
+      ip.c_str(),
+      ssid.c_str(),
+      type.c_str());
+    toml::value wifi_toml;
+    if (cyberdog::common::CyberdogToml::ParseFile(
+        this->wifi_record_dir_.c_str(), wifi_toml))
+    {
+      std::string old_provider = toml::find_or(wifi_toml, "wifi", ssid, "provider", "");
+      if (old_provider.empty()) {
+        toml::value wifi;
+        wifi["type"] = type;
+        wifi["provider"] = ip;
+        wifi_toml["wifi"][ssid] = wifi;
+      } else {
+        wifi_toml["wifi"][ssid]["type"] = type;
+        wifi_toml["wifi"][ssid]["provider"] = ip;
+      }
+      if (!cyberdog::common::CyberdogToml::WriteFile(this->wifi_record_dir_, wifi_toml)) {
+        WARN("WiFi  record file does not have wifi key, write failed");
+        return false;
+      }
+    } else {
+      ERROR(
+        "Toml WiFi config file is not in toml format, config file dir:\n%s",
+        this->wifi_record_dir_.c_str());
+      return false;
+    }
+  } catch (const std::exception & e) {
+    ERROR("WriteToFile()-> Save WiFi is error:%s", e.what());
+    return false;
+  }
+}
+void Connector::BtStatusCallback(
+  const protocol::msg::BluetoothStatus::SharedPtr msg)
+{
+  if (msg->connectable == 1) {
+    INFO_MILLSECONDS(4000, " bluetooth connect(app and cyberdog)");
+    if (this->touch_efficient_ == false) {
+      // touch没有长按，关闭广播
+      int count = 0;
+      while (!this->CtrlAdvertising(false) && count < 3) {
+        sleep(3);
+        count++;
+      }
+    }
+  } else if (msg->connectable == 0 && this->bledfu_progress_status) {
+    // 未连接状态，开起广播
+    INFO_MILLSECONDS(4000, " bluetooth is not connect(app and cyberdog)");
+    this->CtrlAdvertising(true);
+  }
+}
+void Connector::BledfuProgressCallback(
+  const BLEDfuProgressMsg::SharedPtr msg)
+{
+  if (msg->status == 0 || msg->status == 3 ||
+    msg->status == 5 || msg->status == 7 ||
+    msg->status == 9)
+  {
+    this->bledfu_progress_status = false;
+    INFO("DFU processing");
+  }
+  if (msg->status == 1 || msg->status == 2 ||
+    msg->status == 4 || msg->status == 6 ||
+    msg->status == 8 || msg->status == 10)
+  {
+    this->bledfu_progress_status = true;
+    INFO("DFU peocessing end");
+  }
 }
 }   // namespace interaction
 }   // namespace cyberdog
