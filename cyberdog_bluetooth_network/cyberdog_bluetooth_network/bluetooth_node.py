@@ -18,6 +18,7 @@ import time
 from time import sleep
 
 from mi.cyberdog_bringup.manual import get_namespace
+from protocol.msg import BLEDFUProgress
 from protocol.msg import BluetoothStatus
 from protocol.msg import NotifyToApp
 from protocol.msg import WifiInfo
@@ -63,6 +64,9 @@ class BluetoothNode(Node):
         self.__connect_status_subscriber = self.create_subscription(
             String, 'connector_init', self.__connect_status_callback, 1,
             callback_group=self.__multithread_callback_group)
+        self.__uwb_update_subscriber = self.create_subscription(
+            BLEDFUProgress, 'ble_dfu_progress', self.__uwb_update_callback, 1,
+            callback_group=self.__multithread_callback_group)
         self.__bt_core_lock = threading.Lock()
         self.blue_core = bt_core.BluetoothCore(self.__logger)
         # 开启线程,启动蓝牙mainloop的循环
@@ -89,6 +93,22 @@ class BluetoothNode(Node):
     def __connect_status_callback(self, msg):
         # self.__logger.info('connect_status_callback')
         self.blue_core.GetConnectStatus(True)
+
+    def __uwb_update_callback(self, msg):
+        self.__logger.info('uwb_update_callback, status: %d' % msg.status)
+        self.__logger.info('uwb_update_callback, progress: %d' % msg.progress)
+        # self.__logger.info('uwb_update_callback, error: %s' % msg.message)
+        if(msg.status == 0 or msg.status == 3 or
+                msg.status == 5 or msg.status == 7 or msg.status == 9):
+            self.__logger.info('uwb_update_callback, -5000')
+            self.blue_core.GetUwbUpdataStatus(-5000)
+            pass
+        if(msg.status == 1 or msg.status == 2 or msg.status == 4 or
+                msg.status == 6 or msg.status == 8 or msg.status == 10):
+            self.__logger.info('uwb_update_callback, 5000')
+            self.blue_core.GetUwbUpdataStatus(5000)
+            pass
+        pass
 
     def __notify_to_app_callback(self, msg):
         self.__logger.info('notify_to_app_callback')

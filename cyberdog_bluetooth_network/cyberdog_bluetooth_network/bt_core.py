@@ -631,6 +631,7 @@ class BluetoothCore:
         self.masters = []
         self.slavers = []
         self.get_connect_init_status = False
+        self.get_uwb_updata_status = 5000
         command = 'factory-tool -f /usr/share/factory_cmd_config/system.xml -i SN'
         self.g_bt_local_name = self.runCommand(command)
         self.dog_sn = self.g_bt_local_name.rstrip('\n')
@@ -863,3 +864,8 @@ class BluetoothCore:
     def GetConnectStatus(self, status):
         self.get_connect_init_status = status
         # self.__logger.info('GetConnectStatus: %s' % status)
+
+    def GetUwbUpdataStatus(self, status):
+        self.get_uwb_updata_status = status
+        self.__logger.info('GetUwbUpdataStatus, adv_status: %d' % self.adv_status)
+        pass
