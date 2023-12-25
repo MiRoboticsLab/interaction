@@ -215,6 +215,7 @@ private:
   bool connect_network_status = true;
   int connect_code = -1;
   bool bledfu_progress_status = true;
+  bool camera_callback_flag = false;
 };  // class Connector
 }  // namespace interaction
 }  // namespace cyberdog
