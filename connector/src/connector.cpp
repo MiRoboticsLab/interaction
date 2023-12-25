@@ -563,6 +563,7 @@ void Connector::CameraSignalCallback(const CameraMsg::SharedPtr msg)
                 connect_document.HasMember(ip.c_str()) &&
                 connect_document[ip.c_str()].IsString())
               {
+                this->camera_callback_flag = true;
                 if (this->DoConnect(
                     connect_document[wifi_name.c_str()].GetString(),
                     connect_document[wifi_password.c_str()].GetString(),
@@ -687,6 +688,13 @@ bool Connector::DoConnect(std::string name, std::string password, std::string pr
       return return_false("Wifi provider is empty.");
     }
     if (name == this->state_msg_.ssid) {
+      if (this->camera_callback_flag) {
+        this->camera_callback_flag = false;
+        this->Interaction(AudioMsg::PID_WIFI_CONNECTION_SUCCEEDED_0);
+      } else {
+        this->CtrlAudio(9999);
+        this->CtrlLed(AudioMsg::PID_WIFI_CONNECTION_SUCCEEDED_0);
+      }
       return return_true(
         "The target wifi and the currently connected wifi are the same wifi.",
         true);
