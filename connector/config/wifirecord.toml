@@ -1,0 +1,4 @@
+[wifi]
+[wifi.ssid]
+type = "type"
+provider = "ip"

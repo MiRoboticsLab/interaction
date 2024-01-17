@@ -196,6 +196,25 @@ uint CtrlLed::ControlLed(const uint16_t & _id)
       LedSrv::Request::USER_DEFINED,
       LedSrv::Request::CIRCULAR_BREATH,
       255, 165, 0);
+  } else if (_id == 9) {
+    this->EnableLed(
+      true,
+      LedSrv::Request::HEAD_LED,
+      LedSrv::Request::USER_DEFINED,
+      LedSrv::Request::BLINK_FAST,
+      255, 140, 0);
+    this->EnableLed(
+      true,
+      LedSrv::Request::TAIL_LED,
+      LedSrv::Request::USER_DEFINED,
+      LedSrv::Request::BLINK_FAST,
+      255, 140, 0);
+    this->EnableLed(
+      true,
+      LedSrv::Request::MINI_LED,
+      LedSrv::Request::USER_DEFINED,
+      LedSrv::Request::CIRCULAR_BREATH,
+      255, 140, 0);
   } else {
     INFO("Control led : maintain the current state.");
   }
