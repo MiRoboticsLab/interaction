@@ -44,7 +44,6 @@
 #include "protocol/srv/camera_service.hpp"
 #include "sensor_msgs/msg/image.hpp"
 #include "sensor_msgs/image_encodings.hpp"
-#include "cyberdog_common/cyberdog_model.hpp"
 #include "protocol/msg/connector_status.hpp"
 #include "protocol/msg/audio_play.hpp"
 
@@ -175,8 +174,6 @@ private:
   rclcpp::Subscription<CameraMsg>::SharedPtr camera_sub_{nullptr};
   rclcpp::Client<CameraSrv>::SharedPtr camera_client_{nullptr};
   rclcpp::Publisher<GestureActionMsg>::SharedPtr gesture_action_pub_{nullptr};
-  rclcpp::Subscription<protocol::msg::ConnectorStatus>
-  ::SharedPtr connector_sub_{nullptr};
   rclcpp::Publisher<AudioMsg>::SharedPtr audio_pub_ {nullptr};
   std::shared_ptr<AudioMsg> audio_msg_ptr_;
   Logger gLogger;
@@ -203,7 +200,6 @@ private:
   bool load_engine = false;
   ConfigParams action_toml;
   bool initcuda = false;
-  std::shared_ptr<cyberdog::common::cyberdog_model> fds_;
   bool ReadTomlConfig();
   template<typename _Tp>
   int activation_function_softmax(const _Tp * src, _Tp * dst, int length, int & max_index);
@@ -220,7 +216,6 @@ private:
   bool LoadEngineIntoCuda();
   bool DestroyCuda();
   bool cudaMemoryPro();
-  void WifiSignalCallback(const WifiMsg::SharedPtr msg);
 };  // class gesture
 }    // namespace interaction
 }  // namespace cyberdog

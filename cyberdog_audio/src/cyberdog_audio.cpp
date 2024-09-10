@@ -154,9 +154,6 @@ cyberdog::interaction::CyberdogAudio::CyberdogAudio()
       &CyberdogAudio::SdcardPlayidQuery, this, std::placeholders::_1,
       std::placeholders::_2),
     rmw_qos_profile_services_default, speech_callback_group_);
-
-  audio_fds_ptr_ = std::make_unique<cyberdog::interaction::AudioFds>();
-  audio_fds_ptr_->get_audio_play_ptr(audio_play_ptr_);
   RegisterAudioCyberdogTopicHandler();
   RegisterCyberdogAudioServiceReturnHandler();
   audio_state.RegisterNotice(
@@ -635,7 +632,6 @@ void cyberdog::interaction::CyberdogAudio::WifiCallback(
         static bool is_update_once = false;
         if (!is_update_once) {
           is_update_once = true;
-          audio_fds_ptr_->Update();
         }
       }
     }

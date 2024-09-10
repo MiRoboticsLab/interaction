@@ -83,10 +83,6 @@ public:
                     ERROR("%s does not exist!", file_path.c_str());
                   }
                 }
-                // Todo:test fds down and map update
-                // for (const auto & pair : http_play_map) {
-                //   INFO("paly_id:%d, tts_name:%s", pair.first, pair.second.c_str());
-                // }
               } else {
                 WARN("Audio Play tts ids size and tts names size not equal, please check!");
               }

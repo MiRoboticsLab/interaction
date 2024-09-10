@@ -307,39 +307,17 @@ bool gesture::Init()
     10);
   this->audio_msg_ptr_ = std::make_shared<AudioMsg>();
   this->audio_msg_ptr_->module_name = "action_gesture";
-  // model download
   std::string username = "gesture_action";
-  this->fds_ = std::make_shared<cyberdog::common::cyberdog_model>(
-    username, this->action_toml.is_specified, this->action_toml.version);
   auto callback_group_ = this->node_ptr_->create_callback_group(
     rclcpp::CallbackGroupType::MutuallyExclusive);
   rclcpp::SubscriptionOptions sub_options;
   sub_options.callback_group = callback_group_;
-  this->connector_sub_ = this->node_ptr_->create_subscription<protocol::msg::ConnectorStatus>(
-    "connector_state", rclcpp::SystemDefaultsQoS(),
-    std::bind(&gesture::WifiSignalCallback, this, std::placeholders::_1), sub_options);
-
   this->camera_thread_ = std::make_shared<std::thread>(&gesture::Camera_Operate, this);
   this->inference_thread_ = std::make_shared<std::thread>(&gesture::Inference_Operate, this);
 
   return true;
 }
 
-
-void gesture::WifiSignalCallback(const WifiMsg::SharedPtr msg)
-{
-  if (msg->is_internet && this->connector_sub_ != nullptr) {
-    INFO("[WifiSignalCallback] internet is ok!!!");
-    this->fds_->SetTimeout(600);
-    int32_t code = this->fds_->UpdateModels();
-    if (code == 0) {
-      INFO("download and update gesture_action model from Fds successfully");
-    } else {
-      INFO("download and update gesture_action model from Fds failed or timeout");
-    }
-    this->connector_sub_ = nullptr;
-  }
-}
 
 
 void gesture::Gesture_Action_Rec_Fun(
@@ -401,13 +379,6 @@ void gesture::Camera_Operate()
     INFO("open ai camera");
     this->audio_msg_ptr_->play_id = AudioMsg::PID_MODEL_LOADING_START;
     this->audio_pub_->publish(*(this->audio_msg_ptr_));
-    // 添加模型替换判断
-    if (this->fds_->Load_Model_Check()) {
-      this->fds_->Post_Process();
-      INFO("replace and remove temp model prepare load new model");
-    } else {
-      INFO("load model without replace new model");
-    }
     bool load_result = LoadEngineIntoCuda();
     if (!load_result) {
       this->audio_msg_ptr_->play_id = AudioMsg::PID_MODEL_VERSION_OLD;

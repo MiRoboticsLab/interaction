@@ -64,7 +64,6 @@
 #include "cyberdog_audio/parameters_info.hpp"
 #include "cyberdog_audio/ready_sn.hpp"
 #include "cyberdog_audio/audio_play.hpp"
-#include "cyberdog_audio/audio_fds.hpp"
 
 #define   NODE_NAME   "cyberdog_audio"
 
@@ -304,11 +303,6 @@ private:
   std::unique_ptr<cyberdog::common::CyberdogAccountManager> account_manager_ptr_;
   std::unique_ptr<cyberdog::interaction::VoiceprintDatabase> vp_database_ptr_;
   std::unique_ptr<cyberdog::interaction::MachineState> machine_state_ptr_;
-  std::unique_ptr<cyberdog::interaction::AudioFds> audio_fds_ptr_;
-  // std::unique_ptr<cyberdog::interaction::CyberdogAction> cybedog_action_ptr_;
-  // std::mutex play_mtx_;
-  // bool is_play_;
-  // std::condition_variable play_cv_;
   bool token_invalid_;
   VoicePrint voice_print_training_info_;
   bool switch_environment_;
